@@ -1,0 +1,413 @@
+{
+  "ontology": {
+    "name": "Scientific Modeling Knowledge Graph Ontology",
+    "entities": {
+      "Paper": {
+        "description": "A single scientific publication. This entity is the provenance root for all extracted items from the same document. It must uniquely identify the document and provide minimal bibliographic metadata. It must not mix information from other papers, even when the paper reviews prior work; reviewed content should be represented using ModelVariant (and related entities) while still being linked to this Paper as the source of the discussion.",
+        "properties": {
+          "paper_id": "string",
+          "title": "string",
+          "year": "integer",
+          "authors": "string[]",
+          "journal": "string",
+          "doi": "string"
+        }
+      },
+      "Model": {
+        "description": "A model that the paper itself uses, proposes, implements, or treats as the primary modeling framework in its own analysis. For review papers, this should represent the paper’s own organizing framework if the paper explicitly formulates one; otherwise Model may be omitted and only ModelVariant should be used. A Model should not represent every literature model mentioned; those belong to ModelVariant. The model_type must describe the modeling paradigm (e.g., phase-field, electrochemical transport, continuum mechanics, analytical stability, CFD, KMC, MD, DFT, data-driven).",
+        "properties": {
+          "model_id": "string",
+          "name": "string",
+          "model_type": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "ModelVariant": {
+        "description": "A specific model formulation attributed to prior literature or an external source that is discussed, compared, summarized, or reused by the paper. This entity represents 'a named or identifiable variant' such as a literature method, a previously published coupled formulation, or a known framework. It is used to prevent conflating reviewed literature with the paper’s own model. origin_paper stores the cited or attributed source name (author-year, citation key, or bibliographic label) as stated in the paper; it is not required to resolve to an external DOI in this ontology.",
+        "properties": {
+          "variant_id": "string",
+          "name": "string",
+          "origin_paper": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "ModelComponent": {
+        "description": "A coherent, separable piece of physics, coupling, mechanism, or modeling extension that can be attached to a base model. Examples include thermal coupling, stress/elastic coupling, SEI representation, anisotropy specification, reaction kinetics module, transport module, or noise/perturbation module. ModelComponent is used to avoid representing each extension as a separate Model. component_type should categorize the component in a stable way (e.g., 'thermal', 'mechanical', 'electrochemical', 'interfacial', 'microstructure', 'numerical', 'other').",
+        "properties": {
+          "component_id": "string",
+          "name": "string",
+          "component_type": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "Equation": {
+        "description": "A mathematical statement in the paper that defines evolution, constraints, constitutive laws, boundary/initial relations, or derived quantities. The expression must be captured as written (LaTeX-like string is acceptable). form characterizes the mathematical type (PDE/ODE/DAE/ALGEBRAIC/FUNCTIONAL/INEQUALITY). Equations should be created whenever the paper provides an explicit equation or an unambiguous formal relation. Use DERIVED_FROM to encode explicit derivation dependencies stated in the paper (e.g., 'derived from free energy functional', 'from Nernst–Planck', 'from Butler–Volmer').",
+        "properties": {
+          "equation_id": "string",
+          "name": "string",
+          "expression": "string",
+          "form": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "Term": {
+        "description": "A named or isolatable sub-expression that appears as part of an Equation, representing a distinct physical or mathematical contribution (e.g., diffusion term, migration term, gradient energy term, double-well potential term, elastic coupling term, reaction source term, convection term, noise term). Term should only be created when the paper explicitly names or clearly separates such a contribution, or when decomposition is necessary to correctly map parameters and physical meaning.",
+        "properties": {
+          "term_id": "string",
+          "name": "string",
+          "expression": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "Variable": {
+        "description": "A symbol or quantity that appears in the mathematical model. Variable covers both spatial-temporal fields (e.g., concentration field, potential field, phase-field/order parameter, temperature field, stress/strain fields) and non-field scalars (e.g., overpotential as a boundary variable) when treated as model variables. symbol must match the paper’s notation; name and physical_meaning must disambiguate the symbol’s role (e.g., 'order parameter representing metal phase fraction'). variable_type should clarify whether it is a field, state variable, auxiliary variable, control/input, or observable, using consistent labels defined by the project. domain indicates where it is defined or applied (bulk/interface/boundary/global/unknown).",
+        "properties": {
+          "variable_id": "string",
+          "symbol": "string",
+          "name": "string",
+          "variable_type": "string",
+          "physical_meaning": "string",
+          "unit": "string",
+          "domain": "string",
+          "evidence": "string"
+        }
+      },
+      "Parameter": {
+        "description": "A fixed coefficient, material property, geometric constant, or model constant that is treated as externally specified within the paper’s model. It includes physical parameters (diffusivity, conductivity, elastic modulus), numerical/stabilization parameters when they act as coefficients in equations, and phenomenological constants. symbol must match the paper’s notation. physical_meaning must state what the parameter represents and under what context (e.g., 'interface thickness parameter in phase-field').",
+        "properties": {
+          "parameter_id": "string",
+          "symbol": "string",
+          "name": "string",
+          "physical_meaning": "string",
+          "unit": "string",
+          "evidence": "string"
+        }
+      },
+      "ParameterValue": {
+        "description": "A concrete assignment of a value to a Parameter as used in a specific context (e.g., a simulation case, a table entry, a range scan). value is stored as a string to allow scientific notation, ranges, or expressions (e.g., '1e-10', '[0.1, 1.0]', 'k0*exp(-Ea/RT)'). condition describes the context for this value (e.g., 'Case A', 'T=298K', 'for electrolyte X', 'used in Fig. 3'). source records how the paper obtained it (e.g., measured, assumed, fitted, cited) using the paper’s own wording.",
+        "properties": {
+          "value_id": "string",
+          "value": "string",
+          "unit": "string",
+          "condition": "string",
+          "source": "string",
+          "evidence": "string"
+        }
+      },
+      "PhysicalField": {
+        "description": "A physical field concept represented in the model, independent of a specific mathematical symbol. Examples include ion concentration field, electric potential field, electric field, temperature field, stress field, chemical potential field. This entity is used to normalize semantic meaning when different symbols represent the same physical field within a paper. A Variable can REPRESENTS_FIELD a PhysicalField.",
+        "properties": {
+          "field_id": "string",
+          "name": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "EnergyTerm": {
+        "description": "A named contribution to an energy functional or energy-based formulation (e.g., chemical free energy, electrostatic energy, elastic strain energy, interfacial/gradient energy, noise energy). EnergyTerm should be created when the paper explicitly states an energy decomposition or uses energy contributions to derive governing equations. It is not restricted to phase-field; any variational/energy-based method can use it.",
+        "properties": {
+          "energy_term_id": "string",
+          "name": "string",
+          "symbol": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "Phenomenon": {
+        "description": "A physical phenomenon that the paper studies, models, explains, or reports in the context of the system. It should be used for phenomena such as dendritic growth, nucleation, branching, tip splitting, morphological instability, plating/stripping behavior, SEI effects, suppression mechanisms, or short-circuit risk—only when these are explicitly part of the paper’s discussion. Phenomenon separates what happens (phenomenon) from what influences it (InfluencingFactor) and how it is described quantitatively (Metric).",
+        "properties": {
+          "phenomenon_id": "string",
+          "name": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "Morphology": {
+        "description": "A qualitative morphological category or descriptor reported by the paper for structures or patterns (e.g., needle-like, mossy, tree-like, spherical, fibrous, dense/compact deposit). Morphology should be used when the paper explicitly labels or describes morphology categories. This is distinct from Phenomenon: morphology describes the shape/type of observed structure rather than the dynamic process.",
+        "properties": {
+          "morphology_id": "string",
+          "name": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "InfluencingFactor": {
+        "description": "A factor whose variation or presence is stated to affect model behavior, morphology, metrics, or phenomena. This includes operating conditions (current density, voltage), materials choices, temperature, mechanical stress, ion concentration distribution, SEI properties, anisotropy parameters, geometry features, and numerical settings when the paper claims they influence outcomes. factor_category classifies the factor (e.g., 'electrochemical', 'thermal', 'mechanical', 'material', 'geometry', 'interfacial', 'numerical', 'other').",
+        "properties": {
+          "factor_id": "string",
+          "name": "string",
+          "factor_category": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "MaterialSystem": {
+        "description": "The set of materials defining the system studied. It may include anode material, electrolyte material, separator material, salt, solvent, additives, and other components explicitly stated. Use the fields that the paper provides; leave missing ones empty. This entity is for representing the material context of the model or simulations.",
+        "properties": {
+          "material_system_id": "string",
+          "anode_material": "string",
+          "electrolyte_material": "string",
+          "separator_material": "string",
+          "salt": "string",
+          "solvent": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "Geometry": {
+        "description": "The spatial domain setup used in modeling or simulation, including dimensionality (2D/3D/axisymmetric), shape (planar, rectangular, cylindrical), and domain_size as stated (e.g., Lx×Ly). Geometry should also capture special features if the paper specifies them (e.g., rough surface, pore, crack, seed).",
+        "properties": {
+          "geometry_id": "string",
+          "dimension": "string",
+          "shape": "string",
+          "domain_size": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "InitialCondition": {
+        "description": "A stated initial condition for a Variable at simulation start (or at time t=0), expressed in the paper’s notation. variable stores the referenced variable identifier or symbol as used in the paper. expression captures the initial condition expression or description as given. Use this entity only when the paper explicitly specifies an initial condition.",
+        "properties": {
+          "initial_condition_id": "string",
+          "variable": "string",
+          "expression": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "BoundaryCondition": {
+        "description": "A stated boundary condition applied to a Variable, including the type (Dirichlet/Neumann/Flux/etc.), the boundary location (e.g., anode surface, left boundary), and the boundary expression/value. Use this entity only when the paper explicitly specifies boundary conditions or clearly describes a boundary protocol.",
+        "properties": {
+          "boundary_condition_id": "string",
+          "variable": "string",
+          "type": "string",
+          "expression": "string",
+          "location": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "OperatingCondition": {
+        "description": "External operating conditions under which the model/simulation/experiment is considered, such as temperature, current density, applied voltage, pressure, and duration/time window. Store only what the paper states. This entity should not be used for numerical solver settings; those belong to SimulationSetting or NumericalMethod.",
+        "properties": {
+          "operating_condition_id": "string",
+          "temperature": "string",
+          "current_density": "string",
+          "voltage": "string",
+          "pressure": "string",
+          "time": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "SimulationSetting": {
+        "description": "Concrete simulation configuration parameters that control the computational run but are not physical model parameters (unless the paper explicitly treats them as such). Examples: grid size/resolution, interface thickness resolution statement, time step, total simulation time, convergence tolerances, stopping criteria, and domain discretization counts. Use this entity when the paper provides simulation configuration details.",
+        "properties": {
+          "setting_id": "string",
+          "grid_size": "string",
+          "time_step": "string",
+          "simulation_time": "string",
+          "solver_tolerance": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "NumericalMethod": {
+        "description": "The numerical approach used to solve the equations, including discretization method (FDM/FEM/FVM/spectral/etc.), solver type, time integration scheme, mesh description, and software. NumericalMethod describes the method family; SimulationSetting describes the specific run settings (dt, grid). If the paper provides only partial information, fill only those fields.",
+        "properties": {
+          "numerical_method_id": "string",
+          "method": "string",
+          "solver": "string",
+          "time_integration": "string",
+          "mesh": "string",
+          "software": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "SimulationResult": {
+        "description": "A reported simulation outcome or observation, stated as a result of running a model. This can be qualitative (e.g., 'dendrites become mossy') or a summary of quantitative findings when detailed metric values are captured separately. Use Metric nodes to store explicit numbers; use Morphology to store morphology labels; keep SimulationResult as the container for a cohesive outcome statement.",
+        "properties": {
+          "result_id": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      },
+      "Metric": {
+        "description": "A quantitative measure reported in the paper, including its name (what is measured), the value, the unit, and the condition under which it applies. Metric should represent a single concrete measurement/estimate (e.g., a tip velocity at a given current density) rather than a general concept. If the paper defines a metric concept without giving a value, store value as an empty string and put the definition in description.",
+        "properties": {
+          "metric_id": "string",
+          "name": "string",
+          "value": "string",
+          "unit": "string",
+          "condition": "string",
+          "description": "string",
+          "evidence": "string"
+        }
+      }
+    },
+    "relationships": [
+      {
+        "type": "USES_MODEL",
+        "from": "Paper",
+        "to": "Model",
+        "description": "The paper uses/proposes/implements the model as part of its own analysis."
+      },
+      {
+        "type": "DISCUSSES_MODEL_VARIANT",
+        "from": "Paper",
+        "to": "ModelVariant",
+        "description": "The paper discusses a literature model variant or externally proposed model formulation."
+      },
+      {
+        "type": "HAS_COMPONENT",
+        "from": "Model",
+        "to": "ModelComponent",
+        "description": "The model includes a component representing an additional physics/coupling/extension."
+      },
+      {
+        "type": "HAS_EQUATION",
+        "from": "Model",
+        "to": "Equation",
+        "description": "The model includes the equation as part of its governing relations."
+      },
+      {
+        "type": "HAS_EQUATION",
+        "from": "ModelVariant",
+        "to": "Equation",
+        "description": "The discussed literature model variant includes the equation as part of its formulation."
+      },
+      {
+        "type": "DERIVED_FROM",
+        "from": "Equation",
+        "to": "Equation",
+        "description": "The paper explicitly states that one equation is derived from another relation/functional."
+      },
+      {
+        "type": "HAS_TERM",
+        "from": "Equation",
+        "to": "Term",
+        "description": "The equation contains the term as a separable contribution."
+      },
+      {
+        "type": "USES_VARIABLE",
+        "from": "Equation",
+        "to": "Variable",
+        "description": "The equation depends on the variable (as input or output) according to the paper."
+      },
+      {
+        "type": "USES_PARAMETER",
+        "from": "Equation",
+        "to": "Parameter",
+        "description": "The equation contains/depends on the parameter according to the paper."
+      },
+      {
+        "type": "HAS_PARAMETER_VALUE",
+        "from": "Parameter",
+        "to": "ParameterValue",
+        "description": "The paper assigns a value/range/function to the parameter."
+      },
+      {
+        "type": "REPRESENTS_FIELD",
+        "from": "Variable",
+        "to": "PhysicalField",
+        "description": "The variable represents a physical field concept (semantic meaning) as stated in the paper."
+      },
+      {
+        "type": "COUPLES_FIELD",
+        "from": "Model",
+        "to": "PhysicalField",
+        "description": "The model explicitly considers/couples the physical field in its formulation."
+      },
+      {
+        "type": "HAS_ENERGY_TERM",
+        "from": "Model",
+        "to": "EnergyTerm",
+        "description": "The model includes an energy contribution in its energy functional or energy-based formulation."
+      },
+      {
+        "type": "MODELS_PHENOMENON",
+        "from": "Model",
+        "to": "Phenomenon",
+        "description": "The model is used to study or reproduce the phenomenon, as stated by the paper."
+      },
+      {
+        "type": "STUDIES_FACTOR",
+        "from": "Model",
+        "to": "InfluencingFactor",
+        "description": "The paper studies the factor within the model context (varies it, discusses it, or includes it as a key driver)."
+      },
+      {
+        "type": "AFFECTS",
+        "from": "InfluencingFactor",
+        "to": "Phenomenon",
+        "description": "The paper states that the factor affects the phenomenon (direction/mechanism can be stored in the entity evidence/description)."
+      },
+      {
+        "type": "USES_MATERIAL_SYSTEM",
+        "from": "Model",
+        "to": "MaterialSystem",
+        "description": "The model/simulations are associated with the material system specified by the paper."
+      },
+      {
+        "type": "HAS_GEOMETRY",
+        "from": "Model",
+        "to": "Geometry",
+        "description": "The model uses the specified geometry/domain."
+      },
+      {
+        "type": "HAS_INITIAL_CONDITION",
+        "from": "Model",
+        "to": "InitialCondition",
+        "description": "The model/simulation uses the initial condition specified in the paper."
+      },
+      {
+        "type": "HAS_BOUNDARY_CONDITION",
+        "from": "Model",
+        "to": "BoundaryCondition",
+        "description": "The model/simulation uses the boundary condition specified in the paper."
+      },
+      {
+        "type": "HAS_OPERATING_CONDITION",
+        "from": "Model",
+        "to": "OperatingCondition",
+        "description": "The model/simulation is evaluated under the operating conditions described in the paper."
+      },
+      {
+        "type": "HAS_SIMULATION_SETTING",
+        "from": "Model",
+        "to": "SimulationSetting",
+        "description": "The simulation uses computational run settings described in the paper."
+      },
+      {
+        "type": "USES_NUMERICAL_METHOD",
+        "from": "Model",
+        "to": "NumericalMethod",
+        "description": "The model is solved using the numerical method described in the paper."
+      },
+      {
+        "type": "PRODUCES_RESULT",
+        "from": "Model",
+        "to": "SimulationResult",
+        "description": "The paper reports the simulation result as an outcome of using the model."
+      },
+      {
+        "type": "HAS_MORPHOLOGY",
+        "from": "SimulationResult",
+        "to": "Morphology",
+        "description": "The result includes an explicit morphology description/label."
+      },
+      {
+        "type": "HAS_METRIC",
+        "from": "SimulationResult",
+        "to": "Metric",
+        "description": "The result includes an explicit quantitative metric (value + unit + condition)."
+      }
+    ]
+  }
+}
