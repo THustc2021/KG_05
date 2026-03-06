@@ -418,29 +418,13 @@ def wrap_text(text: Any, width: int = 48) -> str:
     return textwrap.fill(s, width=width, break_long_words=False, break_on_hyphens=False)
 
 
-def pretty_label(name: str, max_line_len: int = 14) -> str:
-    parts = re.findall(r"[A-Z][a-z0-9]*|[A-Z]+(?=[A-Z][a-z]|$)", str(name))
-    if not parts:
-        return str(name)
+def pretty_label(name: str, max_len: int = 22):
+    name = str(name)
 
-    lines = []
-    current = []
-    current_len = 0
+    if len(name) <= max_len:
+        return name
 
-    for p in parts:
-        add_len = len(p) if not current else len(p) + 1
-        if current and current_len + add_len > max_line_len:
-            lines.append(" ".join(current))
-            current = [p]
-            current_len = len(p)
-        else:
-            current.append(p)
-            current_len += add_len
-
-    if current:
-        lines.append(" ".join(current))
-
-    return "\n".join(lines)
+    return "\n".join(textwrap.wrap(name, width=max_len))
 
 
 def format_tooltip_value(v: Any, width: int = 48) -> str:
@@ -470,7 +454,8 @@ def format_tooltip_value(v: Any, width: int = 48) -> str:
     return wrap_text(v, width=width)
 
 
-def build_node_tooltip(node_id: str, node: Dict[str, Any], schema: Dict[str, Any]) -> str:
+def build_node_tooltip(node_id: str, node: Dict[str, Any], schema):
+
     entity_type = node["entity_type"]
     data = node["data"]
 
@@ -478,24 +463,34 @@ def build_node_tooltip(node_id: str, node: Dict[str, Any], schema: Dict[str, Any
         spec["property_name"]
         for spec in schema["entity_ref_props"].get(entity_type, [])
     }
+
     id_field = schema["entity_id_field"][entity_type]
 
-    lines = [str(node_id), str(entity_type), ""]
+    lines = []
+
+    lines.append(f"<b>{node_id}</b>")
+    lines.append(f"<i>{entity_type}</i>")
+    lines.append("<br>")
 
     for k, v in data.items():
+
         if k == id_field:
             continue
+
         if k in ref_prop_names:
             continue
 
-        formatted = format_tooltip_value(v, width=48)
-        if "\n" in formatted:
-            lines.append(f"{k}:")
-            lines.append(formatted)
+        if isinstance(v, list):
+            if v:
+                lines.append(f"<b>{k}</b>:")
+                for x in v:
+                    lines.append(f"&nbsp;&nbsp;• {x}")
         else:
-            lines.append(f"{k}: {formatted}")
+            wrapped = textwrap.fill(str(v), width=55)
+            wrapped = wrapped.replace("\n", "<br>")
+            lines.append(f"<b>{k}</b>: {wrapped}")
 
-    return "\n".join(lines)
+    return "<br>".join(lines)
 
 
 def build_edge_tooltip(e: Dict[str, Any]) -> str:
