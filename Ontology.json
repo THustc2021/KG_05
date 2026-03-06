@@ -17,7 +17,7 @@
           "type": "parameter_id"
         },
         "constraint_type": {
-          "description": "Type of logical constraint applied to the parameter. Recommended controlled values include 'GreaterThan', 'LessThan', 'EqualTo', 'Range', 'HighRegime', 'LowRegime', or 'Other'.",
+          "description": "Type of logical constraint applied to the parameter. Recommended controlled values include 'GreaterThan', 'LessThan', 'EqualTo', 'Range', 'HighRegime', 'LowRegime', 'Increase', 'Decrease', or 'Other'.",
           "type": "string"
         },
         "value": {
@@ -45,13 +45,13 @@
           "description": "Controlled description of the type of parameter change. Recommended values include 'Increase', 'Decrease', 'Stabilization', 'Fluctuation', 'Acceleration', 'Deceleration', 'ThresholdCrossing', 'Shift', 'Suppression', or 'Other'.",
           "type": "string"
         },
-        "direction": {
-          "description": "Optional simplified direction label describing the overall trend of the parameter change. Recommended values include 'Positive', 'Negative', 'NonMonotonic', 'Neutral', or 'Unknown'.",
-          "type": "optional string"
-        },
         "magnitude": {
           "description": "Optional numerical value, range, or qualitative magnitude descriptor associated with the effect. Examples include '10%', '[0.2,0.5]', 'significant', or 'slight'. Only record values explicitly supported by the paper.",
           "type": "optional string"
+        },
+        "observe_under_conditions": {
+          "description": "List of identifiers of Condition entities describing the environmental or operational contexts under which this effect is observed or studied.",
+          "type": "optional condition_id []"
         },
         "evidence": {
           "description": "Verbatim text copied from the paper that explicitly describes the parameter change. The text must contain original paper text only and must not include paraphrasing or citation wrappers.",
@@ -262,7 +262,6 @@
         }
       }
     },
-
     "ParameterValue": {
       "description": "A specific value assigned to a Parameter within a simulation setup, experimental condition, or reported result.",
       "properties": {
@@ -272,9 +271,7 @@
         }
       }
     }
-
   },
-
   "relationships": [
     {
       "relationship_id": "ModelsPhenomenon",
@@ -305,12 +302,6 @@
       "from_entity": "Assumption",
       "to_entity": "MaterialSystem",
       "description": "Indicates that an Assumption is specifically introduced for, justified by, or valid within a given MaterialSystem. This relation should be used when the paper ties an assumption to a particular material environment rather than treating it as globally model-wide."
-    },
-    {
-      "relationship_id": "TriggersEffect",
-      "from_entity": "Condition",
-      "to_entity": "Effect",
-      "description": "Indicates that a Condition is the explicit contextual trigger, regime, or constraint under which an Effect is observed. This relation expresses that the parameter-level change represented by the Effect occurs under the parameter-level constraint represented by the Condition."
     },
     {
       "relationship_id": "HasParameterValue",

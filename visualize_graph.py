@@ -9,7 +9,15 @@ from pyvis.network import Network
 import streamlit.components.v1 as components
 
 
-st.set_page_config(page_title="Ontology-Driven KG Viewer", layout="wide")
+st.set_page_config(page_title="Ontology-Driven PerPaperKG Viewer", layout="wide")
+
+
+# =========================================================
+# Default paths
+# =========================================================
+
+DEFAULT_ONTOLOGY_PATH = Path("Ontology.json")
+DEFAULT_KG_DIR = Path("PerPaperKG")
 
 
 # =========================================================
@@ -44,45 +52,29 @@ def get_entity_uid(entity_type: str, entity: Dict[str, Any]) -> str:
 
 
 def get_entity_label(entity_type: str, entity: Dict[str, Any]) -> str:
-    raw_id = get_raw_entity_id(entity)
-
-    preferred_keys = []
-    if entity_type == "Parameter":
-        preferred_keys = ["parameter_id", "symbol", "description"]
-    elif entity_type == "ModelEquation":
-        preferred_keys = ["equation_id", "description"]
-    elif entity_type == "SimulationModel":
-        preferred_keys = ["model_id", "objective", "description"]
-    elif entity_type == "Phenomenon":
-        preferred_keys = ["phenomenon_id", "description"]
-    elif entity_type == "Condition":
-        preferred_keys = ["condition_id", "description"]
-    elif entity_type == "Effect":
-        preferred_keys = ["effect_id", "description"]
-    elif entity_type == "MaterialSystem":
-        preferred_keys = ["material_system_id", "composition"]
-    elif entity_type == "Term":
-        preferred_keys = ["term_id", "description"]
-    else:
-        preferred_keys = ["name", "title", "symbol", "description"]
-
     text = None
-    for key in preferred_keys:
-        if key in entity and entity[key]:
-            if entity_type == "Parameter" and key == "parameter_id":
-                symbol = entity.get("symbol", "")
-                text = f"{entity[key]} ({symbol})" if symbol else str(entity[key])
-            else:
-                text = str(entity[key])
+
+    # 1) 优先找 *_id
+    for k, v in entity.items():
+        if k.endswith("_id") and v:
+            text = str(v)
             break
 
+    # 2) 再找常见可读字段
     if not text:
-        text = raw_id
+        for key in ["name", "title", "symbol", "description"]:
+            if key in entity and entity[key]:
+                text = str(entity[key])
+                break
 
-    if len(text) > 52:
-        text = text[:49] + "..."
+    # 3) fallback
+    if not text:
+        text = get_raw_entity_id(entity)
+
+    if len(text) > 56:
+        text = text[:53] + "..."
+
     return f"{entity_type}\n{text}"
-
 
 def build_tooltip(entity_type: str, entity: Dict[str, Any]) -> str:
     parts = [f"<b>{entity_type}</b>"]
@@ -93,7 +85,6 @@ def build_tooltip(entity_type: str, entity: Dict[str, Any]) -> str:
             v = ", ".join(map(str, v))
         else:
             v = str(v)
-
         if len(v) > 500:
             v = v[:500] + "..."
         parts.append(f"<b>{k}</b>: {v}")
@@ -139,16 +130,8 @@ def choose_primary_id_field(entity_type: str, entity_schema: Dict[str, Any]) -> 
 
 
 def extract_reference_tokens(type_str: str) -> List[str]:
-    """
-    从 ontology 属性类型中提取 *_id token，例如：
-    - parameter_id
-    - effect_id
-    - system_id
-    - optional condition_id []
-    """
     if not isinstance(type_str, str):
         return []
-
     tokens = re.findall(r"\b[a-zA-Z_]+_id\b", type_str)
     return list(dict.fromkeys(tokens))
 
@@ -157,10 +140,6 @@ def resolve_reference_token_to_entity_type(
     ref_token: str,
     entity_primary_id_fields: Dict[str, str]
 ) -> str:
-    """
-    通过 ontology 中各实体主 id 字段，自动把引用 token 映射到目标实体类型。
-    不使用预定义字段。
-    """
     token_n = normalize_text(ref_token)
     scores: List[Tuple[int, str]] = []
 
@@ -202,11 +181,6 @@ def resolve_reference_token_to_entity_type(
 def build_ontology_reference_map(
     ontology: Dict[str, Any]
 ) -> Tuple[Dict[str, str], Dict[str, Dict[str, str]]]:
-    """
-    返回：
-    1) entity_type -> primary_id_field
-    2) entity_type -> property_name -> target_entity_type  （只包含引用属性）
-    """
     entities_schema = extract_entities_schema(ontology)
 
     entity_primary_id_fields: Dict[str, str] = {}
@@ -222,7 +196,6 @@ def build_ontology_reference_map(
         for prop_name, prop_spec in properties.items():
             if prop_name == entity_primary_id_fields[entity_type]:
                 continue
-
             if not isinstance(prop_spec, dict):
                 continue
 
@@ -281,20 +254,6 @@ def summarize_ontology_reference_graph(
 # =========================================================
 
 def parse_kg_entities(kg: Dict[str, Any]) -> Dict[str, Dict[str, Dict[str, Any]]]:
-    """
-    返回：
-    {
-      "EntityType": {
-         "raw_id": entity_instance_dict
-      }
-    }
-    仅支持 grouped style:
-    {
-      "entities": {
-        "EntityType": [ ... ]
-      }
-    }
-    """
     raw_entities = kg.get("entities", {})
     if not isinstance(raw_entities, dict):
         raise ValueError("KG must contain an 'entities' object.")
@@ -330,9 +289,7 @@ def normalize_explicit_relationships(kg: Dict[str, Any]) -> List[Dict[str, Any]]
         normalized.append(
             {
                 "relationship_id": rel.get("relationship_id") or rel.get("type"),
-                "from_entity_type": rel.get("from_entity_type"),
                 "from_entity_id": rel.get("from_entity_id") or rel.get("from"),
-                "to_entity_type": rel.get("to_entity_type"),
                 "to_entity_id": rel.get("to_entity_id") or rel.get("to"),
                 "description": rel.get("description", ""),
                 "evidence": rel.get("evidence", ""),
@@ -340,6 +297,31 @@ def normalize_explicit_relationships(kg: Dict[str, Any]) -> List[Dict[str, Any]]
             }
         )
     return normalized
+
+
+# =========================================================
+# Entity lookup for relationship resolution
+# =========================================================
+
+def build_global_id_index(
+    kg_entities: Dict[str, Dict[str, Dict[str, Any]]]
+) -> Dict[str, List[str]]:
+    """
+    raw_id -> [entity_type, ...]
+    """
+    idx: Dict[str, List[str]] = {}
+    for entity_type, instances in kg_entities.items():
+        for raw_id in instances.keys():
+            idx.setdefault(raw_id, []).append(entity_type)
+    return idx
+
+
+def resolve_entity_id_by_expected_type(
+    raw_id: str,
+    expected_entity_type: str,
+    kg_entities: Dict[str, Dict[str, Dict[str, Any]]]
+) -> bool:
+    return raw_id in kg_entities.get(expected_entity_type, {})
 
 
 # =========================================================
@@ -367,12 +349,10 @@ def validate_kg_completeness(
     missing_references: List[Dict[str, Any]] = []
     invalid_relationships: List[Dict[str, Any]] = []
 
-    # 1) KG entity types must exist in ontology
     for entity_type in kg_entities.keys():
         if entity_type not in entities_schema:
             errors.append(f"KG entity type '{entity_type}' is not defined in ontology.")
 
-    # 2) Each entity instance must contain its ontology primary id field
     for entity_type, instances in kg_entities.items():
         if entity_type not in entity_primary_id_fields:
             continue
@@ -384,7 +364,7 @@ def validate_kg_completeness(
                     f"Entity '{entity_type}:{raw_id}' is missing primary id field '{primary_id_field}'."
                 )
 
-    # 3) Property-based reference check
+    # property references
     for entity_type, instances in kg_entities.items():
         if entity_type not in property_ref_targets:
             continue
@@ -399,13 +379,11 @@ def validate_kg_completeness(
                 if value in ("", None, []):
                     continue
 
-                target_bucket = kg_entities.get(target_entity_type, {})
-
                 if isinstance(value, str):
-                    if value not in target_bucket:
+                    if not resolve_entity_id_by_expected_type(value, target_entity_type, kg_entities):
                         msg = (
                             f"Broken reference in '{entity_type}:{raw_id}.{prop_name}' -> "
-                            f"'{value}' (target entity type: {target_entity_type})"
+                            f"'{value}' (expected target entity type: {target_entity_type})"
                         )
                         errors.append(msg)
                         missing_references.append(
@@ -424,10 +402,10 @@ def validate_kg_completeness(
                                 f"Invalid non-string reference in '{entity_type}:{raw_id}.{prop_name}': {ref_id}"
                             )
                             continue
-                        if ref_id not in target_bucket:
+                        if not resolve_entity_id_by_expected_type(ref_id, target_entity_type, kg_entities):
                             msg = (
                                 f"Broken reference in '{entity_type}:{raw_id}.{prop_name}' -> "
-                                f"'{ref_id}' (target entity type: {target_entity_type})"
+                                f"'{ref_id}' (expected target entity type: {target_entity_type})"
                             )
                             errors.append(msg)
                             missing_references.append(
@@ -445,12 +423,10 @@ def validate_kg_completeness(
                         f"Expected string or string list, got {type(value).__name__}."
                     )
 
-    # 4) Explicit relationship validation
+    # explicit relationships: infer types from ontology relationship schema
     for idx, rel in enumerate(explicit_relationships):
         rid = rel.get("relationship_id")
-        f_type = rel.get("from_entity_type")
         f_id = rel.get("from_entity_id")
-        t_type = rel.get("to_entity_type")
         t_id = rel.get("to_entity_id")
 
         if not rid:
@@ -459,52 +435,36 @@ def validate_kg_completeness(
             invalid_relationships.append({"relationship_id": "", "reason": msg})
             continue
 
-        if rel_schema and rid not in rel_schema:
+        if rid not in rel_schema:
             msg = f"Relationship #{idx} uses undefined relationship_id '{rid}'."
-            errors.append(msg)
-            invalid_relationships.append({"relationship_id": rid, "reason": msg})
-
-        if not f_type or not t_type:
-            msg = f"Relationship #{idx} ('{rid}') must specify from_entity_type and to_entity_type."
             errors.append(msg)
             invalid_relationships.append({"relationship_id": rid, "reason": msg})
             continue
 
-        if f_type not in kg_entities:
-            msg = f"Relationship #{idx} ('{rid}') references unknown from_entity_type '{f_type}'."
+        expected_from = rel_schema[rid].get("from_entity")
+        expected_to = rel_schema[rid].get("to_entity")
+
+        if not f_id or not t_id:
+            msg = f"Relationship #{idx} ('{rid}') must specify from_entity_id and to_entity_id."
             errors.append(msg)
             invalid_relationships.append({"relationship_id": rid, "reason": msg})
-        elif f_id not in kg_entities[f_type]:
-            msg = f"Relationship #{idx} ('{rid}') references missing from entity '{f_type}:{f_id}'."
+            continue
+
+        if not resolve_entity_id_by_expected_type(f_id, expected_from, kg_entities):
+            msg = (
+                f"Relationship #{idx} ('{rid}') references missing or mistyped from entity "
+                f"'{f_id}' (expected type: {expected_from})."
+            )
             errors.append(msg)
             invalid_relationships.append({"relationship_id": rid, "reason": msg})
 
-        if t_type not in kg_entities:
-            msg = f"Relationship #{idx} ('{rid}') references unknown to_entity_type '{t_type}'."
+        if not resolve_entity_id_by_expected_type(t_id, expected_to, kg_entities):
+            msg = (
+                f"Relationship #{idx} ('{rid}') references missing or mistyped to entity "
+                f"'{t_id}' (expected type: {expected_to})."
+            )
             errors.append(msg)
             invalid_relationships.append({"relationship_id": rid, "reason": msg})
-        elif t_id not in kg_entities[t_type]:
-            msg = f"Relationship #{idx} ('{rid}') references missing to entity '{t_type}:{t_id}'."
-            errors.append(msg)
-            invalid_relationships.append({"relationship_id": rid, "reason": msg})
-
-        if rid in rel_schema:
-            expected_from = rel_schema[rid].get("from_entity")
-            expected_to = rel_schema[rid].get("to_entity")
-            if expected_from and f_type != expected_from:
-                msg = (
-                    f"Relationship #{idx} ('{rid}') has from_entity_type '{f_type}', "
-                    f"expected '{expected_from}'."
-                )
-                errors.append(msg)
-                invalid_relationships.append({"relationship_id": rid, "reason": msg})
-            if expected_to and t_type != expected_to:
-                msg = (
-                    f"Relationship #{idx} ('{rid}') has to_entity_type '{t_type}', "
-                    f"expected '{expected_to}'."
-                )
-                errors.append(msg)
-                invalid_relationships.append({"relationship_id": rid, "reason": msg})
 
     validation_report = {
         "passed": len(errors) == 0,
@@ -543,14 +503,25 @@ def build_nodes_from_kg(kg_entities: Dict[str, Dict[str, Dict[str, Any]]]) -> Di
     return nodes
 
 
-def explicit_relationships_to_uids(explicit_relationships: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def explicit_relationships_to_uids(
+    explicit_relationships: List[Dict[str, Any]],
+    ontology: Dict[str, Any]
+) -> List[Dict[str, Any]]:
+    rel_schema = extract_relationship_schema(ontology)
     out = []
+
     for rel in explicit_relationships:
+        rid = rel["relationship_id"]
+        from_type = rel_schema[rid]["from_entity"]
+        to_type = rel_schema[rid]["to_entity"]
+
         out.append(
             {
                 **rel,
-                "from_uid": f"{rel['from_entity_type']}:{rel['from_entity_id']}",
-                "to_uid": f"{rel['to_entity_type']}:{rel['to_entity_id']}",
+                "from_entity_type": from_type,
+                "to_entity_type": to_type,
+                "from_uid": f"{from_type}:{rel['from_entity_id']}",
+                "to_uid": f"{to_type}:{rel['to_entity_id']}",
             }
         )
     return out
@@ -739,150 +710,167 @@ def filter_graph(
 
 
 # =========================================================
+# File loading
+# =========================================================
+
+def load_default_ontology() -> Dict[str, Any]:
+    if not DEFAULT_ONTOLOGY_PATH.exists():
+        raise FileNotFoundError(f"Default ontology file not found: {DEFAULT_ONTOLOGY_PATH}")
+    return json.loads(DEFAULT_ONTOLOGY_PATH.read_text(encoding="utf-8"))
+
+
+def list_kg_files() -> List[Path]:
+    if not DEFAULT_KG_DIR.exists():
+        return []
+    return sorted(DEFAULT_KG_DIR.glob("*.json"))
+
+
+def load_kg_file(path: Path) -> Dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+# =========================================================
 # UI
 # =========================================================
 
-st.title("Ontology-Driven KG Viewer")
+st.title("Ontology-Driven PerPaperKG Viewer")
 
 st.markdown(
-    """
-Upload:
-1. an ontology JSON
-2. a KG JSON
+    f"""
+Default ontology: `{DEFAULT_ONTOLOGY_PATH}`  
+Default KG directory: `{DEFAULT_KG_DIR}`
 
 Workflow:
+- auto-load default ontology
+- select one KG JSON under `PerPaperKG/`
 - validate KG completeness against ontology
 - output ontology reference graph summary
-- output missing reference / invalid relationship reports if validation fails
-- only visualize after validation passes
-- infer property-based relationships from ontology-defined id references
+- if validation passes, visualize both:
+  - explicit relationships
+  - property-inferred relationships
 """
 )
 
-col1, col2 = st.columns(2)
-with col1:
-    ontology_file = st.file_uploader("Upload ontology JSON", type=["json"], key="ontology")
-with col2:
-    kg_file = st.file_uploader("Upload KG JSON", type=["json"], key="kg")
-
-ontology_text = st.text_area("Or paste ontology JSON here", height=180)
-kg_text = st.text_area("Or paste KG JSON here", height=180)
-
-ontology_data = None
-kg_data = None
-
 try:
-    if ontology_file is not None:
-        ontology_data = json.load(ontology_file)
-    elif ontology_text.strip():
-        ontology_data = json.loads(ontology_text)
-
-    if kg_file is not None:
-        kg_data = json.load(kg_file)
-    elif kg_text.strip():
-        kg_data = json.loads(kg_text)
+    ontology_data = load_default_ontology()
 except Exception as e:
-    st.error(f"JSON loading error: {e}")
+    st.error(f"Failed to load default ontology: {e}")
     st.stop()
 
-if ontology_data and kg_data:
-    try:
-        ontology_summary = summarize_ontology_reference_graph(ontology_data)
-    except Exception as e:
-        st.error(f"Ontology parsing error: {e}")
-        st.stop()
+kg_files = list_kg_files()
+if not kg_files:
+    st.warning(f"No KG JSON files found in directory: {DEFAULT_KG_DIR}")
+    st.stop()
 
-    (
-        kg_entities,
-        entity_primary_id_fields,
-        property_ref_targets,
-        explicit_relationships,
-        validation_report,
-    ) = validate_kg_completeness(
-        kg_data,
-        ontology_data,
-        raise_on_error=False
-    )
+with st.sidebar:
+    st.header("Data")
+    selected_kg_name = st.selectbox("Select KG file", [p.name for p in kg_files])
 
-    st.subheader("Ontology Reference Graph Summary")
-    st.caption("Automatically inferred from ontology property types.")
-    st.dataframe(ontology_summary["entity_summary"], use_container_width=True, height=220)
-    st.dataframe(ontology_summary["reference_edges"], use_container_width=True, height=260)
+selected_kg_path = next(p for p in kg_files if p.name == selected_kg_name)
 
-    if not validation_report["passed"]:
-        st.error("KG completeness validation failed.")
+try:
+    kg_data = load_kg_file(selected_kg_path)
+except Exception as e:
+    st.error(f"Failed to load KG file '{selected_kg_path}': {e}")
+    st.stop()
 
-        if validation_report["missing_references"]:
-            st.subheader("Missing Reference Report")
-            st.dataframe(validation_report["missing_references"], use_container_width=True, height=260)
+try:
+    ontology_summary = summarize_ontology_reference_graph(ontology_data)
+except Exception as e:
+    st.error(f"Ontology parsing error: {e}")
+    st.stop()
 
-        if validation_report["invalid_relationships"]:
-            st.subheader("Invalid Relationship Report")
-            st.dataframe(validation_report["invalid_relationships"], use_container_width=True, height=220)
+(
+    kg_entities,
+    entity_primary_id_fields,
+    property_ref_targets,
+    explicit_relationships,
+    validation_report,
+) = validate_kg_completeness(
+    kg_data,
+    ontology_data,
+    raise_on_error=False
+)
 
-        with st.expander("All validation errors"):
-            for err in validation_report["errors"]:
-                st.write(f"- {err}")
+st.subheader("Ontology Reference Graph Summary")
+st.caption("Automatically inferred from ontology property types.")
+st.dataframe(ontology_summary["entity_summary"], use_container_width=True, height=220)
+st.dataframe(ontology_summary["reference_edges"], use_container_width=True, height=260)
 
-        st.stop()
+if not validation_report["passed"]:
+    st.error("KG completeness validation failed.")
 
-    st.success("KG completeness validation passed.")
+    if validation_report["missing_references"]:
+        st.subheader("Missing Reference Report")
+        st.dataframe(validation_report["missing_references"], use_container_width=True, height=260)
 
-    st.subheader("Validation Summary")
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Ontology entity types", len(ontology_summary["entity_summary"]))
-    c2.metric("Ontology reference edges", len(ontology_summary["reference_edges"]))
-    c3.metric("Validation errors", len(validation_report["errors"]))
+    if validation_report["invalid_relationships"]:
+        st.subheader("Invalid Relationship Report")
+        st.dataframe(validation_report["invalid_relationships"], use_container_width=True, height=220)
 
-    nodes = build_nodes_from_kg(kg_entities)
-    explicit_with_uid = explicit_relationships_to_uids(explicit_relationships)
-    property_relationships = infer_property_relationships(kg_entities, property_ref_targets)
-    all_relationships = deduplicate_relationships(explicit_with_uid + property_relationships)
+    with st.expander("All validation errors"):
+        for err in validation_report["errors"]:
+            st.write(f"- {err}")
 
-    all_types = sorted({n["type"] for n in nodes.values()})
+    st.stop()
 
-    with st.sidebar:
-        st.header("Filters")
-        selected_types = st.multiselect("Entity types", all_types, default=all_types)
-        keyword = st.text_input("Keyword")
-        show_explicit = st.checkbox("Show explicit relationships", value=True)
-        show_property = st.checkbox("Show property-inferred relationships", value=True)
-        show_entity_table = st.checkbox("Show entity table", value=True)
-        show_rel_table = st.checkbox("Show relationship table", value=True)
+st.success("KG completeness validation passed.")
 
-    relationships_to_show = []
-    if show_explicit:
-        relationships_to_show.extend([r for r in all_relationships if r.get("source") == "explicit"])
-    if show_property:
-        relationships_to_show.extend([r for r in all_relationships if r.get("source") == "property"])
+st.subheader("Validation Summary")
+c1, c2, c3 = st.columns(3)
+c1.metric("Ontology entity types", len(ontology_summary["entity_summary"]))
+c2.metric("Ontology reference edges", len(ontology_summary["reference_edges"]))
+c3.metric("Validation errors", len(validation_report["errors"]))
 
-    filtered_nodes, filtered_relationships = filter_graph(
-        nodes, relationships_to_show, selected_types, keyword
-    )
+nodes = build_nodes_from_kg(kg_entities)
+explicit_with_uid = explicit_relationships_to_uids(explicit_relationships, ontology_data)
+property_relationships = infer_property_relationships(kg_entities, property_ref_targets)
+all_relationships = deduplicate_relationships(explicit_with_uid + property_relationships)
 
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Nodes", len(filtered_nodes))
-    c2.metric("Edges", len(filtered_relationships))
-    c3.metric("Explicit edges", len([r for r in filtered_relationships if r.get("source") == "explicit"]))
-    c4.metric("Property edges", len([r for r in filtered_relationships if r.get("source") == "property"]))
+all_types = sorted({n["type"] for n in nodes.values()})
 
-    net = build_network(filtered_nodes, filtered_relationships)
-    html = net.generate_html()
-    components.html(html, height=800, scrolling=True)
+with st.sidebar:
+    st.header("Filters")
+    selected_types = st.multiselect("Entity types", all_types, default=all_types)
+    keyword = st.text_input("Keyword")
+    show_explicit = st.checkbox("Show explicit relationships", value=True)
+    show_property = st.checkbox("Show property-inferred relationships", value=True)
+    show_entity_table = st.checkbox("Show entity table", value=True)
+    show_rel_table = st.checkbox("Show relationship table", value=True)
 
-    if show_entity_table:
-        st.subheader("Entities")
-        entity_rows = []
-        for uid, node in filtered_nodes.items():
-            row = {
-                "uid": uid,
-                "type": node["type"],
-                "raw_id": node["raw_id"],
-            }
-            row.update(node["data"])
-            entity_rows.append(row)
-        st.dataframe(entity_rows, use_container_width=True, height=320)
+relationships_to_show = []
+if show_explicit:
+    relationships_to_show.extend([r for r in all_relationships if r.get("source") == "explicit"])
+if show_property:
+    relationships_to_show.extend([r for r in all_relationships if r.get("source") == "property"])
 
-    if show_rel_table:
-        st.subheader("Relationships")
-        st.dataframe(filtered_relationships, use_container_width=True, height=300)
+filtered_nodes, filtered_relationships = filter_graph(
+    nodes, relationships_to_show, selected_types, keyword
+)
+
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("Nodes", len(filtered_nodes))
+c2.metric("Edges", len(filtered_relationships))
+c3.metric("Explicit edges", len([r for r in filtered_relationships if r.get("source") == "explicit"]))
+c4.metric("Property edges", len([r for r in filtered_relationships if r.get("source") == "property"]))
+
+net = build_network(filtered_nodes, filtered_relationships)
+html = net.generate_html()
+components.html(html, height=800, scrolling=True)
+
+if show_entity_table:
+    st.subheader("Entities")
+    entity_rows = []
+    for uid, node in filtered_nodes.items():
+        row = {
+            "uid": uid,
+            "type": node["type"],
+            "raw_id": node["raw_id"],
+        }
+        row.update(node["data"])
+        entity_rows.append(row)
+    st.dataframe(entity_rows, use_container_width=True, height=320)
+
+if show_rel_table:
+    st.subheader("Relationships")
+    st.dataframe(filtered_relationships, use_container_width=True, height=300)
