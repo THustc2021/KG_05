@@ -26,9 +26,7 @@ ENTITY_ID_KEYS = {
     "Geometry": "geometry_id",
     "Condition": "condition_id",
     "Result": "result_id",
-    "Metric": "metric_id",
-    "Morphology": "morphology_id",
-    "MorphologyObservation": "morph_obs_id",
+    "Metric": "metric_id"
 }
 
 
@@ -46,9 +44,7 @@ COLORS = {
     "Geometry": "#bcbd22",
     "Condition": "#aec7e8",
     "Result": "#98df8a",
-    "Metric": "#ff9896",
-    "Morphology": "#c5b0d5",
-    "MorphologyObservation": "#f7b6d2",
+    "Metric": "#ff9896"
 }
 
 
