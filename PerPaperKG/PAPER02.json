@@ -1,816 +1,706 @@
 {
-  "entities": {
-    "Paper": [
-      {
-        "paper_id": "paper_zhang_2022_dead_lithium",
-        "title": "Dead lithium formation in lithium metal batteries: A phase field model",
-        "year": 2022,
-        "authors": [
-          "Rui Zhang",
-          "Xin Shen",
-          "Yu-Tong Zhang",
-          "Xia-Lin Zhong",
-          "Hao-Tian Ju",
-          "Tian-Xiao Huang",
-          "Xiang Chen",
-          "Jun-Dong Zhang",
-          "Jia-Qi Huang"
-        ],
-        "journal": "Journal of Energy Chemistry",
-        "doi": "10.1016/j.jechem.2021.12.020"
-      }
-    ],
-    "Model": [
-      {
-        "model_id": "model_1",
-        "name": "Galvanostatic phase-field model for lithium stripping with dead lithium formation",
-        "model_type": "electrochemical phase-field model",
-        "description": "A two-phase electrochemical phase-field model for lithium plating/stripping that explicitly models dead lithium formation during stripping under galvanostatic conditions.",
-        "evidence": "The paper states that it proposes a phase field model to describe the lithium stripping process with dead lithium formation, and that galvanostatic charge/discharge conditions are realized."
-      }
-    ],
-    "ModelVariant": [
-      {
-        "variant_id": "variant_1",
-        "name": "Chen nonlinear phase-field model",
-        "origin_paper": "Chen et al.",
-        "description": "Prior Butler-Volmer-coupled nonlinear electrochemical phase-field model used as the theoretical basis for the present formulation.",
-        "evidence": "The paper states the present model is based on Chen's nonlinear phase field model and previous works."
-      }
-    ],
-    "Equation": [
-      {
-        "equation_id": "eq_1",
-        "name": "Lithium plating/stripping reaction",
-        "expression": "Li+ + e- ↔ Li",
-        "form": "electrochemical reaction equation",
-        "equation_role": "governing reaction",
-        "description": "Electrochemical reaction underlying lithium deposition and dissolution.",
-        "evidence": "The modeling section introduces the electrochemical reaction during lithium plating and stripping as Li+ + e- ↔ Li."
-      },
-      {
-        "equation_id": "eq_2",
-        "name": "Total free energy functional",
-        "expression": "F = ∫_V [f_ch(c_i) + f_grad(n) + f_elec(c_i, u) + f_ns(n)] dV",
-        "form": "integral functional",
-        "equation_role": "energy functional",
-        "description": "Defines the total free energy as the sum of chemical, gradient, electrostatic, and noise contributions.",
-        "evidence": "Equation (2) defines the total free energy using chemical, gradient, electrostatic, and noise energy densities."
-      },
-      {
-        "equation_id": "eq_3",
-        "name": "Lithium plating phase-field evolution equation",
-        "expression": "∂n/∂t = Lσ(∂f0/∂n - κ∇²n + ∂f_ns/∂n) - Lη h'(n)[exp((1-α)Fη/RT) - (c_Li+/c0)exp(-αFη/RT)]",
-        "form": "nonlinear PDE",
-        "equation_role": "phase-field evolution during plating",
-        "description": "Describes the temporal evolution of the phase-field order parameter during lithium plating with Butler-Volmer kinetics.",
-        "evidence": "Equation (3) gives the PDE for lithium plating based on interfacial mobility, reaction kinetics, and noise contribution."
-      },
-      {
-        "equation_id": "eq_4",
-        "name": "Lithium stripping phase-field evolution equation",
-        "expression": "∂n/∂t = f_d Lσ(∂f0/∂n - κ∇²n + ∂f_ns/∂n) - f_d Lη h'(n)[exp((1-α)Fη/RT) - a_Li+ exp(-αFη/RT)]",
-        "form": "nonlinear PDE",
-        "equation_role": "phase-field evolution during stripping",
-        "description": "Describes lithium stripping while modulating reaction activity through an active-state function that distinguishes active lithium from dead lithium.",
-        "evidence": "Equation (4) introduces fd as a variable describing the active state of local lithium metal, with fd = 0 denoting dead lithium."
-      },
-      {
-        "equation_id": "eq_5",
-        "name": "Lithium-ion concentration evolution equation",
-        "expression": "∂c_Li+/∂t = ∇·(D_Li+ ∇c_Li+ + D_Li+ c_Li+ (F/RT) ∇u_l) - c_s ∂n/∂t",
-        "form": "transport PDE",
-        "equation_role": "species transport",
-        "description": "Describes lithium-ion diffusion, migration, and coupling to phase transformation.",
-        "evidence": "Equation (5) gives the temporal evolution of Li ion concentration including diffusion, migration, and a source term coupled to phase evolution."
-      },
-      {
-        "equation_id": "eq_6",
-        "name": "Electrolyte potential equation",
-        "expression": "∇²u_l = 0",
-        "form": "elliptic PDE",
-        "equation_role": "electrostatic potential balance",
-        "description": "Poisson/Laplace equation used to solve the liquid-phase electric potential.",
-        "evidence": "Equation (6) states that the electric potential in the electrolyte liquid phase ul can be solved with Poisson's equation ∇²ul = 0."
-      },
-      {
-        "equation_id": "eq_7",
-        "name": "Galvanostatic constraint",
-        "expression": "I0 = Ir = Imt",
-        "form": "global constraint equation",
-        "equation_role": "galvanostatic boundary condition",
-        "description": "Enforces constant areal current density by matching imposed current, reaction current, and mass-transfer current.",
-        "evidence": "Equation (7) defines the galvanostatic simulation condition by requiring I0, Ir, and Imt to remain equal throughout plating/stripping."
-      },
-      {
-        "equation_id": "eq_8",
-        "name": "Reaction areal current density",
-        "expression": "Ir = (c_s F / S) ∫_V (∂n/∂t) dV",
-        "form": "integral equation",
-        "equation_role": "reaction current calculation",
-        "description": "Computes reaction current density from phase evolution.",
-        "evidence": "Equation (8) defines reaction areal current density in terms of the phase-field evolution."
-      },
-      {
-        "equation_id": "eq_9",
-        "name": "Mass-transfer areal current density",
-        "expression": "Imt = -(F / S) ∫_S n·(D_Li+∇c_Li+ + D_Li+ c_Li+ (F/RT)∇u_l) dS",
-        "form": "surface integral equation",
-        "equation_role": "mass-transfer current calculation",
-        "description": "Computes mass-transfer current density from ionic flux at the boundary.",
-        "evidence": "Equation (9) defines mass transfer areal current density from Li-ion diffusion and migration fluxes."
-      }
-    ],
-    "Term": [
-      {
-        "term_id": "term_1",
-        "name": "chemical free energy density",
-        "expression": "f_ch(c_i)",
-        "description": "Helmholtz free energy density of the chemical species.",
-        "evidence": "The paper defines fch as the Helmholtz free energy density involving concentrations, activities, and reference chemical potentials."
-      },
-      {
-        "term_id": "term_2",
-        "name": "gradient energy density",
-        "expression": "f_grad(n)",
-        "description": "Interfacial gradient energy density controlled by an anisotropic gradient coefficient.",
-        "evidence": "The paper defines fgrad and states that the gradient coefficient is associated with surface energy anisotropy."
-      },
-      {
-        "term_id": "term_3",
-        "name": "electrostatic energy density",
-        "expression": "f_elec(c_i, u)",
-        "description": "Electrostatic energy contribution involving species concentrations, potential, Faraday constant, and valence.",
-        "evidence": "The paper defines felec as the electrostatic energy density."
-      },
-      {
-        "term_id": "term_4",
-        "name": "noise term",
-        "expression": "f_ns(n)",
-        "description": "Noise term representing interfacial non-uniformity.",
-        "evidence": "The paper defines fns as the noise term presenting the non-uniform interface."
-      },
-      {
-        "term_id": "term_5",
-        "name": "double-well potential",
-        "expression": "f0(n) = W n^2 (1-n)^2",
-        "description": "Double-well free-energy function distinguishing electrode and electrolyte equilibrium states.",
-        "evidence": "The paper defines f0(n) as an arbitrary double well function where W/16 is the barrier height between the two equilibrium states."
-      },
-      {
-        "term_id": "term_6",
-        "name": "interpolating function",
-        "expression": "h(n) = n^3(6n^2 - 15n + 10)",
-        "description": "Interpolation function used in Butler-Volmer-coupled phase evolution.",
-        "evidence": "The paper defines h(n) as an interpolating function in the phase-field evolution equations."
-      },
-      {
-        "term_id": "term_7",
-        "name": "active-state function",
-        "expression": "f_d = f_step(u_l/u_d)",
-        "description": "Step-function-based activity variable used to distinguish active lithium from dead lithium during stripping.",
-        "evidence": "The paper introduces fd as a variable to describe the active state of local lithium metal, with fd = 1 for active lithium and fd = 0 for dead lithium."
-      },
-      {
-        "term_id": "term_8",
-        "name": "Li-ion activity during stripping",
-        "expression": "a_Li+ = h(c_Li+)/c0",
-        "description": "Lithium-ion activity used in the stripping reaction term when concentration exceeds dilute-solution assumptions.",
-        "evidence": "The paper introduces aLi+ as the activity of Li ions because Li-ion concentration is higher than 1.0 M during stripping."
-      }
-    ],
-    "Variable": [
-      {
-        "variable_id": "var_1",
-        "symbol": "n",
-        "name": "phase-field order parameter",
-        "physical_meaning": "Describes the phase evolution between electrolyte and lithium metal.",
-        "variable_type": "field / order parameter",
-        "unit": "",
-        "domain": "electrode-electrolyte domain",
-        "evidence": "The paper states that n = 0 denotes electrolyte liquid phase and n = 1 denotes lithium metal solid phase."
-      },
-      {
-        "variable_id": "var_2",
-        "symbol": "c_i",
-        "name": "species concentration",
-        "physical_meaning": "Concentration of species i such as Li ions, anions, and Li atoms.",
-        "variable_type": "field",
-        "unit": "concentration",
-        "domain": "electrolyte and electrode phases",
-        "evidence": "The paper defines ci in the chemical free energy density as the concentrations of species i."
-      },
-      {
-        "variable_id": "var_3",
-        "symbol": "u_l",
-        "name": "electrolyte liquid-phase potential",
-        "physical_meaning": "Electric potential in the electrolyte liquid phase.",
-        "variable_type": "field",
-        "unit": "V",
-        "domain": "electrolyte",
-        "evidence": "The paper states that the electric potential in the electrolyte liquid phase ul is solved using Poisson's equation."
-      },
-      {
-        "variable_id": "var_4",
-        "symbol": "u_s",
-        "name": "solid-phase potential",
-        "physical_meaning": "Electric potential in the lithium metal solid phase.",
-        "variable_type": "global scalar / time-dependent variable",
-        "unit": "V",
-        "domain": "lithium metal solid phase",
-        "evidence": "The paper states that the electrostatic potential in the lithium metal solid phase us is considered equal everywhere in the solid phase and evolves over time."
-      },
-      {
-        "variable_id": "var_5",
-        "symbol": "η",
-        "name": "activation overpotential",
-        "physical_meaning": "Driving force for electrochemical plating/stripping reaction.",
-        "variable_type": "field",
-        "unit": "V",
-        "domain": "interface",
-        "evidence": "The paper defines η = us - ul - Eeq as the activation overpotential."
-      },
-      {
-        "variable_id": "var_6",
-        "symbol": "c_Li+",
-        "name": "lithium-ion concentration",
-        "physical_meaning": "Lithium-ion concentration field in electrolyte.",
-        "variable_type": "field",
-        "unit": "M",
-        "domain": "electrolyte",
-        "evidence": "The paper gives a dedicated PDE for the temporal evolution of Li-ion concentration."
-      },
-      {
-        "variable_id": "var_7",
-        "symbol": "f_d",
-        "name": "active-state indicator",
-        "physical_meaning": "Indicator of whether local lithium is electrochemically active or dead.",
-        "variable_type": "state variable",
-        "unit": "",
-        "domain": "lithium metal phase",
-        "evidence": "The paper defines fd = 1 as active lithium and fd = 0 as dead lithium."
-      },
-      {
-        "variable_id": "var_8",
-        "symbol": "a_Li+",
-        "name": "lithium-ion activity",
-        "physical_meaning": "Effective activity of Li ions used in stripping kinetics.",
-        "variable_type": "derived field",
-        "unit": "",
-        "domain": "electrolyte",
-        "evidence": "The paper introduces aLi+ as the activity of Li ions during stripping."
-      },
-      {
-        "variable_id": "var_9",
-        "symbol": "I0",
-        "name": "imposed areal current density",
-        "physical_meaning": "Input galvanostatic current density for charging/discharging.",
-        "variable_type": "control variable",
-        "unit": "mA cm^-2",
-        "domain": "global",
-        "evidence": "The paper states that I0 is the constant areal current density input parameter, taking positive and negative values during charging and discharging."
-      },
-      {
-        "variable_id": "var_10",
-        "symbol": "I_r",
-        "name": "reaction areal current density",
-        "physical_meaning": "Current density associated with phase transformation reaction.",
-        "variable_type": "derived scalar",
-        "unit": "mA cm^-2",
-        "domain": "global",
-        "evidence": "The paper defines Ir as the reaction areal current density."
-      },
-      {
-        "variable_id": "var_11",
-        "symbol": "I_mt",
-        "name": "mass-transfer areal current density",
-        "physical_meaning": "Current density associated with ionic transport.",
-        "variable_type": "derived scalar",
-        "unit": "mA cm^-2",
-        "domain": "global",
-        "evidence": "The paper defines Imt as the mass transfer areal current density."
-      },
-      {
-        "variable_id": "var_12",
-        "symbol": "Q_dead",
-        "name": "dead lithium capacity",
-        "physical_meaning": "Capacity corresponding to electrically disconnected lithium.",
-        "variable_type": "derived metric",
-        "unit": "mAh cm^-2",
-        "domain": "global",
-        "evidence": "Figure 4d and the discussion define the dead lithium capacity curve Qdead."
-      },
-      {
-        "variable_id": "var_13",
-        "symbol": "Q_active",
-        "name": "active lithium capacity",
-        "physical_meaning": "Capacity corresponding to electrochemically active lithium.",
-        "variable_type": "derived metric",
-        "unit": "mAh cm^-2",
-        "domain": "global",
-        "evidence": "Figure 4d and the discussion define the active lithium capacity curve Qactive."
-      },
-      {
-        "variable_id": "var_14",
-        "symbol": "I_loss",
-        "name": "capacity loss rate",
-        "physical_meaning": "First derivative of dead lithium capacity with respect to time.",
-        "variable_type": "derived metric",
-        "unit": "mA cm^-2 or capacity-rate equivalent",
-        "domain": "global",
-        "evidence": "The paper defines Iloss as the first derivative of dead lithium capacity with respect to time."
-      }
-    ],
-    "Parameter": [
-      {
-        "parameter_id": "param_1",
-        "symbol": "Lσ",
-        "name": "interfacial mobility",
-        "physical_meaning": "Controls interface evolution contribution in the phase-field equations.",
-        "unit": "",
-        "evidence": "The paper states that Lσ denotes the interfacial mobility."
-      },
-      {
-        "parameter_id": "param_2",
-        "symbol": "Lη",
-        "name": "reaction constant",
-        "physical_meaning": "Controls electrochemical reaction kinetics in the phase-field equations.",
-        "unit": "",
-        "evidence": "The paper states that Lη denotes the reaction constant."
-      },
-      {
-        "parameter_id": "param_3",
-        "symbol": "κ",
-        "name": "gradient energy coefficient",
-        "physical_meaning": "Controls interfacial gradient energy and anisotropy effects.",
-        "unit": "",
-        "evidence": "The paper defines the gradient coefficient in the gradient energy density and expands it with anisotropy."
-      },
-      {
-        "parameter_id": "param_4",
-        "symbol": "κ0",
-        "name": "baseline gradient energy coefficient",
-        "physical_meaning": "Reference gradient energy coefficient in anisotropic expansion.",
-        "unit": "",
-        "evidence": "The paper defines κ0 as the gradient energy coefficient in the anisotropy expansion."
-      },
-      {
-        "parameter_id": "param_5",
-        "symbol": "δ",
-        "name": "anisotropy strength",
-        "physical_meaning": "Controls strength of surface-energy anisotropy.",
-        "unit": "",
-        "evidence": "The paper defines δ as the anisotropy strength."
-      },
-      {
-        "parameter_id": "param_6",
-        "symbol": "ω",
-        "name": "anisotropy mode",
-        "physical_meaning": "Mode number in the anisotropic gradient coefficient.",
-        "unit": "",
-        "evidence": "The paper defines ω as the anisotropy mode."
-      },
-      {
-        "parameter_id": "param_7",
-        "symbol": "θ",
-        "name": "interface normal angle",
-        "physical_meaning": "Relative angle of the interface normal vector.",
-        "unit": "rad or degree",
-        "evidence": "The paper defines θ as the relative angle of the interface normal vector."
-      },
-      {
-        "parameter_id": "param_8",
-        "symbol": "F",
-        "name": "Faraday constant",
-        "physical_meaning": "Electrochemical constant linking charge and mole transfer.",
-        "unit": "C mol^-1",
-        "evidence": "The paper defines F as Faraday's constant."
-      },
-      {
-        "parameter_id": "param_9",
-        "symbol": "R",
-        "name": "molar gas constant",
-        "physical_meaning": "Thermodynamic constant in electrochemical kinetics.",
-        "unit": "J mol^-1 K^-1",
-        "evidence": "The paper defines R as the molar gas constant."
-      },
-      {
-        "parameter_id": "param_10",
-        "symbol": "T",
-        "name": "temperature",
-        "physical_meaning": "Thermal state entering kinetic and free-energy relations.",
-        "unit": "K",
-        "evidence": "The paper states that T is the temperature."
-      },
-      {
-        "parameter_id": "param_11",
-        "symbol": "W",
-        "name": "barrier height parameter",
-        "physical_meaning": "Barrier height between electrode and electrolyte equilibrium states.",
-        "unit": "",
-        "evidence": "The paper states that W/16 represents the barrier height between the two equilibrium states."
-      },
-      {
-        "parameter_id": "param_12",
-        "symbol": "α",
-        "name": "charge transfer coefficient",
-        "physical_meaning": "Cathodic/anodic transfer coefficient in Butler-Volmer kinetics.",
-        "unit": "",
-        "evidence": "The paper defines 1-α and α as the anodic and cathodic charge transfer coefficients."
-      },
-      {
-        "parameter_id": "param_13",
-        "symbol": "D_Li+",
-        "name": "Li-ion diffusion coefficient",
-        "physical_meaning": "Diffusion coefficient of lithium ions in electrolyte.",
-        "unit": "",
-        "evidence": "The paper states that DLi+ is the Li ion diffusion coefficient in electrolytes."
-      },
-      {
-        "parameter_id": "param_14",
-        "symbol": "c_s",
-        "name": "Li atom concentration in solid phase",
-        "physical_meaning": "Lithium atom concentration in lithium metal solid phase.",
-        "unit": "concentration",
-        "evidence": "The paper states that cs is the Li atom concentration in the lithium metal solid phase."
-      },
-      {
-        "parameter_id": "param_15",
-        "symbol": "u_d",
-        "name": "reference potential for activity cutoff",
-        "physical_meaning": "Threshold potential used to determine local active/dead lithium state.",
-        "unit": "mV",
-        "evidence": "The paper sets the reference potential ud as 1.0 mV for identifying active and dead lithium."
-      },
-      {
-        "parameter_id": "param_16",
-        "symbol": "c0",
-        "name": "reference Li-ion concentration",
-        "physical_meaning": "Bulk/reference electrolyte concentration used for normalization.",
-        "unit": "M",
-        "evidence": "The paper defines c0 as the constant Li ion concentration at the upper boundary and uses it in the kinetic terms."
-      },
-      {
-        "parameter_id": "param_17",
-        "symbol": "v",
-        "name": "random number",
-        "physical_meaning": "Random fluctuation variable in the noise term.",
-        "unit": "",
-        "evidence": "The paper states that v is the random number in the noise term."
-      },
-      {
-        "parameter_id": "param_18",
-        "symbol": "w",
-        "name": "fluctuation amplitude",
-        "physical_meaning": "Amplitude of fluctuation in the noise term.",
-        "unit": "",
-        "evidence": "The paper states that w is the amplitude of fluctuation."
-      }
-    ],
-    "ParameterValue": [
-      {
-        "value_id": "pv_1",
-        "value": "1.0",
-        "unit": "mV",
-        "condition": "reference potential for active/dead lithium discrimination",
-        "source": "model setup",
-        "evidence": "The paper states that the reference potential ud is set as 1.0 mV."
-      },
-      {
-        "value_id": "pv_2",
-        "value": "30.0 × 30.0",
-        "unit": "μm × μm",
-        "condition": "2D computational domain",
-        "source": "simulation setup",
-        "evidence": "The paper states that a two-dimensional model consisting of a 30.0 μm × 30.0 μm square domain is introduced."
-      },
-      {
-        "value_id": "pv_3",
-        "value": "0.5",
-        "unit": "μm",
-        "condition": "maximum grid spacing",
-        "source": "simulation setup",
-        "evidence": "The paper states that the maximum grid spacing is 0.5 μm."
-      },
-      {
-        "value_id": "pv_4",
-        "value": "10",
-        "unit": "mA cm^-2",
-        "condition": "example plating current density in Fig. 2",
-        "source": "simulation result",
-        "evidence": "Figure 2 caption states a plating current density of 10 mA cm^-2."
-      },
-      {
-        "value_id": "pv_5",
-        "value": "10",
-        "unit": "mA cm^-2",
-        "condition": "example stripping current density in Fig. 2",
-        "source": "simulation result",
-        "evidence": "Figure 2 caption states a stripping current density of 10 mA cm^-2."
-      },
-      {
-        "value_id": "pv_6",
-        "value": "83.1",
-        "unit": "%",
-        "condition": "computed Coulombic efficiency for demonstrated case",
-        "source": "simulation result",
-        "evidence": "The paper states that the Coulombic efficiency can be directly calculated as 83.1%."
-      }
-    ],
-    "Phenomenon": [
-      {
-        "phenomenon_id": "phen_1",
-        "name": "dead lithium formation",
-        "description": "Formation of electrically disconnected metallic lithium during stripping.",
-        "evidence": "The paper focuses on dead lithium formation during lithium stripping."
-      },
-      {
-        "phenomenon_id": "phen_2",
-        "name": "lithium dendrite growth",
-        "description": "Growth of dendritic lithium morphology during plating.",
-        "evidence": "The paper first generates dendritic lithium plating morphology as a prerequisite for dead lithium formation."
-      },
-      {
-        "phenomenon_id": "phen_3",
-        "name": "uneven lithium stripping",
-        "description": "Nonuniform dissolution of lithium dendrites leading to detachment and dead lithium.",
-        "evidence": "The paper states that lithium dendrites tend to dissolve unevenly during stripping."
-      },
-      {
-        "phenomenon_id": "phen_4",
-        "name": "cell polarization increase",
-        "description": "Increase in activation overpotential and total cell polarization caused by dead lithium formation.",
-        "evidence": "The paper concludes that dead lithium formation significantly increases activation overpotential and cell polarization."
-      },
-      {
-        "phenomenon_id": "phen_5",
-        "name": "capacity loss",
-        "description": "Irreversible cycle-capacity loss caused by dead lithium formation.",
-        "evidence": "The paper states that dead lithium formation is directly responsible for loss of cycle capacity."
-      }
-    ],
-    "MaterialSystem": [
-      {
-        "material_system_id": "mat_1",
-        "anode_material": "Lithium metal",
-        "electrolyte_material": "Liquid electrolyte containing lithium ions",
-        "separator_material": "",
-        "salt": "",
-        "solvent": "",
-        "description": "Lithium metal battery half-cell system with lithium metal anode and electrolyte containing Li ions.",
-        "evidence": "The model considers a two-phase system composed of lithium metal solid phase and electrolyte liquid phase containing lithium ions."
-      }
-    ],
-    "Geometry": [
-      {
-        "geometry_id": "geom_1",
-        "dimension": "2D",
-        "shape": "square domain",
-        "domain_size": "30.0 μm × 30.0 μm",
-        "description": "Finite-element simulation domain used for galvanostatic plating/stripping.",
-        "evidence": "The paper introduces a two-dimensional 30.0 μm × 30.0 μm square domain."
-      }
-    ],
-    "Condition": [
-      {
-        "condition_id": "cond_1",
-        "type": "boundary condition",
-        "value": "galvanostatic",
-        "unit": "",
-        "description": "Constant areal current density enforced throughout plating and stripping.",
-        "evidence": "The paper emphasizes galvanostatic charge/discharge simulation conditions."
-      },
-      {
-        "condition_id": "cond_2",
-        "type": "upper boundary concentration",
-        "value": "constant Li-ion concentration c0",
-        "unit": "M",
-        "description": "Upper boundary treated as bulk electrolyte with fixed lithium-ion concentration.",
-        "evidence": "The paper states that the upper boundary is considered as bulk electrolyte with constant Li ion concentration c0."
-      },
-      {
-        "condition_id": "cond_3",
-        "type": "lower boundary potential",
-        "value": "u_l = 0",
-        "unit": "V",
-        "description": "Lower boundary acts as current collector with liquid-phase potential fixed to zero.",
-        "evidence": "The paper states that the lower boundary acts as a current collector where ul is set as 0."
-      }
-    ],
-    "Result": [
-      {
-        "result_id": "res_1",
-        "description": "The proposed model simulates dead lithium formation during galvanostatic lithium stripping.",
-        "result_type": "model capability",
-        "condition": "galvanostatic stripping",
-        "evidence": "The paper reports simulated dead lithium formation during the galvanostatic lithium stripping process."
-      },
-      {
-        "result_id": "res_2",
-        "description": "Dead lithium formation starts from upper dendrite regions and detached pieces adopt the surrounding electrolyte potential, making them electrochemically inactive.",
-        "result_type": "mechanism finding",
-        "condition": "during stripping",
-        "evidence": "The paper states that dead lithium generation starts from the top and that dead lithium has the same electrostatic potential as the surrounding electrolyte, so it cannot transmit electrons to the current collector."
-      },
-      {
-        "result_id": "res_3",
-        "description": "Dead lithium formation reduces active lithium surface area, which sharply increases local reaction rate, activation overpotential, and cell polarization under galvanostatic discharge.",
-        "result_type": "mechanism finding",
-        "condition": "dead lithium formation under galvanostatic discharge",
-        "evidence": "The paper concludes that reduction of active lithium surface area and rising local Li-ion concentration significantly intensify activation overpotential and polarization."
-      },
-      {
-        "result_id": "res_4",
-        "description": "Li-ion concentration near dendrites increases rapidly during stripping and further aggravates overpotential growth.",
-        "result_type": "mechanism finding",
-        "condition": "later stage of stripping",
-        "evidence": "The paper states that Li ion concentration around lithium dendrites increases rapidly during stripping and aggravates the increase of activation overpotential."
-      },
-      {
-        "result_id": "res_5",
-        "description": "The first primary dead-lithium piece forms at 250.5 s in the demonstrated case.",
-        "result_type": "quantitative event",
-        "condition": "simulated example in Fig. 4",
-        "evidence": "The paper states that the first piece of dead lithium is formed at 250.5 s."
-      },
-      {
-        "result_id": "res_6",
-        "description": "Active lithium is fully consumed at 404.8 s, terminating stripping in the demonstrated case.",
-        "result_type": "quantitative event",
-        "condition": "simulated example in Fig. 2",
-        "evidence": "The paper states that when discharge time reaches 404.8 s, all active lithium is consumed and the simulation ends automatically."
-      },
-      {
-        "result_id": "res_7",
-        "description": "The model reproduces total voltage, average activation overpotential, active lithium capacity, dead lithium capacity, and capacity loss rate during stripping.",
-        "result_type": "model capability",
-        "condition": "electrochemical property simulation",
-        "evidence": "The paper reports simulation of the battery polarization curve, capacity loss peak, and Coulomb efficiency, and Figure 4 shows these quantities."
-      },
-      {
-        "result_id": "res_8",
-        "description": "Loss peaks in the capacity-loss-rate spectrum correspond one-to-one with dead-lithium formation events and with potential jumps in the polarization curve.",
-        "result_type": "correlation finding",
-        "condition": "Fig. 4 analysis",
-        "evidence": "The paper states that the loss peaks clearly identify dead lithium formation time points and correspond one-to-one with the potential step time points."
-      },
-      {
-        "result_id": "res_9",
-        "description": "The Coulombic efficiency for the demonstrated case is 83.1%.",
-        "result_type": "quantitative metric",
-        "condition": "simulated example including initial nucleation sites",
-        "evidence": "The paper states that the Coulombic efficiency can be directly calculated as 83.1%."
-      }
-    ],
-    "Metric": [
-      {
-        "metric_id": "metric_1",
-        "name": "Coulombic efficiency",
-        "description": "Ratio of recoverable active lithium capacity to plated lithium capacity.",
-        "unit": "%",
-        "evidence": "The paper reports Coulombic efficiency and calculates it as 83.1% in the demonstrated case."
-      },
-      {
-        "metric_id": "metric_2",
-        "name": "total polarization / total voltage",
-        "description": "Overall voltage response of the half-cell under galvanostatic stripping.",
-        "unit": "mV",
-        "evidence": "The paper states that the total voltage corresponds to the total polarization in the half-cell model."
-      },
-      {
-        "metric_id": "metric_3",
-        "name": "average activation overpotential",
-        "description": "Average interfacial overpotential driving the electrochemical reaction.",
-        "unit": "mV",
-        "evidence": "The paper analyzes the average activation overpotential and its increase during dead lithium formation."
-      },
-      {
-        "metric_id": "metric_4",
-        "name": "capacity loss rate",
-        "description": "Time derivative of dead lithium capacity, used to identify dead-lithium formation events.",
-        "unit": "rate of capacity loss",
-        "evidence": "The paper defines Iloss as the first derivative of dead lithium capacity with respect to time."
-      }
-    ]
-  },
-  "relationships": [
-    { "type": "USES_MODEL", "from": "paper_zhang_2022_dead_lithium", "to": "model_1" },
-
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "paper_zhang_2022_dead_lithium", "to": "variant_1" },
-
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_1" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_2" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_3" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_4" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_5" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_6" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_7" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_8" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_9" },
-
-    { "type": "HAS_TERM", "from": "eq_2", "to": "term_1" },
-    { "type": "HAS_TERM", "from": "eq_2", "to": "term_2" },
-    { "type": "HAS_TERM", "from": "eq_2", "to": "term_3" },
-    { "type": "HAS_TERM", "from": "eq_2", "to": "term_4" },
-    { "type": "HAS_TERM", "from": "eq_3", "to": "term_5" },
-    { "type": "HAS_TERM", "from": "eq_3", "to": "term_6" },
-    { "type": "HAS_TERM", "from": "eq_4", "to": "term_7" },
-    { "type": "HAS_TERM", "from": "eq_4", "to": "term_8" },
-
-    { "type": "USES_VARIABLE", "from": "eq_2", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_2", "to": "var_2" },
-    { "type": "USES_VARIABLE", "from": "eq_3", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_3", "to": "var_5" },
-    { "type": "USES_VARIABLE", "from": "eq_3", "to": "var_6" },
-    { "type": "USES_VARIABLE", "from": "eq_4", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_4", "to": "var_5" },
-    { "type": "USES_VARIABLE", "from": "eq_4", "to": "var_7" },
-    { "type": "USES_VARIABLE", "from": "eq_4", "to": "var_8" },
-    { "type": "USES_VARIABLE", "from": "eq_5", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_5", "to": "var_3" },
-    { "type": "USES_VARIABLE", "from": "eq_5", "to": "var_6" },
-    { "type": "USES_VARIABLE", "from": "eq_6", "to": "var_3" },
-    { "type": "USES_VARIABLE", "from": "eq_7", "to": "var_9" },
-    { "type": "USES_VARIABLE", "from": "eq_7", "to": "var_10" },
-    { "type": "USES_VARIABLE", "from": "eq_7", "to": "var_11" },
-    { "type": "USES_VARIABLE", "from": "eq_8", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_9", "to": "var_3" },
-    { "type": "USES_VARIABLE", "from": "eq_9", "to": "var_6" },
-
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_3" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_4" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_5" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_6" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_7" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_8" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_10" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_17" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_18" },
-    { "type": "USES_PARAMETER", "from": "eq_3", "to": "param_1" },
-    { "type": "USES_PARAMETER", "from": "eq_3", "to": "param_2" },
-    { "type": "USES_PARAMETER", "from": "eq_3", "to": "param_8" },
-    { "type": "USES_PARAMETER", "from": "eq_3", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_3", "to": "param_10" },
-    { "type": "USES_PARAMETER", "from": "eq_3", "to": "param_11" },
-    { "type": "USES_PARAMETER", "from": "eq_3", "to": "param_12" },
-    { "type": "USES_PARAMETER", "from": "eq_3", "to": "param_16" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_1" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_2" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_8" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_10" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_12" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_15" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_16" },
-    { "type": "USES_PARAMETER", "from": "eq_5", "to": "param_8" },
-    { "type": "USES_PARAMETER", "from": "eq_5", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_5", "to": "param_10" },
-    { "type": "USES_PARAMETER", "from": "eq_5", "to": "param_13" },
-    { "type": "USES_PARAMETER", "from": "eq_5", "to": "param_14" },
-    { "type": "USES_PARAMETER", "from": "eq_8", "to": "param_8" },
-    { "type": "USES_PARAMETER", "from": "eq_8", "to": "param_14" },
-    { "type": "USES_PARAMETER", "from": "eq_9", "to": "param_8" },
-    { "type": "USES_PARAMETER", "from": "eq_9", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_9", "to": "param_10" },
-    { "type": "USES_PARAMETER", "from": "eq_9", "to": "param_13" },
-
-    { "type": "HAS_PARAMETER_VALUE", "from": "param_15", "to": "pv_1" },
-    { "type": "HAS_PARAMETER_VALUE", "from": "geom_1", "to": "pv_2" },
-    { "type": "HAS_PARAMETER_VALUE", "from": "model_1", "to": "pv_3" },
-    { "type": "HAS_PARAMETER_VALUE", "from": "var_9", "to": "pv_4" },
-    { "type": "HAS_PARAMETER_VALUE", "from": "var_9", "to": "pv_5" },
-
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_1" },
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_2" },
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_3" },
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_4" },
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_5" },
-
-    { "type": "USES_MATERIAL_SYSTEM", "from": "model_1", "to": "mat_1" },
-    { "type": "HAS_GEOMETRY", "from": "model_1", "to": "geom_1" },
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_1" },
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_2" },
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_3" },
-
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_1" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_2" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_3" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_4" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_5" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_6" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_7" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_8" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_9" },
-
-    { "type": "HAS_METRIC", "from": "model_1", "to": "metric_1" },
-    { "type": "HAS_METRIC", "from": "model_1", "to": "metric_2" },
-    { "type": "HAS_METRIC", "from": "model_1", "to": "metric_3" },
-    { "type": "HAS_METRIC", "from": "model_1", "to": "metric_4" },
-
-    { "type": "MEASURES", "from": "metric_1", "to": "phen_5" },
-    { "type": "MEASURES", "from": "metric_2", "to": "phen_4" },
-    { "type": "MEASURES", "from": "metric_3", "to": "phen_4" },
-    { "type": "MEASURES", "from": "metric_4", "to": "phen_1" }
-  ]
+"paper": {
+"title": "Dead lithium formation in lithium metal batteries: A phase field model",
+"year": "2022",
+"authors": [
+"Rui Zhang",
+"Xin Shen",
+"Yu-Tong Zhang",
+"Xia-Lin Zhong",
+"Hao-Tian Ju",
+"Tian-Xiao Huang",
+"Xiang Chen",
+"Jun-Dong Zhang",
+"Jia-Qi Huang"
+],
+"journal": "Journal of Energy Chemistry",
+"doi": "10.1016/j.jechem.2021.12.020"
+},
+"entities": {
+"MaterialSystem": [
+{
+"material_system_id": "Li Metal | Liquid Electrolyte",
+"type": "LithiumMetalBattery",
+"composition": "anode=Li metal; electrolyte=liquid electrolyte containing Li ions",
+"evidence": "In this two-phase system, there is both an electrolyte liquid phase containing lithium ions and a solid phase composed of lithium metal."
+}
+],
+"Phenomenon": [
+{
+"phenomenon_id": "DeadLithiumFormation",
+"description": "Detachment of metallic lithium from bulk active lithium during stripping, producing electronically isolated lithium that cannot contribute capacity.",
+"observe_under_conditions": [
+"GalvanostaticStripping",
+"StrippingCurrentDensity10mAcm2"
+],
+"related_effects": [
+"ActiveLithiumSurfaceAreaDecrease",
+"ActivationOverpotentialIncrease",
+"CellPolarizationIncrease",
+"DeadLithiumCapacityIncrease",
+"CoulombicEfficiencyReduction"
+],
+"evidence": "During the stripping process, the lithium dendrites tend to dissolve unevenly, causing some metallic lithium to separate from the bulk lithium metal anode. The detached lithium metal, which is named dead lithium and also the main component of inactive lithium, cannot exchange electrons with the current collector, and is therefore unable to contribute its capacity in the subsequent cycles."
+},
+{
+"phenomenon_id": "LithiumStripping",
+"description": "Electrochemical dissolution of lithium metal into lithium ions during discharge, including morphology evolution and dead lithium generation.",
+"observe_under_conditions": [
+"GalvanostaticStripping"
+],
+"related_effects": [
+"LiIonConcentrationIncrease",
+"ActivationOverpotentialIncrease"
+],
+"evidence": "This work proposed a phase field model to describe the lithium stripping process with dead lithium formation."
+},
+{
+"phenomenon_id": "LithiumDendriteGrowth",
+"description": "Growth of dendritic lithium structures during lithium plating, which provides the initial morphology that leads to dead lithium during stripping.",
+"observe_under_conditions": [
+"PlatingCurrentDensity10mAcm2"
+],
+"related_effects": [],
+"evidence": "The dendritic lithium plating morphology is the main prerequisite for the massive production of dead lithium in the lithium stripping process."
+}
+],
+"Assumption": [
+{
+"assumption_id": "DiffuseInterface",
+"type": "physical",
+"statement": "The lithium metal/electrolyte interface is represented as a diffuse numerical interface using a phase-field order parameter.",
+"evidence": "n varies from 0 to 1 in the interfacial region, representing a diffuse interface between lithium metal and electrolyte. It should be noticed that such diffuse interface is a numerical virtual interface, and does not refer to the actual SEI on lithium metal anodes."
+},
+{
+"assumption_id": "UniformSolidPotential",
+"type": "electrochemical",
+"statement": "The electrostatic potential in the lithium metal solid phase is spatially uniform and evolves only with time.",
+"evidence": "The electrostatic potential in the lithium metal solid phase us here is considered equal everywhere in the whole lithium metal solid phase, and only evolves over time, which is controlled by galvanostatic simulation conditions."
+},
+{
+"assumption_id": "DeadLithiumThresholdByReferencePotential",
+"type": "electrochemical",
+"statement": "A local lithium region is considered dead when the electrolyte potential exceeds a reference threshold, implemented through an active-state step function.",
+"evidence": "where fd = fstep(ul/ud) is introduced as a variable to describe the active state of local lithium metal; fstep(x) is a step function that steps from 1 to 0 when x is larger than 1; the reference potential ud is set as 1.0 mV, thus, fd = 1 denotes active lithium, fd = 0 denotes dead lithium."
+},
+{
+"assumption_id": "TwoDimensionalDomain",
+"type": "geometric",
+"statement": "The model is solved on a two-dimensional square domain.",
+"evidence": "A two-dimensional model consisting of a 30.0 lm × 30.0 lm square domain is introduced."
+}
+],
+"SimulationModel": [
+{
+"model_id": "GalvanostaticLithiumStrippingPhaseFieldModel",
+"type": "PhaseFieldModel",
+"model_type": "phase_field",
+"material_system": "Li Metal | Liquid Electrolyte",
+"use_assumptions": [
+"DiffuseInterface",
+"UniformSolidPotential",
+"DeadLithiumThresholdByReferencePotential",
+"TwoDimensionalDomain"
+],
+"use_equations": [
+"LithiumStrippingPhaseFieldEvolutionEquation",
+"LiIonTransportEquation",
+"ElectrolytePoissonEquation",
+"GalvanostaticCurrentBalanceEquation"
+],
+"spatial_dimension": "2D",
+"temporal_type": "transient",
+"numerical_method": "finite element method",
+"software_or_solver": "COMSOL Multiphysics 5.5",
+"objective": "Describe lithium stripping with dead lithium formation under galvanostatic conditions and connect morphology evolution to electrochemical performance.",
+"evidence": "In this contribution, a phase field model on the lithium stripping process with dead lithium formation is constructed for the first time. The galvanostatic charge and discharge process of lithium metal anodes were also firstly simulated with phase field models."
+},
+{
+"model_id": "GalvanostaticLithiumPlatingPhaseFieldModel",
+"type": "PhaseFieldModel",
+"model_type": "phase_field",
+"material_system": "Li Metal | Liquid Electrolyte",
+"use_assumptions": [
+"DiffuseInterface",
+"UniformSolidPotential",
+"TwoDimensionalDomain"
+],
+"use_equations": [
+"LithiumPlatingPhaseFieldEvolutionEquation",
+"LiIonTransportEquation",
+"ElectrolytePoissonEquation",
+"GalvanostaticCurrentBalanceEquation",
+"TotalFreeEnergyFunctional"
+],
+"spatial_dimension": "2D",
+"temporal_type": "transient",
+"numerical_method": "finite element method",
+"software_or_solver": "COMSOL Multiphysics 5.5",
+"objective": "Generate dendritic lithium morphology used as the initial state for stripping simulations.",
+"evidence": "In order to accurately quantitatively simulate the formation process of dead lithium, the lithium dendrite morphology was firstly generated with this galvanostatic lithium plating phase field model."
+}
+],
+"ModelEquation": [
+{
+"equation_id": "TotalFreeEnergyFunctional",
+"expression": "F = ∫V [fch(ci) + fgrad(η) + felec(ci,φ) + fns(η)] dV",
+"form": "IntegralFunctional",
+"description": "Total free-energy functional combining chemical, gradient, electrostatic, and noise contributions for the phase-field description.",
+"use_terms": [
+"HelmholtzFreeEnergyDensity",
+"GradientEnergyDensity",
+"ElectrostaticEnergyDensity",
+"NoiseTerm"
+],
+"use_parameters": [
+"OrderParameter",
+"LiIonConcentration",
+"Temperature",
+"ElectrolytePotential"
+],
+"evidence": "Based on Chen’s nonlinear phase field model and our previous works [49,57,59,63], the total free energy can be given by F = ∫V fch(ci) + fgrad(η) + felec(ci, φ) + fns(η) dV"
+},
+{
+"equation_id": "LithiumPlatingPhaseFieldEvolutionEquation",
+"expression": "∂η/∂t = Lσ(∂f0/∂η − κ∇²η + ∂fns/∂η) − Lηh'(η){exp(1−α)Fη/RT− exp[−αFη/RT]}",
+"form": "PartialDifferentialEquation",
+"description": "Phase-field evolution equation for lithium plating coupled with Butler–Volmer kinetics.",
+"use_terms": [
+"GradientEnergyDensity",
+"NoiseTerm",
+"ReactionTerm"
+],
+"use_parameters": [
+"OrderParameter",
+"ActivationOverpotential",
+"LiIonConcentration",
+"ReactionConstant",
+"InterfacialMobility",
+"Temperature"
+],
+"evidence": "Coupled with Butler–Volmer kinetics, the partial differential equations that describe the temporal evolution of order parameter n can be deduced [57,59]. For lithium plating process"
+},
+{
+"equation_id": "LithiumStrippingPhaseFieldEvolutionEquation",
+"expression": "∂η/∂t = fdLσ(∂f0/∂η − κ∇²η + ∂fns/∂η) − fdLηh'(η){exp[(1−α)Fη/RT]aLi+ − exp[−αFη/RT]}",
+"form": "PartialDifferentialEquation",
+"description": "Phase-field evolution equation for lithium stripping including active/dead lithium state and Butler–Volmer kinetics.",
+"use_terms": [
+"GradientEnergyDensity",
+"NoiseTerm",
+"ReactionTerm"
+],
+"use_parameters": [
+"OrderParameter",
+"ActivationOverpotential",
+"LiIonConcentration",
+"ReferencePotentialUd",
+"ReactionConstant",
+"InterfacialMobility",
+"Temperature"
+],
+"evidence": "For lithium stripping process"
+},
+{
+"equation_id": "LiIonTransportEquation",
+"expression": "∂cLi+/∂t = ∇·(DLi+∇cLi+ + DLi+cLi+(F/RT)∇φl) − cs∂η/∂t",
+"form": "PartialDifferentialEquation",
+"description": "Temporal evolution of Li-ion concentration including diffusion, migration, and interfacial consumption/production.",
+"use_terms": [
+"DiffusionMigrationTerm"
+],
+"use_parameters": [
+"LiIonConcentration",
+"LiIonDiffusionCoefficient",
+"ElectrolytePotential",
+"OrderParameter",
+"SolidLithiumConcentration",
+"Temperature"
+],
+"evidence": "The partial differential equation that describe the temporal evolution of Li ion concentration is given as"
+},
+{
+"equation_id": "ElectrolytePoissonEquation",
+"expression": "∇²φl = 0",
+"form": "PartialDifferentialEquation",
+"description": "Governing equation for the electrolyte liquid-phase electric potential.",
+"use_terms": [],
+"use_parameters": [
+"ElectrolytePotential"
+],
+"evidence": "The electric potential in the electrolyte liquid phase ul can be solved with Poisson’s equation ∇2ul = 0"
+},
+{
+"equation_id": "GalvanostaticCurrentBalanceEquation",
+"expression": "I0 = Ir = Imt",
+"form": "AlgebraicEquation",
+"description": "Global galvanostatic constraint enforcing equality between applied areal current density, reaction current density, and mass-transfer current density.",
+"use_terms": [
+"ReactionCurrentDensityTerm",
+"MassTransferCurrentDensityTerm"
+],
+"use_parameters": [
+"CurrentDensity"
+],
+"evidence": "The galvanostatic simulation conditions are realized by introducing global equations, which solve two variables us and ul,up by iterative method to keep the two equal signs in the following equation are always true during the whole lithium plating/stripping process I0 = Ir = Imt"
+}
+],
+"Term": [
+{
+"term_id": "HelmholtzFreeEnergyDensity",
+"expression": "fch(ci)",
+"parameter_ids": [
+"LiIonConcentration",
+"Temperature"
+],
+"description": "Chemical free-energy density term in the total free energy.",
+"evidence": "where fch(ci) is the Helmholtz free energy density."
+},
+{
+"term_id": "GradientEnergyDensity",
+"expression": "fgrad(η) = (1/2)κ|∇η|²",
+"parameter_ids": [
+"OrderParameter",
+"GradientEnergyCoefficient"
+],
+"description": "Interfacial gradient-energy term controlling diffuse-interface energetics and anisotropy.",
+"evidence": "fgrad(n)= 1/2 κ∇n·κ∇n is the gradient energy density"
+},
+{
+"term_id": "ElectrostaticEnergyDensity",
+"expression": "felec(ci,φ) = FφΣzici",
+"parameter_ids": [
+"ElectrolytePotential",
+"LiIonConcentration"
+],
+"description": "Electrostatic contribution to the total free energy.",
+"evidence": "felec(ci,u)= FuΣzici is the electrostatic energy density"
+},
+{
+"term_id": "NoiseTerm",
+"expression": "fns(η) = h'(η)vw",
+"parameter_ids": [
+"OrderParameter"
+],
+"description": "Fluctuation term used to represent non-uniform interface effects and generate realistic dendrite morphologies.",
+"evidence": "fns(n)= h'(n)vw is the noise term presenting the non-uniform interface."
+},
+{
+"term_id": "ReactionTerm",
+"expression": "Butler–Volmer kinetic contribution in the phase-field evolution equation",
+"parameter_ids": [
+"ActivationOverpotential",
+"LiIonConcentration",
+"Temperature"
+],
+"description": "Electrochemical reaction term coupling phase evolution to Butler–Volmer kinetics.",
+"evidence": "Coupled with Butler–Volmer kinetics, the partial differential equations that describe the temporal evolution of order parameter n can be deduced"
+},
+{
+"term_id": "DiffusionMigrationTerm",
+"expression": "∇·(DLi+∇cLi+ + DLi+cLi+(F/RT)∇φl)",
+"parameter_ids": [
+"LiIonConcentration",
+"LiIonDiffusionCoefficient",
+"ElectrolytePotential",
+"Temperature"
+],
+"description": "Combined diffusion and migration contribution in Li-ion transport.",
+"evidence": "∂cLi+/∂t = ∇·(DLi+∇cLi+ + DLi+cLi+ F/RT ∇ul) − cs ∂n/∂t"
+},
+{
+"term_id": "ReactionCurrentDensityTerm",
+"expression": "Ir = csF/S ∫V (∂η/∂t) dV",
+"parameter_ids": [
+"CurrentDensity",
+"OrderParameter",
+"SolidLithiumConcentration"
+],
+"description": "Reaction areal current density under galvanostatic constraint.",
+"evidence": "Ir = csF/S ∫V ∂n/∂t dV"
+},
+{
+"term_id": "MassTransferCurrentDensityTerm",
+"expression": "Imt = F/S ∫S n·(DLi+∇cLi+ + DLi+cLi+F/RT∇φl)dS",
+"parameter_ids": [
+"CurrentDensity",
+"LiIonConcentration",
+"LiIonDiffusionCoefficient",
+"ElectrolytePotential",
+"Temperature"
+],
+"description": "Mass-transfer areal current density under galvanostatic constraint.",
+"evidence": "Imt = F/S ∫S n·(DLi+∇cLi+ + DLi+ cLi+ F/RT ∇ul)dS"
+}
+],
+"Parameter": [
+{
+"parameter_id": "OrderParameter",
+"symbol": "η",
+"description": "Phase-field order parameter distinguishing electrolyte and lithium metal phases.",
+"unit": "dimensionless",
+"evidence": "Here, a phase field order parameter n is introduced to describe the phase change evolution of the two phases, where n = 0 denotes the electrolyte liquid phase, and n = 1 denotes the lithium metal solid phase."
+},
+{
+"parameter_id": "LiIonConcentration",
+"symbol": "cLi+",
+"description": "Lithium-ion concentration in the electrolyte.",
+"unit": "M",
+"evidence": "The partial differential equation that describe the temporal evolution of Li ion concentration is given as"
+},
+{
+"parameter_id": "ElectrolytePotential",
+"symbol": "ul",
+"description": "Electrostatic potential in the electrolyte liquid phase.",
+"unit": "V",
+"evidence": "The electric potential in the electrolyte liquid phase ul can be solved with Poisson’s equation"
+},
+{
+"parameter_id": "SolidPotential",
+"symbol": "us",
+"description": "Electrostatic potential in the lithium metal solid phase.",
+"unit": "V",
+"evidence": "The electrostatic potential in the lithium metal solid phase us here is considered equal everywhere in the whole lithium metal solid phase"
+},
+{
+"parameter_id": "ActivationOverpotential",
+"symbol": "g",
+"description": "Activation overpotential driving the electrochemical reaction.",
+"unit": "V",
+"evidence": "g = us − ul − Eeq is the activation overpotential"
+},
+{
+"parameter_id": "CurrentDensity",
+"symbol": "I0",
+"description": "Applied constant areal current density under galvanostatic operation.",
+"unit": "mA cm^-2",
+"evidence": "I0 is the constant areal current density as an input parameter of the model"
+},
+{
+"parameter_id": "LiIonDiffusionCoefficient",
+"symbol": "DLi+",
+"description": "Diffusion coefficient of Li ions in electrolytes.",
+"unit": "m^2 s^-1",
+"evidence": "where DLi+ is the Li ion diffusion coefficient in electrolytes."
+},
+{
+"parameter_id": "Temperature",
+"symbol": "T",
+"description": "System temperature used in the model equations.",
+"unit": "K",
+"evidence": "R is the molar gas constant. T is the temperature."
+},
+{
+"parameter_id": "GradientEnergyCoefficient",
+"symbol": "κ",
+"description": "Gradient energy coefficient associated with surface-energy anisotropy.",
+"unit": "N",
+"evidence": "the gradient coefficient κ can be expanded as κ(θ)= κ0[1 + δ cos(ωθ)]"
+},
+{
+"parameter_id": "ReactionConstant",
+"symbol": "Lg",
+"description": "Reaction constant in the phase-field evolution equations.",
+"unit": "unspecified",
+"evidence": "where Lr denotes the interfacial mobility, Lg denotes the reaction constant."
+},
+{
+"parameter_id": "InterfacialMobility",
+"symbol": "Lr",
+"description": "Interfacial mobility parameter in the phase-field evolution equations.",
+"unit": "unspecified",
+"evidence": "where Lr denotes the interfacial mobility"
+},
+{
+"parameter_id": "ReferencePotentialUd",
+"symbol": "ud",
+"description": "Reference potential used to distinguish active lithium from dead lithium.",
+"unit": "mV",
+"evidence": "the reference potential ud is set as 1.0 mV"
+},
+{
+"parameter_id": "ActiveLithiumSurfaceArea",
+"symbol": "Aactive",
+"description": "Surface area of lithium that remains electronically connected and electrochemically active.",
+"unit": "unspecified",
+"evidence": "when dead lithium is formed, the surface area of active lithium will suddenly reduce"
+},
+{
+"parameter_id": "CellPolarization",
+"symbol": "U",
+"description": "Total voltage/polarization of the half-cell model during stripping.",
+"unit": "mV",
+"evidence": "the total voltage in the figure corresponds to the total polarization."
+},
+{
+"parameter_id": "DeadLithiumCapacity",
+"symbol": "Qdead",
+"description": "Capacity associated with dead lithium formed during stripping.",
+"unit": "mAh cm^-2",
+"evidence": "In the capacity curves, the dead lithium capacity begins to appear after 250.5 s and gradually rises until 404.8 s"
+},
+{
+"parameter_id": "CoulombicEfficiency",
+"symbol": "CE",
+"description": "Coulombic efficiency calculated from the simulated stripping/plating process.",
+"unit": "%",
+"evidence": "The Coulombic efficiency can be directly calculated as 83.1%"
+},
+{
+"parameter_id": "Time",
+"symbol": "t",
+"description": "Simulation time during plating and stripping evolution.",
+"unit": "s",
+"evidence": "when no dead lithium is formed at 120.0 s, the average activation overpotential is only about 2 mV."
+}
+],
+"Condition": [
+{
+"condition_id": "GalvanostaticStripping",
+"parameter_id": "CurrentDensity",
+"constraint_type": "EqualTo",
+"value": "constant negative current density",
+"evidence": "The galvanostatic simulation conditions are realized by introducing global equations... I0 is the constant areal current density as an input parameter of the model, taking positive and negative values during the charging and discharging process, respectively."
+},
+{
+"condition_id": "StrippingCurrentDensity10mAcm2",
+"parameter_id": "CurrentDensity",
+"constraint_type": "EqualTo",
+"value": "10 mA cm^-2",
+"evidence": "Dead lithium formation process at 0, 240.0, and 404.8 s (cut-off time), with a stripping current density of 10 mA cm2."
+},
+{
+"condition_id": "PlatingCurrentDensity10mAcm2",
+"parameter_id": "CurrentDensity",
+"constraint_type": "EqualTo",
+"value": "10 mA cm^-2",
+"evidence": "Lithium dendrite growth at 0, 240.0, and 480.0 s, respectively, with a plating current density of 10 mA cm2"
+},
+{
+"condition_id": "LateStageDischarge",
+"parameter_id": "Time",
+"constraint_type": "GreaterThan",
+"value": "250.5 s",
+"evidence": "Among them, the first piece of dead lithium is formed at 250.5 s."
+}
+],
+"Effect": [
+{
+"effect_id": "ActiveLithiumSurfaceAreaDecrease",
+"related_parameter": "ActiveLithiumSurfaceArea",
+"change_type": "Decrease",
+"magnitude": "significant",
+"observe_under_conditions": [
+"GalvanostaticStripping",
+"LateStageDischarge"
+],
+"evidence": "when dead lithium is formed, the surface area of active lithium will suddenly reduce"
+},
+{
+"effect_id": "ActivationOverpotentialIncrease",
+"related_parameter": "ActivationOverpotential",
+"change_type": "Increase",
+"magnitude": "from about 2 mV to over 10 mV",
+"observe_under_conditions": [
+"GalvanostaticStripping",
+"LateStageDischarge"
+],
+"evidence": "when no dead lithium is formed at 120.0 s, the average activation overpotential is only about 2 mV. When a small amount of dead lithium is formed at 280.0 s, the average activation overpotential increases to about 4 mV. When a large amount of dead lithium is formed at 360.0 s, the active surface area is greatly reduced, and the activation overpotential increases to over 10 mV."
+},
+{
+"effect_id": "LiIonConcentrationIncrease",
+"related_parameter": "LiIonConcentration",
+"change_type": "Increase",
+"magnitude": "rapid",
+"observe_under_conditions": [
+"GalvanostaticStripping"
+],
+"evidence": "Furthermore, the Li ion concentration around the lithium dendrites will increase rapidly during the lithium stripping process"
+},
+{
+"effect_id": "CellPolarizationIncrease",
+"related_parameter": "CellPolarization",
+"change_type": "Increase",
+"magnitude": "stepwise; especially near discharge cut-off",
+"observe_under_conditions": [
+"GalvanostaticStripping",
+"LateStageDischarge"
+],
+"evidence": "When dead lithium is formed, it will significantly strengthen the battery polarization, especially at the end of the discharge process, where a tiny dead lithium formation will also greatly increase the polarization."
+},
+{
+"effect_id": "DeadLithiumCapacityIncrease",
+"related_parameter": "DeadLithiumCapacity",
+"change_type": "Increase",
+"magnitude": "rises from 250.5 s to 404.8 s",
+"observe_under_conditions": [
+"GalvanostaticStripping",
+"LateStageDischarge"
+],
+"evidence": "In the capacity curves, the dead lithium capacity begins to appear after 250.5 s and gradually rises until 404.8 s"
+},
+{
+"effect_id": "CoulombicEfficiencyReduction",
+"related_parameter": "CoulombicEfficiency",
+"change_type": "Decrease",
+"magnitude": "83.1%",
+"observe_under_conditions": [
+"GalvanostaticStripping"
+],
+"evidence": "The Coulombic efficiency can be directly calculated as 83.1%"
+}
+],
+"ParameterValue": [
+{
+"parameter_value_id": "CurrentDensity=10mA_cm2"
+},
+{
+"parameter_value_id": "ReferencePotentialUd=1.0mV"
+},
+{
+"parameter_value_id": "CoulombicEfficiency=83.1percent"
+},
+{
+"parameter_value_id": "ActivationOverpotential=2mV_at120s"
+},
+{
+"parameter_value_id": "ActivationOverpotential=4mV_at280s"
+},
+{
+"parameter_value_id": "ActivationOverpotential=>10mV_at360s"
+}
+]
+},
+"relationships": [
+{
+"relationship_id": "ModelsPhenomenon",
+"from": "GalvanostaticLithiumStrippingPhaseFieldModel",
+"to": "DeadLithiumFormation"
+},
+{
+"relationship_id": "ModelsPhenomenon",
+"from": "GalvanostaticLithiumStrippingPhaseFieldModel",
+"to": "LithiumStripping"
+},
+{
+"relationship_id": "ModelsPhenomenon",
+"from": "GalvanostaticLithiumPlatingPhaseFieldModel",
+"to": "LithiumDendriteGrowth"
+},
+{
+"relationship_id": "OccursInMaterialSystem",
+"from": "DeadLithiumFormation",
+"to": "Li Metal | Liquid Electrolyte"
+},
+{
+"relationship_id": "OccursInMaterialSystem",
+"from": "LithiumStripping",
+"to": "Li Metal | Liquid Electrolyte"
+},
+{
+"relationship_id": "OccursInMaterialSystem",
+"from": "LithiumDendriteGrowth",
+"to": "Li Metal | Liquid Electrolyte"
+},
+{
+"relationship_id": "ConstrainsEquation",
+"from": "DiffuseInterface",
+"to": "LithiumPlatingPhaseFieldEvolutionEquation"
+},
+{
+"relationship_id": "ConstrainsEquation",
+"from": "DiffuseInterface",
+"to": "LithiumStrippingPhaseFieldEvolutionEquation"
+},
+{
+"relationship_id": "ConstrainsEquation",
+"from": "UniformSolidPotential",
+"to": "ElectrolytePoissonEquation"
+},
+{
+"relationship_id": "ConstrainsEquation",
+"from": "DeadLithiumThresholdByReferencePotential",
+"to": "LithiumStrippingPhaseFieldEvolutionEquation"
+},
+{
+"relationship_id": "AppliesToMaterialSystem",
+"from": "DiffuseInterface",
+"to": "Li Metal | Liquid Electrolyte"
+},
+{
+"relationship_id": "AppliesToMaterialSystem",
+"from": "UniformSolidPotential",
+"to": "Li Metal | Liquid Electrolyte"
+},
+{
+"relationship_id": "AppliesToMaterialSystem",
+"from": "DeadLithiumThresholdByReferencePotential",
+"to": "Li Metal | Liquid Electrolyte"
+},
+{
+"relationship_id": "HasParameterValue",
+"from": "CurrentDensity",
+"to": "CurrentDensity=10mA_cm2"
+},
+{
+"relationship_id": "HasParameterValue",
+"from": "ReferencePotentialUd",
+"to": "ReferencePotentialUd=1.0mV"
+},
+{
+"relationship_id": "HasParameterValue",
+"from": "CoulombicEfficiency",
+"to": "CoulombicEfficiency=83.1percent"
+},
+{
+"relationship_id": "HasParameterValue",
+"from": "ActivationOverpotential",
+"to": "ActivationOverpotential=2mV_at120s"
+},
+{
+"relationship_id": "HasParameterValue",
+"from": "ActivationOverpotential",
+"to": "ActivationOverpotential=4mV_at280s"
+},
+{
+"relationship_id": "HasParameterValue",
+"from": "ActivationOverpotential",
+"to": "ActivationOverpotential=>10mV_at360s"
+},
+{
+"relationship_id": "ValidInMaterialSystem",
+"from": "CurrentDensity=10mA_cm2",
+"to": "Li Metal | Liquid Electrolyte"
+},
+{
+"relationship_id": "ValidInMaterialSystem",
+"from": "ReferencePotentialUd=1.0mV",
+"to": "Li Metal | Liquid Electrolyte"
+},
+{
+"relationship_id": "ValidInMaterialSystem",
+"from": "CoulombicEfficiency=83.1percent",
+"to": "Li Metal | Liquid Electrolyte"
+},
+{
+"relationship_id": "ValidUnderCondition",
+"from": "CurrentDensity=10mA_cm2",
+"to": "StrippingCurrentDensity10mAcm2"
+},
+{
+"relationship_id": "ValidUnderCondition",
+"from": "ActivationOverpotential=2mV_at120s",
+"to": "GalvanostaticStripping"
+},
+{
+"relationship_id": "ValidUnderCondition",
+"from": "ActivationOverpotential=4mV_at280s",
+"to": "LateStageDischarge"
+},
+{
+"relationship_id": "ValidUnderCondition",
+"from": "ActivationOverpotential=>10mV_at360s",
+"to": "LateStageDischarge"
+}
+]
 }
