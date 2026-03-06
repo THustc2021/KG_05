@@ -49,6 +49,18 @@ def uniq_edges(edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             out.append(e)
     return out
 
+def build_tooltip(node):
+    lines = []
+    for k, v in node.items():
+        if k == "id":
+            continue
+
+        if isinstance(v, list):
+            v = ", ".join(map(str, v))
+
+        lines.append(f"{k}: {v}")
+
+    return "\n".join(lines)
 
 # =========================
 # Ontology 严格解析
@@ -440,9 +452,9 @@ def render_graph(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], heigh
     for n in nodes:
         net.add_node(
             n["id"],
-            label=n["label"],
-            title=n["title"],
-            group=n["group"],
+            label=n["id"],
+            title=build_tooltip(n),
+            group=n["entity_type"],
         )
 
     for e in edges:
