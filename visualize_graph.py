@@ -551,7 +551,7 @@ def build_graph(
     return nodes, uniq_edges(edges)
 
 
-def render_graph(nodes, edges, output_html="graph.html"):
+def render_graph(nodes, edges, height=850):
     net = Network(
         height="900px",
         width="100%",
@@ -582,58 +582,36 @@ def render_graph(nodes, edges, output_html="graph.html"):
     const options = {
       "interaction": {
         "hover": true,
-        "tooltipDelay": 120,
         "navigationButtons": true,
         "keyboard": true
-      },
-      "nodes": {
-        "shape": "dot",
-        "scaling": {
-          "min": 20,
-          "max": 50
-        },
-        "font": {
-          "size": 22,
-          "face": "Arial",
-          "multi": "md",
-          "vadjust": -2
-        },
-        "borderWidth": 2
-      },
-      "edges": {
-        "smooth": {
-          "type": "dynamic"
-        },
-        "width": 1.6,
-        "selectionWidth": 2.5,
-        "arrows": {
-          "to": {
-            "enabled": true,
-            "scaleFactor": 0.7
-          }
-        },
-        "font": {
-          "size": 10,
-          "align": "middle",
-          "strokeWidth": 0
-        }
       },
       "physics": {
         "enabled": true,
         "barnesHut": {
-          "gravitationalConstant": -5000,
-          "centralGravity": 0.18,
-          "springLength": 165,
-          "springConstant": 0.03,
-          "damping": 0.18,
-          "avoidOverlap": 0.2
-        },
-        "minVelocity": 0.75
+          "gravitationalConstant": -9000,
+          "centralGravity": 0.15,
+          "springLength": 140,
+          "springConstant": 0.04
+        }
+      },
+      "nodes": {
+        "shape": "dot",
+        "size": 40,
+        "font": {"size": 30}
+      },
+      "edges": {
+        "smooth": {"type": "dynamic"},
+        "font": {"size": 11, "align": "middle"}
       }
     }
     """)
 
-    net.write_html(output_html)
+    with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as f:
+        f.write(net.generate_html())
+        html_path = f.name
+
+    html = Path(html_path).read_text(encoding="utf-8")
+    components.html(html, height=height, scrolling=True)
 
 
 # =========================
