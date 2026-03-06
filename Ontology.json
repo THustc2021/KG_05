@@ -5,7 +5,6 @@
   "journal": "Name of the journal, conference, or publisher where the paper appeared. Use the full name if available (for example 'Journal of The Electrochemical Society').",
   "doi": "Digital Object Identifier of the publication. If present, record it exactly as registered (without URL prefix). This field enables reliable cross-database linking.",
   "entities": {
-
     "Condition": {
       "description": "A parameter-level constraint describing the system state under which a phenomenon or effect occurs. A Condition specifies how a Parameter is fixed, restricted, or varied in the study. Conditions typically correspond to experimental or simulation regimes such as high current density, low electrolyte concentration, elevated temperature, or a defined parameter range. Each Condition must reference exactly one Parameter entity whose value is constrained.",
       "properties": {
@@ -31,7 +30,6 @@
         }
       }
     },
-
     "Effect": {
       "description": "A parameter-level change associated with a studied process, condition, or model outcome. An Effect does not represent a physical phenomenon itself. Instead, it describes how a specific Parameter changes, responds, or behaves, such as increasing, decreasing, stabilizing, fluctuating, or reaching a threshold. Every Effect must reference a Parameter entity whose value or state changes.",
       "properties": {
@@ -61,7 +59,6 @@
         }
       }
     },
-
     "Phenomenon": {
       "description": "A canonical physical process or behavior occurring in a material system that a simulation model aims to represent, analyze, or predict. A Phenomenon corresponds to a real physical mechanism or observable process rather than a modeling construct. Examples include dendrite growth, electrodeposition, lithium plating, SEI formation, and stress-induced crack propagation. Phenomena serve as reusable domain-level concepts linking simulation models to real physical behavior.",
       "properties": {
@@ -87,7 +84,6 @@
         }
       }
     },
-
     "MaterialSystem": {
       "description": "A structured representation of the physical material environment that is directly studied or simulated in the paper's own research. A MaterialSystem should only be created for systems that the paper explicitly models, simulates, analyzes, or experimentally investigates in its main study. Material systems mentioned only in literature review, background discussion, or citations to prior work must not be extracted. The entity captures the primary materials and phases participating in the system under investigation.",
       "properties": {
@@ -109,7 +105,6 @@
         }
       }
     },
-
     "Assumption": {
       "description": "An explicit modeling assumption, approximation, simplification, or idealization used in a simulation model. An Assumption constrains the physical description, mathematical formulation, numerical treatment, or applicability range of the model.",
       "properties": {
@@ -131,7 +126,6 @@
         }
       }
     },
-
     "SimulationModel": {
       "description": "A specific computational or mathematical formulation implemented and used by the paper in its own study. A SimulationModel represents the concrete model configuration developed, adopted, or executed in the work, including its governing equations, assumptions, and the material system to which it is applied. Only models that are explicitly used or implemented in the paper's main methodology should be extracted. Models mentioned solely in literature review, background discussion, or citations to prior studies must not be extracted.",
       "properties": {
@@ -185,7 +179,6 @@
         }
       }
     },
-
     "ModelEquation": {
       "description": "A high-level governing equation that is explicitly used in the simulation model implemented in the paper's own study. A ModelEquation represents one of the primary mathematical relations defining the model's behavior, such as evolution equations, transport equations, equilibrium equations, or free-energy functionals. Only equations that are directly part of the model used in the paper's methodology should be extracted. Equations mentioned only in literature review, background discussion, or citations to other studies must not be extracted.",
       "properties": {
@@ -219,9 +212,8 @@
         }
       }
     },
-
     "Term": {
-      "description": "A lower-level mathematical component appearing inside a ModelEquation, such as diffusion, migration, reaction, or gradient-energy contributions.",
+      "description": "A structured mathematical contribution appearing inside a ModelEquation. A Term represents a composite functional component of an equation such as diffusion terms, reaction terms, migration terms, gradient-energy terms, or energy-density contributions. A Term is not a primitive quantity. Instead, it is constructed from one or more Parameter entities and describes how those parameters combine mathematically to produce a physical contribution to the governing equation. Examples include diffusion terms, electrochemical reaction terms, and free-energy density contributions such as chemical free energy density, electrostatic energy density, and elastic energy density.",
       "properties": {
         "term_id": {
           "description": "Stable identifier representing the type and name of the term, such as DiffusionTerm or GradientEnergyTerm.",
@@ -245,9 +237,8 @@
         }
       }
     },
-
     "Parameter": {
-      "description": "A measurable physical or mathematical quantity appearing in equations, terms, conditions, or effects.",
+      "description": "A primitive physical or mathematical quantity that cannot be further decomposed within the modeling framework of the paper. Parameters represent the most basic measurable variables or constants appearing in equations, such as temperature, concentration, diffusion coefficient, mobility, electric potential, or current density. A Parameter must represent a single scalar or vector quantity and must not represent composite mathematical expressions, functional contributions, or energy terms. Quantities such as energy density, free-energy contributions, reaction terms, or other equation components belong to the Term entity type rather than Parameter.",
       "properties": {
         "parameter_id": {
           "description": "Stable identifier representing the canonical name of the parameter such as CurrentDensity, Temperature, or DiffusionCoefficient.",
@@ -296,12 +287,6 @@
       "from_entity": "Phenomenon",
       "to_entity": "MaterialSystem",
       "description": "Indicates that a Phenomenon physically occurs in, or is specifically associated with, a given MaterialSystem. This relation connects a reusable canonical physical process to the material environment in which it is observed or studied."
-    },
-    {
-      "relationship_id": "ExplainedByEquation",
-      "from_entity": "Phenomenon",
-      "to_entity": "ModelEquation",
-      "description": "Indicates that a ModelEquation directly describes, constrains, or mathematically explains a Phenomenon. This relation should be used when the equation plays a direct role in representing the mechanism of the phenomenon, rather than merely being part of the same model."
     },
     {
       "relationship_id": "DerivedFrom",
