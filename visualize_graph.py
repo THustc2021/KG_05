@@ -411,37 +411,59 @@ def validate_property_references(
 def format_tooltip_value(v):
     if v is None:
         return "None"
+
     if isinstance(v, list):
         if not v:
             return "[]"
-        return "\n  - " + "\n  - ".join(str(x) for x in v)
+        return "<br>&nbsp;&nbsp;• " + "<br>&nbsp;&nbsp;• ".join(str(x) for x in v)
+
     if isinstance(v, dict):
         if not v:
             return "{}"
-        return "\n".join(f"  {kk}: {vv}" for kk, vv in v.items())
+        return "<br>".join(f"&nbsp;&nbsp;{kk}: {vv}" for kk, vv in v.items())
+
     return str(v)
 
 
-def build_node_tooltip(node_id: str, node: Dict[str, Any], schema: Dict[str, Any]) -> str:
+def build_node_tooltip(node_id: str, node: Dict[str, Any], schema: Dict[str, Any]):
+
     entity_type = node["entity_type"]
     data = node["data"]
 
-    # 这些属性已经会被抽成 relationship，不再在 tooltip 里重复显示
     ref_prop_names = {
         spec["property_name"]
         for spec in schema["entity_ref_props"].get(entity_type, [])
     }
 
-    lines = [f"entity_type: {entity_type}"]
+    lines = []
 
     for k, v in data.items():
-        if k.endswith("_id"):   # 跳过主键/id类字段
-            continue
-        if k in ref_prop_names: # 跳过会被抽成关系的引用属性
-            continue
-        lines.append(f"{k}: {format_tooltip_value(v)}")
 
-    return "\n".join(lines)
+        id_field = schema["entity_id_field"][entity_type]
+
+        if k == id_field:
+            continue
+
+        if k in ref_prop_names:
+            continue
+
+        lines.append(f"<b>{k}</b>: {format_tooltip_value(v)}")
+
+    content = "<br>".join(lines)
+
+    return f"""
+    <div style="
+        max-width: 320px;
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.4;
+    ">
+    <b>{node_id}</b><br>
+    <i>{entity_type}</i>
+    <hr>
+    {content}
+    </div>
+    """
 
 
 def build_edge_tooltip(e: Dict[str, Any]) -> str:
