@@ -407,55 +407,57 @@ def validate_property_references(
 # =========================
 # 可视化
 # =========================
-import re
 import textwrap
-from typing import Dict, Any, List
-from pyvis.network import Network
+from typing import Dict, Any
 
 
-def wrap_text(text: Any, width: int = 48) -> str:
+def wrap_text(text: Any, width: int = 46) -> str:
     s = "" if text is None else str(text)
-    return textwrap.fill(s, width=width, break_long_words=False, break_on_hyphens=False)
+    return textwrap.fill(
+        s,
+        width=width,
+        break_long_words=False,
+        break_on_hyphens=False,
+    )
 
 
-def pretty_label(name: str, max_len: int = 22):
+def pretty_label(name: str, max_len: int = 22) -> str:
     name = str(name)
-
     if len(name) <= max_len:
         return name
-
     return "\n".join(textwrap.wrap(name, width=max_len))
 
 
-def format_tooltip_value(v: Any, width: int = 48) -> str:
+def format_tooltip_value(v: Any, width: int = 46) -> str:
     if v is None:
-        return "None"
+        return "  None"
 
     if isinstance(v, list):
         if not v:
-            return "[]"
-        out = []
+            return "  []"
+        lines = []
         for item in v:
             wrapped = wrap_text(item, width=width)
             wrapped = wrapped.replace("\n", "\n    ")
-            out.append(f"  - {wrapped}")
-        return "\n".join(out)
+            lines.append(f"  - {wrapped}")
+        return "\n".join(lines)
 
     if isinstance(v, dict):
         if not v:
-            return "{}"
-        out = []
+            return "  {}"
+        lines = []
         for kk, vv in v.items():
             wrapped = wrap_text(vv, width=width)
             wrapped = wrapped.replace("\n", "\n    ")
-            out.append(f"  {kk}: {wrapped}")
-        return "\n".join(out)
+            lines.append(f"  {kk}: {wrapped}")
+        return "\n".join(lines)
 
-    return wrap_text(v, width=width)
+    wrapped = wrap_text(v, width=width)
+    wrapped = wrapped.replace("\n", "\n  ")
+    return f"  {wrapped}"
 
 
-def build_node_tooltip(node_id: str, node: Dict[str, Any], schema):
-
+def build_node_tooltip(node_id: str, node: Dict[str, Any], schema: Dict[str, Any]) -> str:
     entity_type = node["entity_type"]
     data = node["data"]
 
@@ -463,34 +465,28 @@ def build_node_tooltip(node_id: str, node: Dict[str, Any], schema):
         spec["property_name"]
         for spec in schema["entity_ref_props"].get(entity_type, [])
     }
-
     id_field = schema["entity_id_field"][entity_type]
 
-    lines = []
-
-    lines.append(f"<b>{node_id}</b>")
-    lines.append(f"<i>{entity_type}</i>")
-    lines.append("<br>")
+    lines = [
+        str(node_id),
+        str(entity_type),
+        ""
+    ]
 
     for k, v in data.items():
-
         if k == id_field:
             continue
-
         if k in ref_prop_names:
             continue
 
-        if isinstance(v, list):
-            if v:
-                lines.append(f"<b>{k}</b>:")
-                for x in v:
-                    lines.append(f"&nbsp;&nbsp;• {x}")
-        else:
-            wrapped = textwrap.fill(str(v), width=55)
-            wrapped = wrapped.replace("\n", "<br>")
-            lines.append(f"<b>{k}</b>: {wrapped}")
+        lines.append(str(k))
+        lines.append(format_tooltip_value(v, width=46))
+        lines.append("")
 
-    return "<br>".join(lines)
+    if lines and lines[-1] == "":
+        lines.pop()
+
+    return "\n".join(lines)
 
 
 def build_edge_tooltip(e: Dict[str, Any]) -> str:
