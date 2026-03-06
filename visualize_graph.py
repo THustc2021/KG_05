@@ -74,7 +74,7 @@ def is_list_type(type_str: str) -> bool:
 
 
 def strip_list_suffix(type_name: str) -> str:
-    return re.sub(r"\[\]$", "", type_name.strip())
+    return re.sub(r"\s*\[\]\s*$", "", normalize_type_str(type_name))
 
 
 def get_entity_id_field(entity_name: str, entity_spec: Dict[str, Any]) -> str:
