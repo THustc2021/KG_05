@@ -288,7 +288,7 @@ def parse_relationships_strict(
             errors.append(f"KG.relationships[{idx}] 必须是对象。")
             continue
 
-        required = {"relationship_id", "from_id", "to_id"}
+        required = {"relationship_id", "from_entity", "to_entity"}
         actual = set(rel.keys())
 
         missing = required - actual
@@ -302,51 +302,51 @@ def parse_relationships_strict(
             continue
 
         rid = rel["relationship_id"]
-        from_id = rel["from_id"]
-        to_id = rel["to_id"]
+        from_entity = rel["from_entity"]
+        to_entity = rel["to_entity"]
 
         if not is_nonempty_string(rid):
             errors.append(f"KG.relationships[{idx}].relationship_id 必须是非空字符串")
             continue
-        if not is_nonempty_string(from_id):
-            errors.append(f"KG.relationships[{idx}].from_id 必须是非空字符串")
+        if not is_nonempty_string(from_entity):
+            errors.append(f"KG.relationships[{idx}].from_entity 必须是非空字符串")
             continue
-        if not is_nonempty_string(to_id):
-            errors.append(f"KG.relationships[{idx}].to_id 必须是非空字符串")
+        if not is_nonempty_string(to_entity):
+            errors.append(f"KG.relationships[{idx}].to_entity 必须是非空字符串")
             continue
 
         if rid not in relationship_defs:
             errors.append(f"KG.relationships[{idx}] 使用了 ontology 未定义的 relationship_id: {rid}")
             continue
 
-        if from_id not in nodes_by_id:
-            errors.append(f"KG.relationships[{idx}] 的 from_id 不存在: {from_id}")
+        if from_entity not in nodes_by_id:
+            errors.append(f"KG.relationships[{idx}] 的 from_entity 不存在: {from_entity}")
             continue
-        if to_id not in nodes_by_id:
-            errors.append(f"KG.relationships[{idx}] 的 to_id 不存在: {to_id}")
+        if to_entity not in nodes_by_id:
+            errors.append(f"KG.relationships[{idx}] 的 to_entity 不存在: {to_entity}")
             continue
 
         expected_from = relationship_defs[rid]["from_entity"]
         expected_to = relationship_defs[rid]["to_entity"]
-        actual_from = nodes_by_id[from_id]["entity_type"]
-        actual_to = nodes_by_id[to_id]["entity_type"]
+        actual_from = nodes_by_id[from_entity]["entity_type"]
+        actual_to = nodes_by_id[to_entity]["entity_type"]
 
         if actual_from != expected_from:
             errors.append(
-                f"KG.relationships[{idx}] 类型 {rid} 的 from_id={from_id} 实体类型应为 {expected_from}，实际为 {actual_from}"
+                f"KG.relationships[{idx}] 类型 {rid} 的 from_entity={from_entity} 实体类型应为 {expected_from}，实际为 {actual_from}"
             )
             continue
 
         if actual_to != expected_to:
             errors.append(
-                f"KG.relationships[{idx}] 类型 {rid} 的 to_id={to_id} 实体类型应为 {expected_to}，实际为 {actual_to}"
+                f"KG.relationships[{idx}] 类型 {rid} 的 to_entity={to_entity} 实体类型应为 {expected_to}，实际为 {actual_to}"
             )
             continue
 
         rels.append({
             "relationship_id": rid,
-            "from_id": from_id,
-            "to_id": to_id,
+            "from_entity": from_entity,
+            "to_entity": to_entity,
             "source": "explicit",
         })
 
@@ -397,8 +397,8 @@ def validate_property_references(
 
                 derived_rels.append({
                     "relationship_id": f"ATTR::{prop_name}",
-                    "from_id": node_id,
-                    "to_id": v,
+                    "from_entity": node_id,
+                    "to_entity": v,
                     "source": "property",
                 })
 
@@ -423,8 +423,8 @@ def build_graph(nodes_by_id: Dict[str, Dict[str, Any]], edges_raw: List[Dict[str
 
     for e in edges_raw:
         edges.append({
-            "from": e["from_id"],
-            "to": e["to_id"],
+            "from": e["from_entity"],
+            "to": e["to_entity"],
             "label": e["relationship_id"],
             "title": f"type: {e['relationship_id']}<br>source: {e['source']}",
             "source": e["source"],
