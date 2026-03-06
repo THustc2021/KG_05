@@ -472,12 +472,12 @@ def render_graph(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], heigh
       },
       "nodes": {
         "shape": "dot",
-        "size": 18,
+        "size": 40,
         "font": {"size": 14}
       },
       "edges": {
         "smooth": {"type": "dynamic"},
-        "font": {"size": 11, "align": "middle"}
+        "font": {"size": 30, "align": "middle"}
       }
     }
     """)
