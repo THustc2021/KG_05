@@ -109,12 +109,12 @@ def build_network(nodes: Dict[str, Dict[str, Any]], relationships: List[Dict[str
         )
 
     for rel in relationships:
-        src = rel.get("from")
-        dst = rel.get("to")
+        src = rel.get("from_entity_id")
+        dst = rel.get("to_entity_id")
         if src not in nodes or dst not in nodes:
             continue
 
-        rel_type = rel.get("type", "RELATED_TO")
+        rel_type = rel.get("relationship_id", "RELATED_TO")
         desc = rel.get("description", "")
         evidence = rel.get("evidence", "")
 
@@ -197,7 +197,7 @@ def filter_graph(
 
     kept_rels = [
         r for r in relationships
-        if r.get("from") in kept_nodes and r.get("to") in kept_nodes
+        if r.get("from_entity_id") in kept_nodes and r.get("to_entity_id") in kept_nodes
     ]
     return kept_nodes, kept_rels
 
