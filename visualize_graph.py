@@ -1,876 +1,659 @@
+# app.py
 import json
 import re
-import hashlib
+import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional
+from typing import Any, Dict, List, Tuple
 
 import streamlit as st
 from pyvis.network import Network
 import streamlit.components.v1 as components
 
 
-st.set_page_config(page_title="Ontology-Driven PerPaperKG Viewer", layout="wide")
+# =========================
+# 基础函数
+# =========================
 
-
-# =========================================================
-# Default paths
-# =========================================================
-
-DEFAULT_ONTOLOGY_PATH = Path("Ontology.json")
+DEFAULT_ONTOLOGY_PATH = Path("ontology.json")
 DEFAULT_KG_DIR = Path("PerPaperKG")
 
 
-# =========================================================
-# Generic helpers
-# =========================================================
-
-def color_from_type(entity_type: str) -> str:
-    h = hashlib.md5(entity_type.encode()).hexdigest()
-    return f"#{h[:6]}"
+def load_json(path: Path) -> Any:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
-def normalize_text(s: str) -> str:
-    return re.sub(r"[^a-z0-9_]", "", s.lower())
+def load_uploaded_json(uploaded_file) -> Any:
+    return json.load(uploaded_file)
 
 
-def first_id_key_in_dict(d: Dict[str, Any]) -> Optional[str]:
-    for k in d.keys():
-        if k.endswith("_id"):
-            return k
-    return "id" if "id" in d else None
+def is_nonempty_string(x: Any) -> bool:
+    return isinstance(x, str) and x.strip() != ""
 
 
-def get_raw_entity_id(entity: Dict[str, Any]) -> str:
-    id_key = first_id_key_in_dict(entity)
-    if id_key and entity.get(id_key):
-        return str(entity[id_key])
-    return f"anon_{abs(hash(json.dumps(entity, sort_keys=True, ensure_ascii=False)))}"
-
-
-def get_entity_uid(entity_type: str, entity: Dict[str, Any]) -> str:
-    return f"{entity_type}:{get_raw_entity_id(entity)}"
-
-
-def get_entity_label(entity_type: str, entity: Dict[str, Any]) -> str:
-    text = None
-
-    # 1) 优先找 *_id
-    for k, v in entity.items():
-        if k.endswith("_id") and v:
-            text = str(v)
-            break
-
-    # 2) 再找常见可读字段
-    if not text:
-        for key in ["name", "title", "symbol", "description"]:
-            if key in entity and entity[key]:
-                text = str(entity[key])
-                break
-
-    # 3) fallback
-    if not text:
-        text = get_raw_entity_id(entity)
-
-    if len(text) > 56:
-        text = text[:53] + "..."
-
-    return f"{entity_type}\n{text}"
-
-def build_tooltip(entity_type: str, entity: Dict[str, Any]) -> str:
-    parts = [f"<b>{entity_type}</b>"]
-    for k, v in entity.items():
-        if v in ("", None, [], {}):
-            continue
-        if isinstance(v, list):
-            v = ", ".join(map(str, v))
-        else:
-            v = str(v)
-        if len(v) > 500:
-            v = v[:500] + "..."
-        parts.append(f"<b>{k}</b>: {v}")
-    return "<br>".join(parts)
-
-
-# =========================================================
-# Ontology parsing
-# =========================================================
-
-def extract_entities_schema(ontology: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    entities = ontology.get("entities", {})
-    if not isinstance(entities, dict):
-        raise ValueError("Ontology must contain an 'entities' object.")
-    return entities
-
-
-def extract_relationship_schema(ontology: Dict[str, Any]) -> Dict[str, Dict[str, str]]:
-    rels = ontology.get("relationships", [])
-    result = {}
-    if isinstance(rels, list):
-        for rel in rels:
-            rid = rel.get("relationship_id") or rel.get("type")
-            if rid:
-                result[rid] = {
-                    "from_entity": rel.get("from_entity") or rel.get("from"),
-                    "to_entity": rel.get("to_entity") or rel.get("to"),
-                    "description": rel.get("description", "")
-                }
-    return result
-
-
-def choose_primary_id_field(entity_type: str, entity_schema: Dict[str, Any]) -> str:
-    properties = entity_schema.get("properties", {})
-    if not isinstance(properties, dict) or not properties:
-        raise ValueError(f"Ontology entity '{entity_type}' has no properties.")
-
-    for prop_name in properties.keys():
-        if prop_name.endswith("_id"):
-            return prop_name
-
-    raise ValueError(f"Ontology entity '{entity_type}' does not define any *_id property.")
-
-
-def extract_reference_tokens(type_str: str) -> List[str]:
-    if not isinstance(type_str, str):
+def as_list(x: Any) -> List[Any]:
+    if x is None:
         return []
-    tokens = re.findall(r"\b[a-zA-Z_]+_id\b", type_str)
-    return list(dict.fromkeys(tokens))
+    if isinstance(x, list):
+        return x
+    return [x]
 
 
-def resolve_reference_token_to_entity_type(
-    ref_token: str,
-    entity_primary_id_fields: Dict[str, str]
-) -> str:
-    token_n = normalize_text(ref_token)
-    scores: List[Tuple[int, str]] = []
-
-    for entity_type, id_field in entity_primary_id_fields.items():
-        field_n = normalize_text(id_field)
-        entity_n = normalize_text(entity_type)
-
-        score = -1
-        if ref_token == id_field:
-            score = 100
-        elif token_n == field_n:
-            score = 95
-        elif field_n.endswith(token_n) or token_n.endswith(field_n):
-            score = 80
-        elif token_n.replace("_id", "") == entity_n:
-            score = 70
-        elif token_n.replace("_id", "") in field_n.replace("_id", ""):
-            score = 60
-        elif field_n.replace("_id", "") in token_n.replace("_id", ""):
-            score = 50
-
-        if score >= 0:
-            scores.append((score, entity_type))
-
-    if not scores:
-        raise ValueError(f"Cannot resolve ontology reference token '{ref_token}' to any entity type.")
-
-    scores.sort(reverse=True, key=lambda x: x[0])
-    top_score = scores[0][0]
-    top = [et for sc, et in scores if sc == top_score]
-
-    if len(top) != 1:
-        raise ValueError(
-            f"Ambiguous ontology reference token '{ref_token}'. Candidate entity types: {top}"
-        )
-    return top[0]
-
-
-def build_ontology_reference_map(
-    ontology: Dict[str, Any]
-) -> Tuple[Dict[str, str], Dict[str, Dict[str, str]]]:
-    entities_schema = extract_entities_schema(ontology)
-
-    entity_primary_id_fields: Dict[str, str] = {}
-    for entity_type, entity_schema in entities_schema.items():
-        entity_primary_id_fields[entity_type] = choose_primary_id_field(entity_type, entity_schema)
-
-    property_ref_targets: Dict[str, Dict[str, str]] = {}
-
-    for entity_type, entity_schema in entities_schema.items():
-        properties = entity_schema.get("properties", {})
-        property_ref_targets[entity_type] = {}
-
-        for prop_name, prop_spec in properties.items():
-            if prop_name == entity_primary_id_fields[entity_type]:
-                continue
-            if not isinstance(prop_spec, dict):
-                continue
-
-            type_str = prop_spec.get("type", "")
-            ref_tokens = extract_reference_tokens(type_str)
-            if not ref_tokens:
-                continue
-
-            if len(ref_tokens) > 1:
-                raise ValueError(
-                    f"Ontology property '{entity_type}.{prop_name}' contains multiple id reference tokens: {ref_tokens}"
-                )
-
-            ref_token = ref_tokens[0]
-            target_entity_type = resolve_reference_token_to_entity_type(ref_token, entity_primary_id_fields)
-            property_ref_targets[entity_type][prop_name] = target_entity_type
-
-    return entity_primary_id_fields, property_ref_targets
-
-
-def summarize_ontology_reference_graph(
-    ontology: Dict[str, Any]
-) -> Dict[str, Any]:
-    entity_primary_id_fields, property_ref_targets = build_ontology_reference_map(ontology)
-
-    entity_summary = []
-    reference_edges = []
-
-    for entity_type, primary_id in entity_primary_id_fields.items():
-        refs = property_ref_targets.get(entity_type, {})
-        entity_summary.append(
-            {
-                "entity_type": entity_type,
-                "primary_id_field": primary_id,
-                "reference_property_count": len(refs),
-            }
-        )
-
-        for prop_name, target_entity_type in refs.items():
-            reference_edges.append(
-                {
-                    "from_entity": entity_type,
-                    "property": prop_name,
-                    "to_entity": target_entity_type,
-                }
-            )
-
-    return {
-        "entity_summary": entity_summary,
-        "reference_edges": reference_edges,
-    }
-
-
-# =========================================================
-# KG parsing
-# =========================================================
-
-def parse_kg_entities(kg: Dict[str, Any]) -> Dict[str, Dict[str, Dict[str, Any]]]:
-    raw_entities = kg.get("entities", {})
-    if not isinstance(raw_entities, dict):
-        raise ValueError("KG must contain an 'entities' object.")
-
-    parsed: Dict[str, Dict[str, Dict[str, Any]]] = {}
-    for entity_type, items in raw_entities.items():
-        if not isinstance(items, list):
-            raise ValueError(f"KG entity bucket '{entity_type}' must be a list of entity instances.")
-
-        parsed[entity_type] = {}
-        for item in items:
-            if not isinstance(item, dict):
-                raise ValueError(f"Entity instance under '{entity_type}' must be an object.")
-
-            raw_id = get_raw_entity_id(item)
-            if raw_id in parsed[entity_type]:
-                raise ValueError(f"Duplicate entity id '{raw_id}' found in entity type '{entity_type}'.")
-            parsed[entity_type][raw_id] = item
-
-    return parsed
-
-
-def normalize_explicit_relationships(kg: Dict[str, Any]) -> List[Dict[str, Any]]:
-    raw_relationships = kg.get("relationship_instances") or kg.get("relationships") or []
-    if not isinstance(raw_relationships, list):
-        raise ValueError("'relationship_instances' or 'relationships' must be a list.")
-
-    normalized = []
-    for rel in raw_relationships:
-        if not isinstance(rel, dict):
-            raise ValueError("Each relationship instance must be an object.")
-
-        normalized.append(
-            {
-                "relationship_id": rel.get("relationship_id") or rel.get("type"),
-                "from_entity_id": rel.get("from_entity_id") or rel.get("from"),
-                "to_entity_id": rel.get("to_entity_id") or rel.get("to"),
-                "description": rel.get("description", ""),
-                "evidence": rel.get("evidence", ""),
-                "source": "explicit",
-            }
-        )
-    return normalized
-
-
-# =========================================================
-# Entity lookup for relationship resolution
-# =========================================================
-
-def build_global_id_index(
-    kg_entities: Dict[str, Dict[str, Dict[str, Any]]]
-) -> Dict[str, List[str]]:
-    """
-    raw_id -> [entity_type, ...]
-    """
-    idx: Dict[str, List[str]] = {}
-    for entity_type, instances in kg_entities.items():
-        for raw_id in instances.keys():
-            idx.setdefault(raw_id, []).append(entity_type)
-    return idx
-
-
-def resolve_entity_id_by_expected_type(
-    raw_id: str,
-    expected_entity_type: str,
-    kg_entities: Dict[str, Dict[str, Dict[str, Any]]]
-) -> bool:
-    return raw_id in kg_entities.get(expected_entity_type, {})
-
-
-# =========================================================
-# Completeness check
-# =========================================================
-
-def validate_kg_completeness(
-    kg: Dict[str, Any],
-    ontology: Dict[str, Any],
-    raise_on_error: bool = True
-) -> Tuple[
-    Dict[str, Dict[str, Dict[str, Any]]],
-    Dict[str, str],
-    Dict[str, Dict[str, str]],
-    List[Dict[str, Any]],
-    Dict[str, Any]
-]:
-    entities_schema = extract_entities_schema(ontology)
-    rel_schema = extract_relationship_schema(ontology)
-    entity_primary_id_fields, property_ref_targets = build_ontology_reference_map(ontology)
-    kg_entities = parse_kg_entities(kg)
-    explicit_relationships = normalize_explicit_relationships(kg)
-
-    errors: List[str] = []
-    missing_references: List[Dict[str, Any]] = []
-    invalid_relationships: List[Dict[str, Any]] = []
-
-    for entity_type in kg_entities.keys():
-        if entity_type not in entities_schema:
-            errors.append(f"KG entity type '{entity_type}' is not defined in ontology.")
-
-    for entity_type, instances in kg_entities.items():
-        if entity_type not in entity_primary_id_fields:
-            continue
-        primary_id_field = entity_primary_id_fields[entity_type]
-
-        for raw_id, instance in instances.items():
-            if primary_id_field not in instance:
-                errors.append(
-                    f"Entity '{entity_type}:{raw_id}' is missing primary id field '{primary_id_field}'."
-                )
-
-    # property references
-    for entity_type, instances in kg_entities.items():
-        if entity_type not in property_ref_targets:
-            continue
-
-        ref_props = property_ref_targets[entity_type]
-        for raw_id, instance in instances.items():
-            for prop_name, target_entity_type in ref_props.items():
-                if prop_name not in instance:
-                    continue
-
-                value = instance[prop_name]
-                if value in ("", None, []):
-                    continue
-
-                if isinstance(value, str):
-                    if not resolve_entity_id_by_expected_type(value, target_entity_type, kg_entities):
-                        msg = (
-                            f"Broken reference in '{entity_type}:{raw_id}.{prop_name}' -> "
-                            f"'{value}' (expected target entity type: {target_entity_type})"
-                        )
-                        errors.append(msg)
-                        missing_references.append(
-                            {
-                                "source_entity_type": entity_type,
-                                "source_entity_id": raw_id,
-                                "property": prop_name,
-                                "target_entity_type": target_entity_type,
-                                "missing_id": value,
-                            }
-                        )
-                elif isinstance(value, list):
-                    for ref_id in value:
-                        if not isinstance(ref_id, str):
-                            errors.append(
-                                f"Invalid non-string reference in '{entity_type}:{raw_id}.{prop_name}': {ref_id}"
-                            )
-                            continue
-                        if not resolve_entity_id_by_expected_type(ref_id, target_entity_type, kg_entities):
-                            msg = (
-                                f"Broken reference in '{entity_type}:{raw_id}.{prop_name}' -> "
-                                f"'{ref_id}' (expected target entity type: {target_entity_type})"
-                            )
-                            errors.append(msg)
-                            missing_references.append(
-                                {
-                                    "source_entity_type": entity_type,
-                                    "source_entity_id": raw_id,
-                                    "property": prop_name,
-                                    "target_entity_type": target_entity_type,
-                                    "missing_id": ref_id,
-                                }
-                            )
-                else:
-                    errors.append(
-                        f"Invalid reference value type in '{entity_type}:{raw_id}.{prop_name}'. "
-                        f"Expected string or string list, got {type(value).__name__}."
-                    )
-
-    # explicit relationships: infer types from ontology relationship schema
-    for idx, rel in enumerate(explicit_relationships):
-        rid = rel.get("relationship_id")
-        f_id = rel.get("from_entity_id")
-        t_id = rel.get("to_entity_id")
-
-        if not rid:
-            msg = f"Relationship #{idx} is missing 'relationship_id'."
-            errors.append(msg)
-            invalid_relationships.append({"relationship_id": "", "reason": msg})
-            continue
-
-        if rid not in rel_schema:
-            msg = f"Relationship #{idx} uses undefined relationship_id '{rid}'."
-            errors.append(msg)
-            invalid_relationships.append({"relationship_id": rid, "reason": msg})
-            continue
-
-        expected_from = rel_schema[rid].get("from_entity")
-        expected_to = rel_schema[rid].get("to_entity")
-
-        if not f_id or not t_id:
-            msg = f"Relationship #{idx} ('{rid}') must specify from_entity_id and to_entity_id."
-            errors.append(msg)
-            invalid_relationships.append({"relationship_id": rid, "reason": msg})
-            continue
-
-        if not resolve_entity_id_by_expected_type(f_id, expected_from, kg_entities):
-            msg = (
-                f"Relationship #{idx} ('{rid}') references missing or mistyped from entity "
-                f"'{f_id}' (expected type: {expected_from})."
-            )
-            errors.append(msg)
-            invalid_relationships.append({"relationship_id": rid, "reason": msg})
-
-        if not resolve_entity_id_by_expected_type(t_id, expected_to, kg_entities):
-            msg = (
-                f"Relationship #{idx} ('{rid}') references missing or mistyped to entity "
-                f"'{t_id}' (expected type: {expected_to})."
-            )
-            errors.append(msg)
-            invalid_relationships.append({"relationship_id": rid, "reason": msg})
-
-    validation_report = {
-        "passed": len(errors) == 0,
-        "errors": errors,
-        "missing_references": missing_references,
-        "invalid_relationships": invalid_relationships,
-    }
-
-    if errors and raise_on_error:
-        raise ValueError("KG completeness validation failed:\n- " + "\n- ".join(errors))
-
-    return (
-        kg_entities,
-        entity_primary_id_fields,
-        property_ref_targets,
-        explicit_relationships,
-        validation_report,
-    )
-
-
-# =========================================================
-# Build nodes + relationships
-# =========================================================
-
-def build_nodes_from_kg(kg_entities: Dict[str, Dict[str, Dict[str, Any]]]) -> Dict[str, Dict[str, Any]]:
-    nodes: Dict[str, Dict[str, Any]] = {}
-    for entity_type, instances in kg_entities.items():
-        for raw_id, entity in instances.items():
-            uid = f"{entity_type}:{raw_id}"
-            nodes[uid] = {
-                "id": uid,
-                "raw_id": raw_id,
-                "type": entity_type,
-                "data": entity,
-            }
-    return nodes
-
-
-def explicit_relationships_to_uids(
-    explicit_relationships: List[Dict[str, Any]],
-    ontology: Dict[str, Any]
-) -> List[Dict[str, Any]]:
-    rel_schema = extract_relationship_schema(ontology)
+def uniq_edges(edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    seen = set()
     out = []
-
-    for rel in explicit_relationships:
-        rid = rel["relationship_id"]
-        from_type = rel_schema[rid]["from_entity"]
-        to_type = rel_schema[rid]["to_entity"]
-
-        out.append(
-            {
-                **rel,
-                "from_entity_type": from_type,
-                "to_entity_type": to_type,
-                "from_uid": f"{from_type}:{rel['from_entity_id']}",
-                "to_uid": f"{to_type}:{rel['to_entity_id']}",
-            }
-        )
+    for e in edges:
+        key = (e["from"], e["to"], e["label"], e["source"])
+        if key not in seen:
+            seen.add(key)
+            out.append(e)
     return out
 
 
-def infer_property_relationships(
-    kg_entities: Dict[str, Dict[str, Dict[str, Any]]],
-    property_ref_targets: Dict[str, Dict[str, str]]
-) -> List[Dict[str, Any]]:
-    inferred: List[Dict[str, Any]] = []
+# =========================
+# Ontology 严格解析
+# =========================
 
-    for entity_type, instances in kg_entities.items():
-        ref_props = property_ref_targets.get(entity_type, {})
-        for raw_id, instance in instances.items():
-            src_uid = f"{entity_type}:{raw_id}"
-
-            for prop_name, target_entity_type in ref_props.items():
-                if prop_name not in instance:
-                    continue
-
-                value = instance[prop_name]
-                if value in ("", None, []):
-                    continue
-
-                if isinstance(value, str):
-                    inferred.append(
-                        {
-                            "relationship_id": prop_name,
-                            "from_entity_type": entity_type,
-                            "from_entity_id": raw_id,
-                            "to_entity_type": target_entity_type,
-                            "to_entity_id": value,
-                            "description": f"Inferred from property '{prop_name}'.",
-                            "evidence": "",
-                            "source": "property",
-                            "from_uid": src_uid,
-                            "to_uid": f"{target_entity_type}:{value}",
-                        }
-                    )
-                elif isinstance(value, list):
-                    for target_id in value:
-                        inferred.append(
-                            {
-                                "relationship_id": prop_name,
-                                "from_entity_type": entity_type,
-                                "from_entity_id": raw_id,
-                                "to_entity_type": target_entity_type,
-                                "to_entity_id": target_id,
-                                "description": f"Inferred from property '{prop_name}'.",
-                                "evidence": "",
-                                "source": "property",
-                                "from_uid": src_uid,
-                                "to_uid": f"{target_entity_type}:{target_id}",
-                            }
-                        )
-    return inferred
+def normalize_type_str(type_str: str) -> str:
+    return re.sub(r"\s+", " ", str(type_str).strip())
 
 
-def deduplicate_relationships(relationships: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    seen = set()
-    result = []
-    for rel in relationships:
-        key = (
-            rel.get("relationship_id"),
-            rel.get("from_uid"),
-            rel.get("to_uid"),
-            rel.get("source"),
+def strip_optional(type_str: str) -> str:
+    s = normalize_type_str(type_str)
+    if s.startswith("optional "):
+        s = s[len("optional "):].strip()
+    return s
+
+
+def split_union_types(type_str: str) -> List[str]:
+    return [x.strip() for x in strip_optional(type_str).split("|")]
+
+
+def is_list_type(type_str: str) -> bool:
+    return "[]" in normalize_type_str(type_str)
+
+
+def strip_list_suffix(type_name: str) -> str:
+    return re.sub(r"\[\]$", "", type_name.strip())
+
+
+def get_entity_id_field(entity_name: str, entity_spec: Dict[str, Any]) -> str:
+    """
+    严格规则：
+    每个实体必须且只能有一个属性 whose type == "string" 且属性名以 _id 结尾，并作为主键。
+    """
+    props = entity_spec["properties"]
+    candidates = []
+    for prop_name, prop_spec in props.items():
+        if prop_name.endswith("_id") and normalize_type_str(prop_spec["type"]) == "string":
+            candidates.append(prop_name)
+
+    if len(candidates) != 1:
+        raise ValueError(
+            f"实体 {entity_name} 无法唯一确定主键字段。候选={candidates}"
         )
-        if key in seen:
+    return candidates[0]
+
+
+def build_ontology_schema(ontology: Dict[str, Any]) -> Dict[str, Any]:
+    if "entities" not in ontology or "relationships" not in ontology:
+        raise ValueError("ontology 必须包含 entities 和 relationships 字段。")
+
+    entities = ontology["entities"]
+    relationships = ontology["relationships"]
+
+    if not isinstance(entities, dict):
+        raise ValueError("ontology.entities 必须是对象。")
+    if not isinstance(relationships, list):
+        raise ValueError("ontology.relationships 必须是数组。")
+
+    entity_id_field: Dict[str, str] = {}
+    entity_allowed_props: Dict[str, set] = {}
+    entity_ref_props: Dict[str, List[Dict[str, Any]]] = {}
+    entity_id_type_token_to_entity: Dict[str, str] = {}
+    relationship_defs: Dict[str, Dict[str, str]] = {}
+
+    # 1) 实体 schema
+    for entity_name, entity_spec in entities.items():
+        if not isinstance(entity_spec, dict) or "properties" not in entity_spec:
+            raise ValueError(f"ontology.entities.{entity_name} 格式非法。")
+
+        props = entity_spec["properties"]
+        if not isinstance(props, dict):
+            raise ValueError(f"ontology.entities.{entity_name}.properties 必须是对象。")
+
+        id_field = get_entity_id_field(entity_name, entity_spec)
+        entity_id_field[entity_name] = id_field
+        entity_allowed_props[entity_name] = set(props.keys())
+        entity_id_type_token_to_entity[id_field] = entity_name
+
+    # 2) 属性引用 schema
+    for entity_name, entity_spec in entities.items():
+        props = entity_spec["properties"]
+        ref_specs = []
+
+        for prop_name, prop_spec in props.items():
+            type_str = normalize_type_str(prop_spec["type"])
+            union_members = split_union_types(type_str)
+
+            target_entities = []
+            for member in union_members:
+                member = strip_list_suffix(member)
+                if member in entity_id_type_token_to_entity:
+                    target_entities.append(entity_id_type_token_to_entity[member])
+
+            if target_entities:
+                ref_specs.append({
+                    "property_name": prop_name,
+                    "target_entities": target_entities,
+                    "is_list": is_list_type(type_str),
+                    "type_str": type_str,
+                })
+
+        entity_ref_props[entity_name] = ref_specs
+
+    # 3) relationship schema
+    for rel in relationships:
+        if not isinstance(rel, dict):
+            raise ValueError("ontology.relationships 中每个元素都必须是对象。")
+
+        required = {"relationship_id", "from_entity", "to_entity"}
+        missing = required - set(rel.keys())
+        if missing:
+            raise ValueError(f"ontology.relationships 中存在缺字段: {missing}")
+
+        rid = rel["relationship_id"]
+        if rid in relationship_defs:
+            raise ValueError(f"ontology.relationships 中 relationship_id 重复: {rid}")
+
+        relationship_defs[rid] = {
+            "from_entity": rel["from_entity"],
+            "to_entity": rel["to_entity"],
+        }
+
+    return {
+        "entity_id_field": entity_id_field,
+        "entity_allowed_props": entity_allowed_props,
+        "entity_ref_props": entity_ref_props,
+        "relationship_defs": relationship_defs,
+        "entities": entities,
+    }
+
+
+# =========================
+# KG 严格解析
+# =========================
+
+def validate_top_level_kg_shape(kg: Dict[str, Any]) -> List[str]:
+    errors = []
+
+    required_top_keys = {"title", "year", "authors", "journal", "doi", "entities", "relationships"}
+    actual_keys = set(kg.keys())
+
+    missing = required_top_keys - actual_keys
+    extra = actual_keys - required_top_keys
+
+    if missing:
+        errors.append(f"KG 顶层缺少字段: {sorted(missing)}")
+    if extra:
+        errors.append(f"KG 顶层存在非法字段: {sorted(extra)}")
+
+    if "entities" in kg and not isinstance(kg["entities"], dict):
+        errors.append("KG.entities 必须是对象。")
+    if "relationships" in kg and not isinstance(kg["relationships"], list):
+        errors.append("KG.relationships 必须是数组。")
+
+    return errors
+
+
+def parse_entities_strict(
+    kg: Dict[str, Any],
+    schema: Dict[str, Any]
+) -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
+    errors = []
+    nodes_by_id: Dict[str, Dict[str, Any]] = {}
+
+    ontology_entities = schema["entities"]
+    entity_id_field = schema["entity_id_field"]
+    entity_allowed_props = schema["entity_allowed_props"]
+
+    kg_entities = kg["entities"]
+
+    # entities 下只能出现 ontology 中定义的实体类型
+    extra_entity_types = set(kg_entities.keys()) - set(ontology_entities.keys())
+    if extra_entity_types:
+        errors.append(f"KG.entities 中存在非法实体类型: {sorted(extra_entity_types)}")
+
+    for entity_name in ontology_entities.keys():
+        if entity_name not in kg_entities:
             continue
-        seen.add(key)
-        result.append(rel)
-    return result
+
+        items = kg_entities[entity_name]
+        if not isinstance(items, list):
+            errors.append(f"KG.entities.{entity_name} 必须是数组。")
+            continue
+
+        id_field = entity_id_field[entity_name]
+        allowed_props = entity_allowed_props[entity_name]
+
+        for idx, item in enumerate(items):
+            if not isinstance(item, dict):
+                errors.append(f"KG.entities.{entity_name}[{idx}] 必须是对象。")
+                continue
+
+            extra_props = set(item.keys()) - allowed_props
+            if extra_props:
+                errors.append(
+                    f"KG.entities.{entity_name}[{idx}] 存在非法属性: {sorted(extra_props)}"
+                )
+
+            if id_field not in item:
+                errors.append(
+                    f"KG.entities.{entity_name}[{idx}] 缺少主键字段 {id_field}"
+                )
+                continue
+
+            entity_id = item[id_field]
+            if not is_nonempty_string(entity_id):
+                errors.append(
+                    f"KG.entities.{entity_name}[{idx}].{id_field} 必须是非空字符串"
+                )
+                continue
+
+            if entity_id in nodes_by_id:
+                errors.append(f"实体 id 重复: {entity_id}")
+                continue
+
+            nodes_by_id[entity_id] = {
+                "id": entity_id,
+                "entity_type": entity_name,
+                "data": item,
+            }
+
+    return nodes_by_id, errors
 
 
-# =========================================================
-# Visualization
-# =========================================================
+def parse_relationships_strict(
+    kg: Dict[str, Any],
+    schema: Dict[str, Any],
+    nodes_by_id: Dict[str, Dict[str, Any]]
+) -> Tuple[List[Dict[str, Any]], List[str]]:
+    errors = []
+    rels = []
 
-def build_network(nodes: Dict[str, Dict[str, Any]], relationships: List[Dict[str, Any]]) -> Network:
-    net = Network(height="780px", width="100%", bgcolor="#ffffff", font_color="#222222", directed=True)
+    relationship_defs = schema["relationship_defs"]
+
+    for idx, rel in enumerate(kg["relationships"]):
+        if not isinstance(rel, dict):
+            errors.append(f"KG.relationships[{idx}] 必须是对象。")
+            continue
+
+        required = {"relationship_id", "from_id", "to_id"}
+        actual = set(rel.keys())
+
+        missing = required - actual
+        extra = actual - required
+
+        if missing:
+            errors.append(f"KG.relationships[{idx}] 缺少字段: {sorted(missing)}")
+            continue
+        if extra:
+            errors.append(f"KG.relationships[{idx}] 存在非法字段: {sorted(extra)}")
+            continue
+
+        rid = rel["relationship_id"]
+        from_id = rel["from_id"]
+        to_id = rel["to_id"]
+
+        if not is_nonempty_string(rid):
+            errors.append(f"KG.relationships[{idx}].relationship_id 必须是非空字符串")
+            continue
+        if not is_nonempty_string(from_id):
+            errors.append(f"KG.relationships[{idx}].from_id 必须是非空字符串")
+            continue
+        if not is_nonempty_string(to_id):
+            errors.append(f"KG.relationships[{idx}].to_id 必须是非空字符串")
+            continue
+
+        if rid not in relationship_defs:
+            errors.append(f"KG.relationships[{idx}] 使用了 ontology 未定义的 relationship_id: {rid}")
+            continue
+
+        if from_id not in nodes_by_id:
+            errors.append(f"KG.relationships[{idx}] 的 from_id 不存在: {from_id}")
+            continue
+        if to_id not in nodes_by_id:
+            errors.append(f"KG.relationships[{idx}] 的 to_id 不存在: {to_id}")
+            continue
+
+        expected_from = relationship_defs[rid]["from_entity"]
+        expected_to = relationship_defs[rid]["to_entity"]
+        actual_from = nodes_by_id[from_id]["entity_type"]
+        actual_to = nodes_by_id[to_id]["entity_type"]
+
+        if actual_from != expected_from:
+            errors.append(
+                f"KG.relationships[{idx}] 类型 {rid} 的 from_id={from_id} 实体类型应为 {expected_from}，实际为 {actual_from}"
+            )
+            continue
+
+        if actual_to != expected_to:
+            errors.append(
+                f"KG.relationships[{idx}] 类型 {rid} 的 to_id={to_id} 实体类型应为 {expected_to}，实际为 {actual_to}"
+            )
+            continue
+
+        rels.append({
+            "relationship_id": rid,
+            "from_id": from_id,
+            "to_id": to_id,
+            "source": "explicit",
+        })
+
+    return rels, errors
+
+
+def validate_property_references(
+    schema: Dict[str, Any],
+    nodes_by_id: Dict[str, Dict[str, Any]]
+) -> Tuple[List[Dict[str, Any]], List[str]]:
+    errors = []
+    derived_rels = []
+
+    entity_ref_props = schema["entity_ref_props"]
+
+    for node_id, node in nodes_by_id.items():
+        entity_type = node["entity_type"]
+        data = node["data"]
+
+        for ref_spec in entity_ref_props[entity_type]:
+            prop_name = ref_spec["property_name"]
+            target_entities = set(ref_spec["target_entities"])
+            values = as_list(data.get(prop_name))
+
+            for v in values:
+                if v is None:
+                    continue
+
+                if not is_nonempty_string(v):
+                    errors.append(
+                        f"实体 {node_id} 的属性 {prop_name} 包含非法值，必须是字符串 id"
+                    )
+                    continue
+
+                if v not in nodes_by_id:
+                    errors.append(
+                        f"实体 {node_id} 的属性 {prop_name} 引用了不存在的 id: {v}"
+                    )
+                    continue
+
+                actual_target_type = nodes_by_id[v]["entity_type"]
+                if actual_target_type not in target_entities:
+                    errors.append(
+                        f"实体 {node_id} 的属性 {prop_name} 引用 id={v}，其实体类型为 {actual_target_type}，"
+                        f"但 ontology 要求目标类型为 {sorted(target_entities)}"
+                    )
+                    continue
+
+                derived_rels.append({
+                    "relationship_id": f"ATTR::{prop_name}",
+                    "from_id": node_id,
+                    "to_id": v,
+                    "source": "property",
+                })
+
+    return derived_rels, errors
+
+
+# =========================
+# 可视化
+# =========================
+
+def build_graph(nodes_by_id: Dict[str, Dict[str, Any]], edges_raw: List[Dict[str, Any]]):
+    nodes = []
+    edges = []
+
+    for node_id, node in nodes_by_id.items():
+        nodes.append({
+            "id": node_id,
+            "label": node_id,
+            "group": node["entity_type"],
+            "title": f"entity_type: {node['entity_type']}<br>id: {node_id}",
+        })
+
+    for e in edges_raw:
+        edges.append({
+            "from": e["from_id"],
+            "to": e["to_id"],
+            "label": e["relationship_id"],
+            "title": f"type: {e['relationship_id']}<br>source: {e['source']}",
+            "source": e["source"],
+        })
+
+    return nodes, uniq_edges(edges)
+
+
+def render_graph(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], height: int = 850):
+    net = Network(height=f"{height}px", width="100%", directed=True, bgcolor="white", font_color="black")
     net.barnes_hut()
 
-    for node_id, node_obj in nodes.items():
-        entity_type = node_obj["type"]
-        entity = node_obj["data"]
-        label = get_entity_label(entity_type, entity)
-        title = build_tooltip(entity_type, entity)
-
+    for n in nodes:
         net.add_node(
-            node_id,
-            label=label,
-            title=title,
-            color=color_from_type(entity_type),
-            shape="dot",
-            size=18,
+            n["id"],
+            label=n["label"],
+            title=n["title"],
+            group=n["group"],
         )
 
-    for rel in relationships:
-        src = rel["from_uid"]
-        dst = rel["to_uid"]
-        if src not in nodes or dst not in nodes:
-            continue
-
-        rel_type = rel.get("relationship_id", "RELATED_TO")
-        desc = rel.get("description", "")
-        evidence = rel.get("evidence", "")
-        source = rel.get("source", "")
-
-        tooltip_parts = [f"<b>{rel_type}</b>"]
-        if source:
-            tooltip_parts.append(f"<b>source</b>: {source}")
-        if desc:
-            tooltip_parts.append(f"<b>description</b>: {desc}")
-        if evidence:
-            ev = evidence if len(evidence) <= 300 else evidence[:300] + "..."
-            tooltip_parts.append(f"<b>evidence</b>: {ev}")
-
+    for e in edges:
         net.add_edge(
-            src,
-            dst,
-            label=rel_type,
-            title="<br>".join(tooltip_parts),
+            e["from"],
+            e["to"],
+            label=e["label"],
+            title=e["title"],
             arrows="to",
-            smooth=False,
-            dashes=(source == "property"),
         )
 
-    net.set_options(
-        """
-        const options = {
-          "nodes": {
-            "font": { "size": 14, "multi": "html" }
-          },
-          "edges": {
-            "font": { "size": 11, "align": "middle" },
-            "color": { "color": "#888888", "highlight": "#333333" }
-          },
-          "interaction": {
-            "hover": true,
-            "navigationButtons": true,
-            "keyboard": true
-          },
-          "physics": {
-            "enabled": true,
-            "barnesHut": {
-              "gravitationalConstant": -4500,
-              "springLength": 160,
-              "springConstant": 0.03
-            },
-            "minVelocity": 0.75
-          }
+    net.set_options("""
+    const options = {
+      "interaction": {
+        "hover": true,
+        "navigationButtons": true,
+        "keyboard": true
+      },
+      "physics": {
+        "enabled": true,
+        "barnesHut": {
+          "gravitationalConstant": -9000,
+          "centralGravity": 0.15,
+          "springLength": 140,
+          "springConstant": 0.04
         }
-        """
-    )
-    return net
+      },
+      "nodes": {
+        "shape": "dot",
+        "size": 18,
+        "font": {"size": 14}
+      },
+      "edges": {
+        "smooth": {"type": "dynamic"},
+        "font": {"size": 11, "align": "middle"}
+      }
+    }
+    """)
+
+    with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as f:
+        f.write(net.generate_html())
+        html_path = f.name
+
+    html = Path(html_path).read_text(encoding="utf-8")
+    components.html(html, height=height, scrolling=True)
 
 
-def filter_graph(
-    nodes: Dict[str, Dict[str, Any]],
-    relationships: List[Dict[str, Any]],
-    selected_types: List[str],
-    keyword: str,
-) -> Tuple[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]:
-    keyword = keyword.strip().lower()
+# =========================
+# Streamlit UI
+# =========================
 
-    kept_nodes = {}
-    for node_id, node_obj in nodes.items():
-        entity_type = node_obj["type"]
-        entity = node_obj["data"]
-
-        if selected_types and entity_type not in selected_types:
-            continue
-
-        text_blob = json.dumps(entity, ensure_ascii=False).lower()
-        if keyword and keyword not in text_blob:
-            continue
-
-        kept_nodes[node_id] = node_obj
-
-    kept_rels = [
-        r for r in relationships
-        if r.get("from_uid") in kept_nodes and r.get("to_uid") in kept_nodes
-    ]
-    return kept_nodes, kept_rels
-
-
-# =========================================================
-# File loading
-# =========================================================
-
-def load_default_ontology() -> Dict[str, Any]:
-    if not DEFAULT_ONTOLOGY_PATH.exists():
-        raise FileNotFoundError(f"Default ontology file not found: {DEFAULT_ONTOLOGY_PATH}")
-    return json.loads(DEFAULT_ONTOLOGY_PATH.read_text(encoding="utf-8"))
-
-
-def list_kg_files() -> List[Path]:
-    if not DEFAULT_KG_DIR.exists():
-        return []
-    return sorted(DEFAULT_KG_DIR.glob("*.json"))
-
-
-def load_kg_file(path: Path) -> Dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-# =========================================================
-# UI
-# =========================================================
-
-st.title("Ontology-Driven PerPaperKG Viewer")
+st.set_page_config(page_title="Strict Per-Paper KG Visualizer", layout="wide")
+st.title("Strict Per-Paper Knowledge Graph Visualizer")
 
 st.markdown(
-    f"""
-Default ontology: `{DEFAULT_ONTOLOGY_PATH}`  
-Default KG directory: `{DEFAULT_KG_DIR}`
+    """
+严格模式：
 
-Workflow:
-- auto-load default ontology
-- select one KG JSON under `PerPaperKG/`
-- validate KG completeness against ontology
-- output ontology reference graph summary
-- if validation passes, visualize both:
-  - explicit relationships
-  - property-inferred relationships
+- 完全按 ontology 原样校验
+- 不做格式兼容
+- 检查非法属性
+- 检查所有 id 引用完整性
+- 只有检查全部通过才可视化
 """
 )
 
-try:
-    ontology_data = load_default_ontology()
-except Exception as e:
-    st.error(f"Failed to load default ontology: {e}")
-    st.stop()
-
-kg_files = list_kg_files()
-if not kg_files:
-    st.warning(f"No KG JSON files found in directory: {DEFAULT_KG_DIR}")
-    st.stop()
-
 with st.sidebar:
-    st.header("Data")
-    selected_kg_name = st.selectbox("Select KG file", [p.name for p in kg_files])
+    st.header("输入")
+    ontology_upload = st.file_uploader("可选：上传 ontology.json", type=["json"])
+    kg_upload = st.file_uploader("上传知识图谱 JSON（可选，不上传则默认从 PerPaperKG 加载）", type=["json"])
 
-selected_kg_path = next(p for p in kg_files if p.name == selected_kg_name)
 
+# 1) 读取 ontology
 try:
-    kg_data = load_kg_file(selected_kg_path)
+    if ontology_upload is not None:
+        ontology = load_uploaded_json(ontology_upload)
+        ontology_source = ontology_upload.name
+    else:
+        if not DEFAULT_ONTOLOGY_PATH.exists():
+            st.error(f"未找到默认 ontology 文件：{DEFAULT_ONTOLOGY_PATH}")
+            st.stop()
+        ontology = load_json(DEFAULT_ONTOLOGY_PATH)
+        ontology_source = str(DEFAULT_ONTOLOGY_PATH)
+
+    schema = build_ontology_schema(ontology)
 except Exception as e:
-    st.error(f"Failed to load KG file '{selected_kg_path}': {e}")
+    st.error(f"ontology 解析失败：{e}")
     st.stop()
 
+st.success(f"Ontology 已加载：{ontology_source}")
+
+
+# 2) 读取 KG
 try:
-    ontology_summary = summarize_ontology_reference_graph(ontology_data)
+    if kg_upload is not None:
+        kg = load_uploaded_json(kg_upload)
+        kg_source = kg_upload.name
+    else:
+        if not DEFAULT_KG_DIR.exists():
+            st.error(f"未找到默认 KG 目录：{DEFAULT_KG_DIR}")
+            st.stop()
+
+        kg_files = sorted(DEFAULT_KG_DIR.glob("*.json"))
+        if not kg_files:
+            st.error("PerPaperKG 目录下没有 json 文件。")
+            st.stop()
+
+        selected = st.selectbox(
+            "选择 PerPaperKG 中的知识图谱文件",
+            options=kg_files,
+            format_func=lambda p: p.name
+        )
+        kg = load_json(selected)
+        kg_source = str(selected)
 except Exception as e:
-    st.error(f"Ontology parsing error: {e}")
+    st.error(f"KG 读取失败：{e}")
     st.stop()
 
-(
-    kg_entities,
-    entity_primary_id_fields,
-    property_ref_targets,
-    explicit_relationships,
-    validation_report,
-) = validate_kg_completeness(
-    kg_data,
-    ontology_data,
-    raise_on_error=False
-)
+st.info(f"当前 KG：{kg_source}")
 
-st.subheader("Ontology Reference Graph Summary")
-st.caption("Automatically inferred from ontology property types.")
-st.dataframe(ontology_summary["entity_summary"], use_container_width=True, height=220)
-st.dataframe(ontology_summary["reference_edges"], use_container_width=True, height=260)
 
-if not validation_report["passed"]:
-    st.error("KG completeness validation failed.")
-
-    if validation_report["missing_references"]:
-        st.subheader("Missing Reference Report")
-        st.dataframe(validation_report["missing_references"], use_container_width=True, height=260)
-
-    if validation_report["invalid_relationships"]:
-        st.subheader("Invalid Relationship Report")
-        st.dataframe(validation_report["invalid_relationships"], use_container_width=True, height=220)
-
-    with st.expander("All validation errors"):
-        for err in validation_report["errors"]:
-            st.write(f"- {err}")
-
+# 3) 顶层结构检查
+top_errors = validate_top_level_kg_shape(kg)
+if top_errors:
+    st.error("KG 顶层结构不合法。")
+    for err in top_errors:
+        st.error(err)
     st.stop()
 
-st.success("KG completeness validation passed.")
 
-st.subheader("Validation Summary")
-c1, c2, c3 = st.columns(3)
-c1.metric("Ontology entity types", len(ontology_summary["entity_summary"]))
-c2.metric("Ontology reference edges", len(ontology_summary["reference_edges"]))
-c3.metric("Validation errors", len(validation_report["errors"]))
+# 4) 实体检查
+nodes_by_id, entity_errors = parse_entities_strict(kg, schema)
+if entity_errors:
+    st.error("实体检查未通过。")
+    with st.expander("实体错误详情", expanded=True):
+        for err in entity_errors:
+            st.error(err)
+    st.stop()
 
-nodes = build_nodes_from_kg(kg_entities)
-explicit_with_uid = explicit_relationships_to_uids(explicit_relationships, ontology_data)
-property_relationships = infer_property_relationships(kg_entities, property_ref_targets)
-all_relationships = deduplicate_relationships(explicit_with_uid + property_relationships)
 
-all_types = sorted({n["type"] for n in nodes.values()})
+# 5) relationship 检查
+explicit_rels, rel_errors = parse_relationships_strict(kg, schema, nodes_by_id)
+if rel_errors:
+    st.error("显式 relationship 检查未通过。")
+    with st.expander("relationship 错误详情", expanded=True):
+        for err in rel_errors:
+            st.error(err)
+    st.stop()
 
-with st.sidebar:
-    st.header("Filters")
-    selected_types = st.multiselect("Entity types", all_types, default=all_types)
-    keyword = st.text_input("Keyword")
-    show_explicit = st.checkbox("Show explicit relationships", value=True)
-    show_property = st.checkbox("Show property-inferred relationships", value=True)
-    show_entity_table = st.checkbox("Show entity table", value=True)
-    show_rel_table = st.checkbox("Show relationship table", value=True)
 
-relationships_to_show = []
+# 6) 属性引用检查 + 额外边抽取
+property_rels, prop_errors = validate_property_references(schema, nodes_by_id)
+if prop_errors:
+    st.error("属性引用检查未通过。")
+    with st.expander("属性引用错误详情", expanded=True):
+        for err in prop_errors:
+            st.error(err)
+    st.stop()
+
+st.success("完整性检查通过，可以可视化。")
+
+
+# 7) 控制显示
+col_a, col_b, col_c = st.columns(3)
+col_a.metric("实体数", len(nodes_by_id))
+col_b.metric("显式关系数", len(explicit_rels))
+col_c.metric("属性抽取关系数", len(property_rels))
+
+show_explicit = st.checkbox("显示显式 relationship", value=True)
+show_property = st.checkbox("显示属性抽取 relationship", value=True)
+
+edges_raw = []
 if show_explicit:
-    relationships_to_show.extend([r for r in all_relationships if r.get("source") == "explicit"])
+    edges_raw.extend(explicit_rels)
 if show_property:
-    relationships_to_show.extend([r for r in all_relationships if r.get("source") == "property"])
+    edges_raw.extend(property_rels)
 
-filtered_nodes, filtered_relationships = filter_graph(
-    nodes, relationships_to_show, selected_types, keyword
-)
+nodes, edges = build_graph(nodes_by_id, edges_raw)
 
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Nodes", len(filtered_nodes))
-c2.metric("Edges", len(filtered_relationships))
-c3.metric("Explicit edges", len([r for r in filtered_relationships if r.get("source") == "explicit"]))
-c4.metric("Property edges", len([r for r in filtered_relationships if r.get("source") == "property"]))
+left, right = st.columns([3, 1])
 
-net = build_network(filtered_nodes, filtered_relationships)
-html = net.generate_html()
-components.html(html, height=800, scrolling=True)
+with left:
+    st.subheader("Knowledge Graph")
+    render_graph(nodes, edges, height=880)
 
-if show_entity_table:
-    st.subheader("Entities")
-    entity_rows = []
-    for uid, node in filtered_nodes.items():
-        row = {
-            "uid": uid,
-            "type": node["type"],
-            "raw_id": node["raw_id"],
-        }
-        row.update(node["data"])
-        entity_rows.append(row)
-    st.dataframe(entity_rows, use_container_width=True, height=320)
+with right:
+    st.subheader("统计")
 
-if show_rel_table:
-    st.subheader("Relationships")
-    st.dataframe(filtered_relationships, use_container_width=True, height=300)
+    entity_type_count = {}
+    for node in nodes_by_id.values():
+        entity_type_count[node["entity_type"]] = entity_type_count.get(node["entity_type"], 0) + 1
+
+    edge_type_count = {}
+    for e in edges:
+        edge_type_count[e["label"]] = edge_type_count.get(e["label"], 0) + 1
+
+    st.markdown("**实体类型分布**")
+    st.json(entity_type_count)
+
+    st.markdown("**边类型分布**")
+    st.json(edge_type_count)
+
+with st.expander("Ontology 解析结果", expanded=False):
+    st.json({
+        "entity_id_field": schema["entity_id_field"],
+        "entity_ref_props": schema["entity_ref_props"],
+        "relationship_defs": schema["relationship_defs"],
+    })
+
+with st.expander("显式 relationship", expanded=False):
+    st.json(explicit_rels)
+
+with st.expander("属性抽取 relationship", expanded=False):
+    st.json(property_rels)
