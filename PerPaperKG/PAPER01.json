@@ -14,548 +14,380 @@
 "journal": "Journal of The Electrochemical Society",
 "doi": "10.1149/1945-7111/adeb2e",
 "entities": {
-"MaterialSystem": [
+"Condition": [
 {
-"material_system_id": "Metal Dendrite | Electrode | Electrolyte",
-"type": "GenericElectrochemicalSystem",
-"composition": "electrode=metal electrode; electrolyte=electrolyte; other=electrode-electrolyte interface",
-"evidence": "In this paper the phase transition means the transformation from the electrolyte phase to the electrode phase, as shown in Fig. 1b."
+"condition_id": "HighElectrolyteConcentration",
+"parameter_id": "IonConcentration",
+"constraint_type": "HighRegime",
+"evidence": "Wang et al.47 found that increasing the electrolyte concentration can significantly reduce dendrite size"
+},
+{
+"condition_id": "HighOverpotential",
+"parameter_id": "Overpotential",
+"constraint_type": "HighRegime",
+"evidence": "as the overpotential increases, the dendrite growth rate accelerates significantly"
+},
+{
+"condition_id": "ElevatedTemperature",
+"parameter_id": "Temperature",
+"constraint_type": "HighRegime",
+"evidence": "Most of these studies have shown that increasing temperature leads to a reduction in dendrite size25,47,51,80 and a decrease in the degree of dendritic branching"
+},
+{
+"condition_id": "LowerTemperature",
+"parameter_id": "Temperature",
+"constraint_type": "LowRegime",
+"evidence": "lower temperatures slow down lithium-ion diffusion in the electrolyte, resulting in longer dendrites and a higher probability of dead lithium generation"
+},
+{
+"condition_id": "HighMechanicalStrengthOfElectrolyte",
+"parameter_id": "MechanicalStrengthOfElectrolyte",
+"constraint_type": "HighRegime",
+"evidence": "Most findings suggest that higher mechanical strength of the electrolyte and greater external stress exert a suppressive effect on dendrite growth"
+},
+{
+"condition_id": "GreaterExternalStress",
+"parameter_id": "ExternalStress",
+"constraint_type": "HighRegime",
+"evidence": "Most findings suggest that higher mechanical strength of the electrolyte and greater external stress exert a suppressive effect on dendrite growth"
+},
+{
+"condition_id": "HighAnisotropy",
+"parameter_id": "Anisotropy",
+"constraint_type": "HighRegime",
+"evidence": "Stronger anisotropy leads to faster dendrite growth."
+},
+{
+"condition_id": "SmallSeparatorPoreSize",
+"parameter_id": "SeparatorPoreSize",
+"constraint_type": "LowRegime",
+"evidence": "smaller pore sizes lead to more uniform lithium-ion concentrations on the electrode surface, promoting smoother electrodeposition"
+},
+{
+"condition_id": "ThickSeparator",
+"parameter_id": "SeparatorThickness",
+"constraint_type": "HighRegime",
+"evidence": "thicker separators result in more uniform dendrite growth, thereby reducing overall growth rates"
+},
+{
+"condition_id": "SevereCrackPropagation",
+"parameter_id": "CrackPropagationSeverity",
+"constraint_type": "HighRegime",
+"evidence": "more severe crack propagation correlates with larger dendritic growth areas"
+}
+],
+"Effect": [
+{
+"effect_id": "DendriteSizeDecrease",
+"related_parameter": "DendriteSize",
+"change_type": "Decrease",
+"direction": "Negative",
+"magnitude": "significant",
+"evidence": "Wang et al.47 found that increasing the electrolyte concentration can significantly reduce dendrite size"
+},
+{
+"effect_id": "GrowthRateIncrease",
+"related_parameter": "DendriteGrowthRate",
+"change_type": "Acceleration",
+"direction": "Positive",
+"magnitude": "significant",
+"evidence": "as the overpotential increases, the dendrite growth rate accelerates significantly"
+},
+{
+"effect_id": "BranchingDegreeIncrease",
+"related_parameter": "DendriticBranchingDegree",
+"change_type": "Increase",
+"direction": "Positive",
+"magnitude": "more pronounced",
+"evidence": "the instability of the electrodeposition process is also intensified, leading to more pronounced dendritic branching"
+},
+{
+"effect_id": "BranchingDegreeDecrease",
+"related_parameter": "DendriticBranchingDegree",
+"change_type": "Decrease",
+"direction": "Negative",
+"evidence": "Most of these studies have shown that increasing temperature leads to a reduction in dendrite size25,47,51,80 and a decrease in the degree of dendritic branching"
+},
+{
+"effect_id": "DendriteGrowthSuppression",
+"related_parameter": "DendriteGrowthRate",
+"change_type": "Suppression",
+"direction": "Negative",
+"evidence": "Most findings suggest that higher mechanical strength of the electrolyte and greater external stress exert a suppressive effect on dendrite growth"
+},
+{
+"effect_id": "DeadLithiumFormationIncrease",
+"related_parameter": "DeadLithiumAmount",
+"change_type": "Increase",
+"direction": "Positive",
+"evidence": "lower temperatures slow down lithium-ion diffusion in the electrolyte, resulting in longer dendrites and a higher probability of dead lithium generation"
+},
+{
+"effect_id": "ActiveLithiumSurfaceAreaDecrease",
+"related_parameter": "ActiveLithiumSurfaceArea",
+"change_type": "Decrease",
+"direction": "Negative",
+"evidence": "The presence of dead lithium directly reduces the active lithium surface area"
+},
+{
+"effect_id": "OverpotentialIncrease",
+"related_parameter": "Overpotential",
+"change_type": "Increase",
+"direction": "Positive",
+"evidence": "The presence of dead lithium directly reduces the active lithium surface area, increases overpotential/battery polarization, and leads to capacity loss"
+},
+{
+"effect_id": "CrackAreaIncrease",
+"related_parameter": "DendriteGrowthArea",
+"change_type": "Increase",
+"direction": "Positive",
+"evidence": "more severe crack propagation correlates with larger dendritic growth areas"
+},
+{
+"effect_id": "FasterDendriteGrowth",
+"related_parameter": "DendriteGrowthRate",
+"change_type": "Acceleration",
+"direction": "Positive",
+"evidence": "Stronger anisotropy leads to faster dendrite growth."
 }
 ],
 "Phenomenon": [
 {
 "phenomenon_id": "DendriteGrowth",
-"description": "Growth and morphological evolution of metal dendrites at the electrode-electrolyte interface in energy storage batteries.",
+"description": "Growth and morphological evolution of metal dendrites on battery electrode surfaces, analyzed as the central target of phase-field-based synthesis in the review.",
 "observe_under_conditions": [
-"HighAppliedVoltage",
-"IncreasingTemperature",
-"HighTemperatureGradient",
-"AppliedStress",
-"IncreasedAnisotropy"
+"HighElectrolyteConcentration",
+"HighOverpotential",
+"ElevatedTemperature",
+"HighMechanicalStrengthOfElectrolyte",
+"GreaterExternalStress",
+"HighAnisotropy",
+"SmallSeparatorPoreSize",
+"ThickSeparator",
+"SevereCrackPropagation"
 ],
 "related_effects": [
-"LithiumIonDepletion",
-"BranchingIncrease",
-"MorphologyShiftToBushLike",
-"MorphologyShiftToFibrous",
-"MorphologyShiftToSpherical",
-"MainTrunkThinning",
-"SideBranchReduction",
-"NucleationSiteIncrease",
-"MainTrunkIncrease"
+"DendriteSizeDecrease",
+"GrowthRateIncrease",
+"BranchingDegreeIncrease",
+"BranchingDegreeDecrease",
+"DendriteGrowthSuppression",
+"CrackAreaIncrease",
+"FasterDendriteGrowth"
 ],
-"evidence": "The model can not only accurately simulate the dynamic changes of the interface but also reflect the influence of external conditions such as temperature, electric field, and stress on the dendrite morphology and growth rate."
+"evidence": "The phase-field method is an effective numerical simulation approach capable of accurately describing the dynamic process of dendrite growth in energy storage batteries."
+},
+{
+"phenomenon_id": "DeadLithiumFormation",
+"description": "Formation of electrochemically inactive lithium during stripping/growth processes, linked to capacity loss and polarization in the review's application synthesis.",
+"observe_under_conditions": [
+"LowerTemperature",
+"GreaterExternalStress"
+],
+"related_effects": [
+"DeadLithiumFormationIncrease",
+"ActiveLithiumSurfaceAreaDecrease",
+"OverpotentialIncrease"
+],
+"evidence": "The phase-field method exhibits powerful analytical capabilities in the study of dead lithium by dynamically simulating lithium stripping and dendrite growth, thereby revealing the key factors contributing to dead lithium formation."
+},
+{
+"phenomenon_id": "CrackInducedDendriteInfiltration",
+"description": "Interaction between cracks in solid-state electrolytes and dendrites, where crack propagation and internal stress promote dendrite penetration.",
+"observe_under_conditions": [
+"SevereCrackPropagation"
+],
+"related_effects": [
+"CrackAreaIncrease"
+],
+"evidence": "excessive internal stress in solid electrolytes may induce new cracks, further promoting dendrite infiltration."
 }
 ],
-"Assumption": [
+"MaterialSystem": [
 {
-"assumption_id": "DiffuseInterface",
-"type": "physical",
-"statement": "The electrode-electrolyte interface is treated as a transition region rather than a sharp interface.",
-"evidence": "During dendrite growth, the electrode–electrolyte interface (EEI) surface does not exhibit a simply sharp interface but rather features a distinct transition region."
+"material_system_id": "Lithium Metal | Electrolyte",
+"type": "LithiumMetalBattery",
+"composition": "anode=lithium metal; electrolyte=electrolyte; other=electrode/electrolyte interface",
+"evidence": "To investigate the underlying mechanisms of lithium dendrite growth and explore effective suppression strategies, many researchers have employed phase field models to simulate the dendrite growth process in lithium metal batteries."
 },
 {
-"assumption_id": "NonConservedPhaseField",
-"type": "physical",
-"statement": "Phases are regarded as non-conserved variables whose evolution follows the Allen-Cahn equation.",
-"evidence": "Phases are usually regarded as non-conserved variables, and their evolution follows the Allen-Cahn equation:"
-},
-{
-"assumption_id": "ConservedConcentrationWithoutReaction",
-"type": "transport",
-"statement": "If there is no chemical reaction, concentration variables are conserved and follow the Cahn-Hilliard equation.",
-"evidence": "If there is no chemical reaction, the concentration variable are conserved variables and follows the Cahn-Hilliard equation:"
-},
-{
-"assumption_id": "PhaseFieldAsCentralDescriptor",
-"type": "numerical",
-"statement": "The phase-field variable is used as the central descriptor and coupled with ion concentration, electric potential, temperature, stress, SEI, and anisotropy.",
-"evidence": "Therefore, it can be concluded that the phase-field model uses the phase-field variable as the central descriptor, while coupling features such as ion concentration and electric potential, thereby constructing an extensible modeling framework capable of comprehensively accounting for multiple influencing factors."
+"material_system_id": "Lithium Metal | Solid Electrolyte",
+"type": "SolidStateBattery",
+"composition": "anode=lithium metal; electrolyte=solid electrolyte",
+"evidence": "With the rise of solid-state metal batteries, a growing number of researchers have also applied phase field modeling to solid-state lithium metal batteries."
 }
 ],
-"SimulationModel": [
-{
-"model_id": "PhaseFieldModelForDendriteGrowth",
-"type": "PhaseFieldModel",
-"model_type": "phase_field",
-"material_system": "Metal Dendrite | Electrode | Electrolyte",
-"use_assumptions": [
-"DiffuseInterface",
-"NonConservedPhaseField",
-"ConservedConcentrationWithoutReaction",
-"PhaseFieldAsCentralDescriptor"
-],
-"use_equations": [
-"AllenCahnEquation",
-"CahnHilliardEquation",
-"TotalFreeEnergyFunctional"
-],
-"spatial_dimension": [
-"1D",
-"2D",
-"3D"
-],
-"temporal_type": "transient",
-"objective": "Describe and analyze dendrite growth by coupling phase evolution with ion concentration, electric field, temperature, stress, SEI, and anisotropy.",
-"evidence": "In theory, the phase-field method constructs a free-energy functional and describes dendritic growth by solving time-dependent evolution equations based on the variational derivative of that functional."
-}
-],
-"ModelEquation": [
-{
-"equation_id": "AllenCahnEquation",
-"expression": "∂ξα/∂t = -∑β Lαβ δf/δξβ",
-"form": "PartialDifferentialEquation",
-"description": "Evolution equation for non-conserved phase variables describing smooth transition between phases.",
-"use_terms": [
-"InterfaceMobilityTerm",
-"FreeEnergyVariationTerm"
-],
-"use_parameters": [
-"PhaseFieldVariable",
-"InterfaceMobility",
-"FreeEnergyDensity"
-],
-"evidence": "Phases are usually regarded as non-conserved variables, and their evolution follows the Allen-Cahn equation:"
-},
-{
-"equation_id": "CahnHilliardEquation",
-"expression": "∂ci/∂t = ∇·(∑j Mij ∇(δf/δcj))",
-"form": "PartialDifferentialEquation",
-"description": "Evolution equation for conserved concentration variables of chemical species.",
-"use_terms": [
-"AtomicMobilityTerm",
-"ChemicalPotentialGradientTerm"
-],
-"use_parameters": [
-"Concentration",
-"AtomicMobility",
-"FreeEnergyDensity"
-],
-"evidence": "If there is no chemical reaction, the concentration variable are conserved variables and follows the Cahn-Hilliard equation:"
-},
-{
-"equation_id": "TotalFreeEnergyFunctional",
-"expression": "F = ∫V fdV = ∫V (fchem + felec + felas + ···) dV",
-"form": "IntegralFunctional",
-"description": "Total free energy functional composed of chemical, electrostatic, elastic, and other coupled energy terms.",
-"use_terms": [
-"ChemicalFreeEnergyTerm",
-"ElectrostaticEnergyTerm",
-"ElasticEnergyTerm"
-],
-"use_parameters": [
-"TotalFreeEnergy",
-"ChemicalEnergyDensity",
-"ElectrostaticEnergyDensity",
-"ElasticEnergyDensity"
-],
-"evidence": "To solve the above equations, the total free energy of the system is expressed as an integral of energy terms, as shown in Eq. 3. These energy terms are functions of the defined field variables, such as chemical free energy, elastic strain energy, and electrostatic energy."
-}
-],
-"Term": [
-{
-"term_id": "InterfaceMobilityTerm",
-"expression": "Lαβ",
-"parameter_ids": [
-"InterfaceMobility"
-],
-"description": "Mobility term governing interface evolution between phases.",
-"evidence": "In the formula, Lαβ represents the interface mobility between phase α and phase β"
-},
-{
-"term_id": "FreeEnergyVariationTerm",
-"expression": "δf/δξβ",
-"parameter_ids": [
-"FreeEnergyDensity",
-"PhaseFieldVariable"
-],
-"description": "Variational derivative of free energy with respect to the phase field.",
-"evidence": "In the formula, Lαβ represents the interface mobility between phase α and phase β, and f represents the free energy density."
-},
-{
-"term_id": "AtomicMobilityTerm",
-"expression": "Mij",
-"parameter_ids": [
-"AtomicMobility"
-],
-"description": "Mobility term for transport between components i and j.",
-"evidence": "In the formula, Mij is the atomic mobility between component i and component j."
-},
-{
-"term_id": "ChemicalPotentialGradientTerm",
-"expression": "∇(δf/δcj)",
-"parameter_ids": [
-"FreeEnergyDensity",
-"Concentration"
-],
-"description": "Chemical-potential-gradient-driven transport contribution in the concentration evolution equation.",
-"evidence": "If there is no chemical reaction, the concentration variable are conserved variables and follows the Cahn-Hilliard equation:"
-},
-{
-"term_id": "ChemicalFreeEnergyTerm",
-"expression": "fchem",
-"parameter_ids": [
-"ChemicalEnergyDensity"
-],
-"description": "Chemical free energy contribution to the total free energy.",
-"evidence": "In the formula, fchem represents chemical energy"
-},
-{
-"term_id": "ElectrostaticEnergyTerm",
-"expression": "felec",
-"parameter_ids": [
-"ElectrostaticEnergyDensity"
-],
-"description": "Electrostatic energy contribution to the total free energy.",
-"evidence": "In the formula, felec represents electrostatic energy"
-},
-{
-"term_id": "ElasticEnergyTerm",
-"expression": "felas",
-"parameter_ids": [
-"ElasticEnergyDensity"
-],
-"description": "Elastic strain energy contribution to the total free energy.",
-"evidence": "In the formula, felas represents elastic energy."
-}
-],
+"Assumption": [],
+"SimulationModel": [],
+"ModelEquation": [],
+"Term": [],
 "Parameter": [
 {
-"parameter_id": "PhaseFieldVariable",
-"symbol": "ξα",
-"description": "Field variable describing the phase state of the system.",
-"unit": "dimensionless",
-"evidence": "In the phase field model, the basic field variables are the phase field variable ξα (α = 1,…,n), which describe the phase states of the system."
+"parameter_id": "IonConcentration",
+"symbol": "c",
+"description": "Ion concentration field used as a key variable affecting dendrite growth behavior.",
+"unit": "unspecified",
+"evidence": "The formation of dendrites is fundamentally driven by the sustained deposition of ions, making ion concentration one of the key variables influencing dendrite growth behavior."
 },
 {
-"parameter_id": "InterfaceMobility",
-"symbol": "Lαβ",
-"description": "Interface mobility between phase α and phase β.",
-"unit": "unspecified",
-"evidence": "In the formula, Lαβ represents the interface mobility between phase α and phase β"
-},
-{
-"parameter_id": "FreeEnergyDensity",
-"symbol": "f",
-"description": "Free energy density used in the governing equations.",
-"unit": "unspecified",
-"evidence": "In the formula, Lαβ represents the interface mobility between phase α and phase β, and f represents the free energy density."
-},
-{
-"parameter_id": "Concentration",
-"symbol": "ci",
-"description": "Concentration variable of chemical components in the system.",
-"unit": "unspecified",
-"evidence": "Therefore, to accurately calculate the free energy function of the system, the concentration variables ci(I = 1,…,m) are also introduced into the system."
-},
-{
-"parameter_id": "AtomicMobility",
-"symbol": "Mij",
-"description": "Atomic mobility between component i and component j.",
-"unit": "unspecified",
-"evidence": "In the formula, Mij is the atomic mobility between component i and component j."
-},
-{
-"parameter_id": "TotalFreeEnergy",
-"symbol": "F",
-"description": "Total free energy of the system.",
-"unit": "unspecified",
-"evidence": "To solve the above equations, the total free energy of the system is expressed as an integral of energy terms"
-},
-{
-"parameter_id": "ChemicalEnergyDensity",
-"symbol": "fchem",
-"description": "Chemical energy density contribution to total free energy.",
-"unit": "unspecified",
-"evidence": "In the formula, fchem represents chemical energy"
-},
-{
-"parameter_id": "ElectrostaticEnergyDensity",
-"symbol": "felec",
-"description": "Electrostatic energy density contribution to total free energy.",
-"unit": "unspecified",
-"evidence": "In the formula, felec represents electrostatic energy"
-},
-{
-"parameter_id": "ElasticEnergyDensity",
-"symbol": "felas",
-"description": "Elastic energy density contribution to total free energy.",
-"unit": "unspecified",
-"evidence": "In the formula, felas represents elastic energy."
-},
-{
-"parameter_id": "AppliedVoltage",
-"symbol": "",
-"description": "Applied voltage or electric-field driving condition affecting dendrite morphology.",
-"unit": "unspecified",
-"evidence": "As the driving force for dendrite growth, the electric field leads to a morphological evolution from mossy structures (initially also needle-like or fibrous) to tree-like structures with increased branching as the applied voltage increases."
-},
-{
-"parameter_id": "LithiumIonConcentration",
-"symbol": "",
-"description": "Lithium-ion concentration, especially near the anode, influencing dendrite evolution.",
-"unit": "unspecified",
-"evidence": "This phenomenon is attributed to the depletion of lithium ion concentration near the anode under high applied voltage."
+"parameter_id": "Overpotential",
+"symbol": "ηa",
+"description": "Electrochemical overpotential acting as a primary driving force for dendrite growth in phase-field control equations.",
+"unit": "V",
+"evidence": "In phase-field models, overpotential serves as one of the key variables in the control equations, acting as the primary driving force for dendrite growth."
 },
 {
 "parameter_id": "Temperature",
-"symbol": "",
-"description": "System temperature affecting dendrite morphology.",
+"symbol": "T",
+"description": "Temperature field coupled into the phase-field framework and affecting dendrite size, branching, and dead lithium formation.",
 "unit": "K",
-"evidence": "With increasing temperature, the dendrite morphology evolves from tip-splitting tree-like to fibrous."
+"evidence": "Temperature is an important factor affecting dendrite growth."
 },
 {
-"parameter_id": "TemperatureGradient",
-"symbol": "",
-"description": "Temperature gradient affecting dendrite morphology.",
+"parameter_id": "MechanicalStrengthOfElectrolyte",
+"description": "Mechanical strength of the electrolyte used to evaluate mechanical suppression of dendrite growth.",
 "unit": "unspecified",
-"evidence": "In addition, a higher temperature gradient causes the morphology to shift from tree-like to spherical forms."
+"evidence": "Most findings suggest that higher mechanical strength of the electrolyte and greater external stress exert a suppressive effect on dendrite growth"
 },
 {
-"parameter_id": "Stress",
-"symbol": "",
-"description": "Applied or internal stress affecting dendrite trunk and branching morphology.",
+"parameter_id": "ExternalStress",
+"description": "Applied or evolving stress affecting dendrite growth and dead lithium formation.",
 "unit": "unspecified",
-"evidence": "The application of stress results in a thinner main trunk and a significant reduction in side branches, even leading to fracture of the main trunk."
+"evidence": "Most findings suggest that higher mechanical strength of the electrolyte and greater external stress exert a suppressive effect on dendrite growth"
 },
 {
 "parameter_id": "Anisotropy",
-"symbol": "",
-"description": "Anisotropy incorporated into free energy formulation to capture directional effects on dendrite morphology.",
-"unit": "dimensionless",
-"evidence": "An increase in anisotropy gives rise to more nucleation sites and main trunks, causing the morphology to change from mossy to tree-like or needle-like structures."
+"description": "Material or interfacial anisotropy that changes dendrite growth behavior.",
+"unit": "unspecified",
+"evidence": "Stronger anisotropy leads to faster dendrite growth."
 },
 {
-"parameter_id": "SEIGranularity",
-"symbol": "",
-"description": "Granular character of the solid electrolyte interphase affecting dendrite morphology.",
-"unit": "qualitative",
-"evidence": "The granular nature of the SEI can induce a transition from filamentous to bush-like dendrite structures."
+"parameter_id": "SeparatorPoreSize",
+"description": "Geometric pore-size parameter of separators affecting ion concentration uniformity and electrodeposition.",
+"unit": "unspecified",
+"evidence": "smaller pore sizes lead to more uniform lithium-ion concentrations on the electrode surface, promoting smoother electrodeposition"
 },
 {
-"parameter_id": "DendriteBranching",
-"symbol": "",
-"description": "Degree of side branching in dendrite morphology.",
-"unit": "qualitative",
-"evidence": "As the driving force for dendrite growth, the electric field leads to a morphological evolution from mossy structures (initially also needle-like or fibrous) to tree-like structures with increased branching as the applied voltage increases."
+"parameter_id": "SeparatorThickness",
+"description": "Separator thickness influencing uniformity and overall dendrite growth rate.",
+"unit": "unspecified",
+"evidence": "thicker separators result in more uniform dendrite growth, thereby reducing overall growth rates"
 },
 {
-"parameter_id": "DendriteMainTrunkThickness",
-"symbol": "",
-"description": "Thickness of the main dendrite trunk.",
-"unit": "qualitative",
-"evidence": "The application of stress results in a thinner main trunk"
+"parameter_id": "DeadLithiumAmount",
+"description": "Residual or accumulated dead lithium formed during cycling.",
+"unit": "unspecified",
+"evidence": "the relationship between residual dead lithium and discharge voltage/current is non-monotonic"
 },
 {
-"parameter_id": "NucleationSiteCount",
-"symbol": "",
-"description": "Number of nucleation sites during dendrite formation.",
-"unit": "count",
-"evidence": "An increase in anisotropy gives rise to more nucleation sites and main trunks"
+"parameter_id": "ActiveLithiumSurfaceArea",
+"description": "Electrochemically active lithium surface area affected by dead lithium formation.",
+"unit": "unspecified",
+"evidence": "The presence of dead lithium directly reduces the active lithium surface area"
 },
 {
-"parameter_id": "MainTrunkCount",
-"symbol": "",
-"description": "Number of main trunks in dendrite morphology.",
-"unit": "count",
-"evidence": "An increase in anisotropy gives rise to more nucleation sites and main trunks"
-}
-],
-"Condition": [
-{
-"condition_id": "HighAppliedVoltage",
-"parameter_id": "AppliedVoltage",
-"constraint_type": "HighRegime",
-"evidence": "This phenomenon is attributed to the depletion of lithium ion concentration near the anode under high applied voltage."
+"parameter_id": "DendriteGrowthRate",
+"description": "Rate of dendrite extension or propagation.",
+"unit": "unspecified",
+"evidence": "as the overpotential increases, the dendrite growth rate accelerates significantly"
 },
 {
-"condition_id": "IncreasingTemperature",
-"parameter_id": "Temperature",
-"constraint_type": "HighRegime",
-"evidence": "With increasing temperature, the dendrite morphology evolves from tip-splitting tree-like to fibrous."
+"parameter_id": "DendriticBranchingDegree",
+"description": "Degree of dendritic branching during growth.",
+"unit": "unspecified",
+"evidence": "the instability of the electrodeposition process is also intensified, leading to more pronounced dendritic branching"
 },
 {
-"condition_id": "HighTemperatureGradient",
-"parameter_id": "TemperatureGradient",
-"constraint_type": "HighRegime",
-"evidence": "In addition, a higher temperature gradient causes the morphology to shift from tree-like to spherical forms."
+"parameter_id": "DendriteSize",
+"description": "Characteristic dendrite size used in synthesized results on suppression.",
+"unit": "unspecified",
+"evidence": "Wang et al.47 found that increasing the electrolyte concentration can significantly reduce dendrite size"
 },
 {
-"condition_id": "AppliedStress",
-"parameter_id": "Stress",
-"constraint_type": "Other",
-"evidence": "The application of stress results in a thinner main trunk and a significant reduction in side branches, even leading to fracture of the main trunk."
+"parameter_id": "CrackPropagationSeverity",
+"description": "Severity of crack propagation in solid-state electrolytes.",
+"unit": "unspecified",
+"evidence": "more severe crack propagation correlates with larger dendritic growth areas"
 },
 {
-"condition_id": "IncreasedAnisotropy",
-"parameter_id": "Anisotropy",
-"constraint_type": "HighRegime",
-"evidence": "An increase in anisotropy gives rise to more nucleation sites and main trunks, causing the morphology to change from mossy to tree-like or needle-like structures."
-},
-{
-"condition_id": "GranularSEI",
-"parameter_id": "SEIGranularity",
-"constraint_type": "Other",
-"evidence": "The granular nature of the SEI can induce a transition from filamentous to bush-like dendrite structures."
-}
-],
-"Effect": [
-{
-"effect_id": "LithiumIonDepletion",
-"related_parameter": "LithiumIonConcentration",
-"change_type": "Decrease",
-"direction": "Negative",
-"evidence": "This phenomenon is attributed to the depletion of lithium ion concentration near the anode under high applied voltage."
-},
-{
-"effect_id": "BranchingIncrease",
-"related_parameter": "DendriteBranching",
-"change_type": "Increase",
-"direction": "Positive",
-"evidence": "As the driving force for dendrite growth, the electric field leads to a morphological evolution from mossy structures (initially also needle-like or fibrous) to tree-like structures with increased branching as the applied voltage increases."
-},
-{
-"effect_id": "MorphologyShiftToBushLike",
-"related_parameter": "SEIGranularity",
-"change_type": "Shift",
-"direction": "Unknown",
-"evidence": "The granular nature of the SEI can induce a transition from filamentous to bush-like dendrite structures."
-},
-{
-"effect_id": "MorphologyShiftToFibrous",
-"related_parameter": "Temperature",
-"change_type": "Shift",
-"direction": "Unknown",
-"evidence": "With increasing temperature, the dendrite morphology evolves from tip-splitting tree-like to fibrous."
-},
-{
-"effect_id": "MorphologyShiftToSpherical",
-"related_parameter": "TemperatureGradient",
-"change_type": "Shift",
-"direction": "Unknown",
-"evidence": "In addition, a higher temperature gradient causes the morphology to shift from tree-like to spherical forms."
-},
-{
-"effect_id": "MainTrunkThinning",
-"related_parameter": "DendriteMainTrunkThickness",
-"change_type": "Decrease",
-"direction": "Negative",
-"evidence": "The application of stress results in a thinner main trunk"
-},
-{
-"effect_id": "SideBranchReduction",
-"related_parameter": "DendriteBranching",
-"change_type": "Decrease",
-"direction": "Negative",
-"evidence": "The application of stress results in a thinner main trunk and a significant reduction in side branches, even leading to fracture of the main trunk."
-},
-{
-"effect_id": "NucleationSiteIncrease",
-"related_parameter": "NucleationSiteCount",
-"change_type": "Increase",
-"direction": "Positive",
-"evidence": "An increase in anisotropy gives rise to more nucleation sites and main trunks"
-},
-{
-"effect_id": "MainTrunkIncrease",
-"related_parameter": "MainTrunkCount",
-"change_type": "Increase",
-"direction": "Positive",
-"evidence": "An increase in anisotropy gives rise to more nucleation sites and main trunks"
+"parameter_id": "DendriteGrowthArea",
+"description": "Area occupied by dendritic growth, especially in cracked solid electrolytes.",
+"unit": "unspecified",
+"evidence": "more severe crack propagation correlates with larger dendritic growth areas"
 }
 ],
 "ParameterValue": []
 },
-"relationships": [
+"relationship_instances": [
 {
-"relationship_id": "ModelsPhenomenon",
-"from_id": "PhaseFieldModelForDendriteGrowth",
-"to_id": "DendriteGrowth"
+"relationship_id": "OccursInMaterialSystem",
+"from_id": "DendriteGrowth",
+"to_id": "Lithium Metal | Electrolyte"
 },
 {
 "relationship_id": "OccursInMaterialSystem",
 "from_id": "DendriteGrowth",
-"to_id": "Metal Dendrite | Electrode | Electrolyte"
+"to_id": "Lithium Metal | Solid Electrolyte"
 },
 {
-"relationship_id": "ExplainedByEquation",
-"from_id": "DendriteGrowth",
-"to_id": "AllenCahnEquation"
+"relationship_id": "OccursInMaterialSystem",
+"from_id": "DeadLithiumFormation",
+"to_id": "Lithium Metal | Electrolyte"
 },
 {
-"relationship_id": "ExplainedByEquation",
-"from_id": "DendriteGrowth",
-"to_id": "CahnHilliardEquation"
-},
-{
-"relationship_id": "ExplainedByEquation",
-"from_id": "DendriteGrowth",
-"to_id": "TotalFreeEnergyFunctional"
-},
-{
-"relationship_id": "ConstrainsEquation",
-"from_id": "DiffuseInterface",
-"to_id": "AllenCahnEquation"
-},
-{
-"relationship_id": "ConstrainsEquation",
-"from_id": "NonConservedPhaseField",
-"to_id": "AllenCahnEquation"
-},
-{
-"relationship_id": "ConstrainsEquation",
-"from_id": "ConservedConcentrationWithoutReaction",
-"to_id": "CahnHilliardEquation"
-},
-{
-"relationship_id": "AppliesToMaterialSystem",
-"from_id": "DiffuseInterface",
-"to_id": "Metal Dendrite | Electrode | Electrolyte"
+"relationship_id": "OccursInMaterialSystem",
+"from_id": "CrackInducedDendriteInfiltration",
+"to_id": "Lithium Metal | Solid Electrolyte"
 },
 {
 "relationship_id": "TriggersEffect",
-"from_id": "HighAppliedVoltage",
-"to_id": "LithiumIonDepletion"
+"from_id": "HighElectrolyteConcentration",
+"to_id": "DendriteSizeDecrease"
 },
 {
 "relationship_id": "TriggersEffect",
-"from_id": "HighAppliedVoltage",
-"to_id": "BranchingIncrease"
+"from_id": "HighOverpotential",
+"to_id": "GrowthRateIncrease"
 },
 {
 "relationship_id": "TriggersEffect",
-"from_id": "GranularSEI",
-"to_id": "MorphologyShiftToBushLike"
+"from_id": "HighOverpotential",
+"to_id": "BranchingDegreeIncrease"
 },
 {
 "relationship_id": "TriggersEffect",
-"from_id": "IncreasingTemperature",
-"to_id": "MorphologyShiftToFibrous"
+"from_id": "ElevatedTemperature",
+"to_id": "DendriteSizeDecrease"
 },
 {
 "relationship_id": "TriggersEffect",
-"from_id": "HighTemperatureGradient",
-"to_id": "MorphologyShiftToSpherical"
+"from_id": "ElevatedTemperature",
+"to_id": "BranchingDegreeDecrease"
 },
 {
 "relationship_id": "TriggersEffect",
-"from_id": "AppliedStress",
-"to_id": "MainTrunkThinning"
+"from_id": "HighMechanicalStrengthOfElectrolyte",
+"to_id": "DendriteGrowthSuppression"
 },
 {
 "relationship_id": "TriggersEffect",
-"from_id": "AppliedStress",
-"to_id": "SideBranchReduction"
+"from_id": "GreaterExternalStress",
+"to_id": "DendriteGrowthSuppression"
 },
 {
 "relationship_id": "TriggersEffect",
-"from_id": "IncreasedAnisotropy",
-"to_id": "NucleationSiteIncrease"
+"from_id": "LowerTemperature",
+"to_id": "DeadLithiumFormationIncrease"
 },
 {
 "relationship_id": "TriggersEffect",
-"from_id": "IncreasedAnisotropy",
-"to_id": "MainTrunkIncrease"
+"from_id": "HighAnisotropy",
+"to_id": "FasterDendriteGrowth"
+},
+{
+"relationship_id": "TriggersEffect",
+"from_id": "SevereCrackPropagation",
+"to_id": "CrackAreaIncrease"
 }
 ]
 }
