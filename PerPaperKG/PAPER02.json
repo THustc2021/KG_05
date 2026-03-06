@@ -572,133 +572,133 @@
 "relationships": [
 {
 "relationship_id": "ModelsPhenomenon",
-"from": "GalvanostaticLithiumStrippingPhaseFieldModel",
-"to": "DeadLithiumFormation"
+"from_entity": "GalvanostaticLithiumStrippingPhaseFieldModel",
+"to_entity": "DeadLithiumFormation"
 },
 {
 "relationship_id": "ModelsPhenomenon",
-"from": "GalvanostaticLithiumStrippingPhaseFieldModel",
-"to": "LithiumStripping"
+"from_entity": "GalvanostaticLithiumStrippingPhaseFieldModel",
+"to_entity": "LithiumStripping"
 },
 {
 "relationship_id": "ModelsPhenomenon",
-"from": "GalvanostaticLithiumPlatingPhaseFieldModel",
-"to": "LithiumDendriteGrowth"
+"from_entity": "GalvanostaticLithiumPlatingPhaseFieldModel",
+"to_entity": "LithiumDendriteGrowth"
 },
 {
 "relationship_id": "OccursInMaterialSystem",
-"from": "DeadLithiumFormation",
-"to": "Li Metal | Liquid Electrolyte"
+"from_entity": "DeadLithiumFormation",
+"to_entity": "Li Metal | Liquid Electrolyte"
 },
 {
 "relationship_id": "OccursInMaterialSystem",
-"from": "LithiumStripping",
-"to": "Li Metal | Liquid Electrolyte"
+"from_entity": "LithiumStripping",
+"to_entity": "Li Metal | Liquid Electrolyte"
 },
 {
 "relationship_id": "OccursInMaterialSystem",
-"from": "LithiumDendriteGrowth",
-"to": "Li Metal | Liquid Electrolyte"
+"from_entity": "LithiumDendriteGrowth",
+"to_entity": "Li Metal | Liquid Electrolyte"
 },
 {
 "relationship_id": "ConstrainsEquation",
-"from": "DiffuseInterface",
-"to": "LithiumPlatingPhaseFieldEvolutionEquation"
+"from_entity": "DiffuseInterface",
+"to_entity": "LithiumPlatingPhaseFieldEvolutionEquation"
 },
 {
 "relationship_id": "ConstrainsEquation",
-"from": "DiffuseInterface",
-"to": "LithiumStrippingPhaseFieldEvolutionEquation"
+"from_entity": "DiffuseInterface",
+"to_entity": "LithiumStrippingPhaseFieldEvolutionEquation"
 },
 {
 "relationship_id": "ConstrainsEquation",
-"from": "UniformSolidPotential",
-"to": "ElectrolytePoissonEquation"
+"from_entity": "UniformSolidPotential",
+"to_entity": "ElectrolytePoissonEquation"
 },
 {
 "relationship_id": "ConstrainsEquation",
-"from": "DeadLithiumThresholdByReferencePotential",
-"to": "LithiumStrippingPhaseFieldEvolutionEquation"
+"from_entity": "DeadLithiumThresholdByReferencePotential",
+"to_entity": "LithiumStrippingPhaseFieldEvolutionEquation"
 },
 {
 "relationship_id": "AppliesToMaterialSystem",
-"from": "DiffuseInterface",
-"to": "Li Metal | Liquid Electrolyte"
+"from_entity": "DiffuseInterface",
+"to_entity": "Li Metal | Liquid Electrolyte"
 },
 {
 "relationship_id": "AppliesToMaterialSystem",
-"from": "UniformSolidPotential",
-"to": "Li Metal | Liquid Electrolyte"
+"from_entity": "UniformSolidPotential",
+"to_entity": "Li Metal | Liquid Electrolyte"
 },
 {
 "relationship_id": "AppliesToMaterialSystem",
-"from": "DeadLithiumThresholdByReferencePotential",
-"to": "Li Metal | Liquid Electrolyte"
+"from_entity": "DeadLithiumThresholdByReferencePotential",
+"to_entity": "Li Metal | Liquid Electrolyte"
 },
 {
 "relationship_id": "HasParameterValue",
-"from": "CurrentDensity",
-"to": "CurrentDensity=10mA_cm2"
+"from_entity": "CurrentDensity",
+"to_entity": "CurrentDensity=10mA_cm2"
 },
 {
 "relationship_id": "HasParameterValue",
-"from": "ReferencePotentialUd",
-"to": "ReferencePotentialUd=1.0mV"
+"from_entity": "ReferencePotentialUd",
+"to_entity": "ReferencePotentialUd=1.0mV"
 },
 {
 "relationship_id": "HasParameterValue",
-"from": "CoulombicEfficiency",
-"to": "CoulombicEfficiency=83.1percent"
+"from_entity": "CoulombicEfficiency",
+"to_entity": "CoulombicEfficiency=83.1percent"
 },
 {
 "relationship_id": "HasParameterValue",
-"from": "ActivationOverpotential",
-"to": "ActivationOverpotential=2mV_at120s"
+"from_entity": "ActivationOverpotential",
+"to_entity": "ActivationOverpotential=2mV_at120s"
 },
 {
 "relationship_id": "HasParameterValue",
-"from": "ActivationOverpotential",
-"to": "ActivationOverpotential=4mV_at280s"
+"from_entity": "ActivationOverpotential",
+"to_entity": "ActivationOverpotential=4mV_at280s"
 },
 {
 "relationship_id": "HasParameterValue",
-"from": "ActivationOverpotential",
-"to": "ActivationOverpotential=>10mV_at360s"
+"from_entity": "ActivationOverpotential",
+"to_entity": "ActivationOverpotential=>10mV_at360s"
 },
 {
 "relationship_id": "ValidInMaterialSystem",
-"from": "CurrentDensity=10mA_cm2",
-"to": "Li Metal | Liquid Electrolyte"
+"from_entity": "CurrentDensity=10mA_cm2",
+"to_entity": "Li Metal | Liquid Electrolyte"
 },
 {
 "relationship_id": "ValidInMaterialSystem",
-"from": "ReferencePotentialUd=1.0mV",
-"to": "Li Metal | Liquid Electrolyte"
+"from_entity": "ReferencePotentialUd=1.0mV",
+"to_entity": "Li Metal | Liquid Electrolyte"
 },
 {
 "relationship_id": "ValidInMaterialSystem",
-"from": "CoulombicEfficiency=83.1percent",
-"to": "Li Metal | Liquid Electrolyte"
+"from_entity": "CoulombicEfficiency=83.1percent",
+"to_entity": "Li Metal | Liquid Electrolyte"
 },
 {
 "relationship_id": "ValidUnderCondition",
-"from": "CurrentDensity=10mA_cm2",
-"to": "StrippingCurrentDensity10mAcm2"
+"from_entity": "CurrentDensity=10mA_cm2",
+"to_entity": "StrippingCurrentDensity10mAcm2"
 },
 {
 "relationship_id": "ValidUnderCondition",
-"from": "ActivationOverpotential=2mV_at120s",
-"to": "GalvanostaticStripping"
+"from_entity": "ActivationOverpotential=2mV_at120s",
+"to_entity": "GalvanostaticStripping"
 },
 {
 "relationship_id": "ValidUnderCondition",
-"from": "ActivationOverpotential=4mV_at280s",
-"to": "LateStageDischarge"
+"from_entity": "ActivationOverpotential=4mV_at280s",
+"to_entity": "LateStageDischarge"
 },
 {
 "relationship_id": "ValidUnderCondition",
-"from": "ActivationOverpotential=>10mV_at360s",
-"to": "LateStageDischarge"
+"from_entity": "ActivationOverpotential=>10mV_at360s",
+"to_entity": "LateStageDischarge"
 }
 ]
 }
