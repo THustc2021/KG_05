@@ -1,5 +1,4 @@
 {
-"paper": {
 "title": "Dead lithium formation in lithium metal batteries: A phase field model",
 "year": "2022",
 "authors": [
@@ -14,8 +13,7 @@
 "Jia-Qi Huang"
 ],
 "journal": "Journal of Energy Chemistry",
-"doi": "10.1016/j.jechem.2021.12.020"
-},
+"doi": "10.1016/j.jechem.2021.12.020",
 "entities": {
 "MaterialSystem": [
 {
