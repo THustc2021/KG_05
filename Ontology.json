@@ -1,205 +1,201 @@
 {
-  "ontology": {
-    "name": "Scientific Modeling Knowledge Graph Ontology",
+  "entities": {
 
-    "entities": {
-
-      "Paper": {
-        "description": "A scientific publication serving as the provenance source for all extracted knowledge.",
-        "properties": {
-          "paper_id": "string",
-          "title": "string",
-          "year": "integer",
-          "authors": "string[]",
-          "journal": "string",
-          "doi": "string"
-        }
-      },
-
-      "Model": {
-        "description": "The primary scientific model used or proposed by the paper.",
-        "properties": {
-          "model_id": "string",
-          "name": "string",
-          "model_type": "string",
-          "description": "string",
-          "evidence": "string"
-        }
-      },
-
-      "ModelVariant": {
-        "description": "A model formulation from prior literature discussed or compared in the paper.",
-        "properties": {
-          "variant_id": "string",
-          "name": "string",
-          "origin_paper": "string",
-          "description": "string",
-          "evidence": "string"
-        }
-      },
-
-      "Equation": {
-        "description": "A mathematical equation defining the model.",
-        "properties": {
-          "equation_id": "string",
-          "name": "string",
-          "expression": "string",
-          "form": "string",
-          "equation_role": "string",
-          "description": "string",
-          "evidence": "string"
-        }
-      },
-
-      "Term": {
-        "description": "A separable term within an equation representing a physical contribution.",
-        "properties": {
-          "term_id": "string",
-          "name": "string",
-          "expression": "string",
-          "description": "string",
-          "evidence": "string"
-        }
-      },
-
-      "Variable": {
-        "description": "A mathematical variable or field appearing in the model equations.",
-        "properties": {
-          "variable_id": "string",
-          "symbol": "string",
-          "name": "string",
-          "physical_meaning": "string",
-          "variable_type": "string",
-          "unit": "string",
-          "domain": "string",
-          "evidence": "string"
-        }
-      },
-
-      "Parameter": {
-        "description": "A constant or coefficient used in the model equations.",
-        "properties": {
-          "parameter_id": "string",
-          "symbol": "string",
-          "name": "string",
-          "physical_meaning": "string",
-          "unit": "string",
-          "evidence": "string"
-        }
-      },
-
-      "ParameterValue": {
-        "description": "A numerical or functional value assigned to a parameter.",
-        "properties": {
-          "value_id": "string",
-          "value": "string",
-          "unit": "string",
-          "condition": "string",
-          "source": "string",
-          "evidence": "string"
-        }
-      },
-
-      "Phenomenon": {
-        "description": "A physical process or behavior studied in the paper.",
-        "properties": {
-          "phenomenon_id": "string",
-          "name": "string",
-          "description": "string",
-          "evidence": "string"
-        }
-      },
-
-      "MaterialSystem": {
-        "description": "The materials system investigated in the paper.",
-        "properties": {
-          "material_system_id": "string",
-          "anode_material": "string",
-          "electrolyte_material": "string",
-          "separator_material": "string",
-          "salt": "string",
-          "solvent": "string",
-          "description": "string",
-          "evidence": "string"
-        }
-      },
-
-      "Geometry": {
-        "description": "The spatial domain used in the model or simulation.",
-        "properties": {
-          "geometry_id": "string",
-          "dimension": "string",
-          "shape": "string",
-          "domain_size": "string",
-          "description": "string",
-          "evidence": "string"
-        }
-      },
-
-      "Condition": {
-        "description": "A contextual condition under which simulations or results are evaluated.",
-        "properties": {
-          "condition_id": "string",
-          "type": "string",
-          "value": "string",
-          "unit": "string",
-          "description": "string",
-          "evidence": "string"
-        }
-      },
-
-      "Result": {
-        "description": "A scientific finding reported in the paper, including qualitative observations, morphology changes, comparisons, or quantitative outcomes.",
-        "properties": {
-          "result_id": "string",
-          "description": "string",
-          "result_type": "string",
-          "condition": "string",
-          "evidence": "string"
-        }
-      },
-
-      "Metric": {
-        "description": "A quantitative metric defined or reported by the paper.",
-        "properties": {
-          "metric_id": "string",
-          "name": "string",
-          "value": "string",
-          "unit": "string",
-          "condition": "string",
-          "description": "string",
-          "evidence": "string"
-        }
+    "Paper": {
+      "description": "A scientific publication serving as the provenance source for all extracted knowledge.",
+      "properties": {
+        "paper_id": "string",
+        "title": "string",
+        "year": "integer",
+        "authors": "string[]",
+        "journal": "string",
+        "doi": "string"
       }
     },
-    "relationships": [
-      { "type": "USES_MODEL", "from": "Paper", "to": "Model" },
-      { "type": "DISCUSSES_MODEL_VARIANT", "from": "Paper", "to": "ModelVariant" },
 
-      { "type": "HAS_EQUATION", "from": "Model", "to": "Equation" },
-      { "type": "HAS_EQUATION", "from": "ModelVariant", "to": "Equation" },
+    "Model": {
+      "description": "The primary scientific model used or proposed by the paper.",
+      "properties": {
+        "model_id": "string",
+        "name": "string",
+        "model_type": "string",
+        "description": "string",
+        "evidence": "string"
+      }
+    },
 
-      { "type": "DERIVED_FROM", "from": "Equation", "to": "Equation" },
-      { "type": "HAS_TERM", "from": "Equation", "to": "Term" },
+    "ModelVariant": {
+      "description": "A model formulation from prior literature discussed or compared in the paper.",
+      "properties": {
+        "variant_id": "string",
+        "name": "string",
+        "origin_paper": "string",
+        "description": "string",
+        "evidence": "string"
+      }
+    },
 
-      { "type": "USES_VARIABLE", "from": "Equation", "to": "Variable" },
-      { "type": "USES_PARAMETER", "from": "Equation", "to": "Parameter" },
+    "Equation": {
+      "description": "A mathematical equation defining the model.",
+      "properties": {
+        "equation_id": "string",
+        "name": "string",
+        "expression": "string",
+        "form": "string",
+        "equation_role": "string",
+        "description": "string",
+        "evidence": "string"
+      }
+    },
 
-      { "type": "USES_VARIABLE", "from": "Term", "to": "Variable" },
-      { "type": "USES_PARAMETER", "from": "Term", "to": "Parameter" },
+    "Term": {
+      "description": "A separable term within an equation representing a physical contribution.",
+      "properties": {
+        "term_id": "string",
+        "name": "string",
+        "expression": "string",
+        "description": "string",
+        "evidence": "string"
+      }
+    },
 
-      { "type": "SUBTERM_OF", "from": "Term", "to": "Term" },
-      { "type": "EQUIVALENT_TO", "from": "Term", "to": "Term" },
+    "Variable": {
+      "description": "A mathematical variable or field appearing in the model equations.",
+      "properties": {
+        "variable_id": "string",
+        "symbol": "string",
+        "name": "string",
+        "physical_meaning": "string",
+        "variable_type": "string",
+        "unit": "string",
+        "domain": "string",
+        "evidence": "string"
+      }
+    },
 
-      { "type": "HAS_PARAMETER_VALUE", "from": "Parameter", "to": "ParameterValue" },
+    "Parameter": {
+      "description": "A constant or coefficient used in the model equations.",
+      "properties": {
+        "parameter_id": "string",
+        "symbol": "string",
+        "name": "string",
+        "physical_meaning": "string",
+        "unit": "string",
+        "evidence": "string"
+      }
+    },
 
-      { "type": "MODELS_PHENOMENON", "from": "Model", "to": "Phenomenon" },
-      { "type": "USES_MATERIAL_SYSTEM", "from": "Model", "to": "MaterialSystem" },
-      { "type": "HAS_GEOMETRY", "from": "Model", "to": "Geometry" },
-      { "type": "HAS_CONDITION", "from": "Model", "to": "Condition" },
+    "ParameterValue": {
+      "description": "A numerical or functional value assigned to a parameter.",
+      "properties": {
+        "value_id": "string",
+        "value": "string",
+        "unit": "string",
+        "condition": "string",
+        "source": "string",
+        "evidence": "string"
+      }
+    },
 
-      { "type": "PRODUCES_RESULT", "from": "Model", "to": "Result" },
-      { "type": "HAS_METRIC", "from": "Result", "to": "Metric" }
-    ]
-  }
+    "Phenomenon": {
+      "description": "A physical process or behavior studied in the paper.",
+      "properties": {
+        "phenomenon_id": "string",
+        "name": "string",
+        "description": "string",
+        "evidence": "string"
+      }
+    },
+
+    "MaterialSystem": {
+      "description": "The materials system investigated in the paper.",
+      "properties": {
+        "material_system_id": "string",
+        "anode_material": "string",
+        "electrolyte_material": "string",
+        "separator_material": "string",
+        "salt": "string",
+        "solvent": "string",
+        "description": "string",
+        "evidence": "string"
+      }
+    },
+
+    "Geometry": {
+      "description": "The spatial domain used in the model or simulation.",
+      "properties": {
+        "geometry_id": "string",
+        "dimension": "string",
+        "shape": "string",
+        "domain_size": "string",
+        "description": "string",
+        "evidence": "string"
+      }
+    },
+
+    "Condition": {
+      "description": "A contextual condition under which simulations or results are evaluated.",
+      "properties": {
+        "condition_id": "string",
+        "type": "string",
+        "value": "string",
+        "unit": "string",
+        "description": "string",
+        "evidence": "string"
+      }
+    },
+
+    "Result": {
+      "description": "A scientific finding reported in the paper, including qualitative observations, morphology changes, comparisons, or quantitative outcomes.",
+      "properties": {
+        "result_id": "string",
+        "description": "string",
+        "result_type": "string",
+        "condition": "string",
+        "evidence": "string"
+      }
+    },
+
+    "Metric": {
+      "description": "A quantitative metric defined or reported by the paper.",
+      "properties": {
+        "metric_id": "string",
+        "name": "string",
+        "value": "string",
+        "unit": "string",
+        "condition": "string",
+        "description": "string",
+        "evidence": "string"
+      }
+    }
+  },
+  "relationships": [
+    { "type": "USES_MODEL", "from": "Paper", "to": "Model" },
+    { "type": "DISCUSSES_MODEL_VARIANT", "from": "Paper", "to": "ModelVariant" },
+
+    { "type": "HAS_EQUATION", "from": "Model", "to": "Equation" },
+    { "type": "HAS_EQUATION", "from": "ModelVariant", "to": "Equation" },
+
+    { "type": "DERIVED_FROM", "from": "Equation", "to": "Equation" },
+    { "type": "HAS_TERM", "from": "Equation", "to": "Term" },
+
+    { "type": "USES_VARIABLE", "from": "Equation", "to": "Variable" },
+    { "type": "USES_PARAMETER", "from": "Equation", "to": "Parameter" },
+
+    { "type": "USES_VARIABLE", "from": "Term", "to": "Variable" },
+    { "type": "USES_PARAMETER", "from": "Term", "to": "Parameter" },
+
+    { "type": "SUBTERM_OF", "from": "Term", "to": "Term" },
+    { "type": "EQUIVALENT_TO", "from": "Term", "to": "Term" },
+
+    { "type": "HAS_PARAMETER_VALUE", "from": "Parameter", "to": "ParameterValue" },
+
+    { "type": "MODELS_PHENOMENON", "from": "Model", "to": "Phenomenon" },
+    { "type": "USES_MATERIAL_SYSTEM", "from": "Model", "to": "MaterialSystem" },
+    { "type": "HAS_GEOMETRY", "from": "Model", "to": "Geometry" },
+    { "type": "HAS_CONDITION", "from": "Model", "to": "Condition" },
+
+    { "type": "PRODUCES_RESULT", "from": "Model", "to": "Result" },
+    { "type": "HAS_METRIC", "from": "Result", "to": "Metric" }
+  ]
 }
