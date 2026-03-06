@@ -1,201 +1,349 @@
 {
+  "title": "The full official title of the publication exactly as written in the paper. Do not abbreviate or paraphrase.",
+  "year": "The publication year of the paper, typically taken from the journal record or conference proceedings.",
+  "authors": "Ordered list of all authors of the paper as they appear in the publication. Each name should be written in its original form (for example 'Yan Li', 'Tianbo Zhang'). Author order must be preserved.",
+  "journal": "Name of the journal, conference, or publisher where the paper appeared. Use the full name if available (for example 'Journal of The Electrochemical Society').",
+  "doi": "Digital Object Identifier of the publication. If present, record it exactly as registered (without URL prefix). This field enables reliable cross-database linking.",
   "entities": {
 
-    "Paper": {
-      "description": "A scientific publication serving as the provenance source for all extracted knowledge.",
+    "Condition": {
+      "description": "A parameter-level constraint describing the system state under which a phenomenon or effect occurs. A Condition specifies how a Parameter is fixed, restricted, or varied in the study. Conditions typically correspond to experimental or simulation regimes such as high current density, low electrolyte concentration, elevated temperature, or a defined parameter range. Each Condition must reference exactly one Parameter entity whose value is constrained.",
       "properties": {
-        "paper_id": "string",
-        "title": "string",
-        "year": "integer",
-        "authors": "string[]",
-        "journal": "string",
-        "doi": "string"
+        "condition_id": {
+          "description": "Stable identifier of the condition. The identifier must follow UpperCamelCase naming convention without spaces. Examples include 'HighCurrentDensity', 'LowElectrolyteConcentration', 'TemperatureAbove350K', and 'SmallSeparatorPoreSize'.",
+          "type": "string"
+        },
+        "parameter_id": {
+          "description": "Identifier of the Parameter entity whose value is constrained by this condition. This field must reference an existing Parameter entity.",
+          "type": "parameter_id"
+        },
+        "constraint_type": {
+          "description": "Type of logical constraint applied to the parameter. Recommended controlled values include 'GreaterThan', 'LessThan', 'EqualTo', 'Range', 'HighRegime', 'LowRegime', or 'Other'.",
+          "type": "string"
+        },
+        "value": {
+          "description": "Numerical value or range defining the parameter constraint. For 'Range', use format '[min,max]'. For qualitative regimes such as 'HighRegime', this field may be omitted.",
+          "type": "optional string"
+        },
+        "evidence": {
+          "description": "Verbatim text copied from the paper that explicitly states the condition. The text must contain original paper text only and must not include paraphrasing or citation wrappers.",
+          "type": "string"
+        }
       }
     },
 
-    "Model": {
-      "description": "The primary scientific model used or proposed by the paper.",
+    "Effect": {
+      "description": "A parameter-level change associated with a studied process, condition, or model outcome. An Effect does not represent a physical phenomenon itself. Instead, it describes how a specific Parameter changes, responds, or behaves, such as increasing, decreasing, stabilizing, fluctuating, or reaching a threshold. Every Effect must reference a Parameter entity whose value or state changes.",
       "properties": {
-        "model_id": "string",
-        "name": "string",
-        "model_type": "string",
-        "description": "string",
-        "evidence": "string"
-      }
-    },
-
-    "ModelVariant": {
-      "description": "A model formulation from prior literature discussed or compared in the paper.",
-      "properties": {
-        "variant_id": "string",
-        "name": "string",
-        "origin_paper": "string",
-        "description": "string",
-        "evidence": "string"
-      }
-    },
-
-    "Equation": {
-      "description": "A mathematical equation defining the model.",
-      "properties": {
-        "equation_id": "string",
-        "name": "string",
-        "expression": "string",
-        "form": "string",
-        "equation_role": "string",
-        "description": "string",
-        "evidence": "string"
-      }
-    },
-
-    "Term": {
-      "description": "A separable term within an equation representing a physical contribution.",
-      "properties": {
-        "term_id": "string",
-        "name": "string",
-        "expression": "string",
-        "description": "string",
-        "evidence": "string"
-      }
-    },
-
-    "Variable": {
-      "description": "A mathematical variable or field appearing in the model equations.",
-      "properties": {
-        "variable_id": "string",
-        "symbol": "string",
-        "name": "string",
-        "physical_meaning": "string",
-        "variable_type": "string",
-        "unit": "string",
-        "domain": "string",
-        "evidence": "string"
-      }
-    },
-
-    "Parameter": {
-      "description": "A constant or coefficient used in the model equations.",
-      "properties": {
-        "parameter_id": "string",
-        "symbol": "string",
-        "name": "string",
-        "physical_meaning": "string",
-        "unit": "string",
-        "evidence": "string"
-      }
-    },
-
-    "ParameterValue": {
-      "description": "A numerical or functional value assigned to a parameter.",
-      "properties": {
-        "value_id": "string",
-        "value": "string",
-        "unit": "string",
-        "condition": "string",
-        "source": "string",
-        "evidence": "string"
+        "effect_id": {
+          "description": "Stable identifier of the effect. The identifier must follow UpperCamelCase naming convention without spaces or punctuation. It should summarize the parameter change in a concise and reusable way. Examples include 'GrowthRateIncrease', 'BranchingDegreeDecrease', 'OverpotentialRise', and 'LithiumConcentrationDepletion'.",
+          "type": "string"
+        },
+        "related_parameter": {
+          "description": "Identifier of the Parameter entity whose value, magnitude, or trend changes in this effect. This field must reference an existing Parameter entity.",
+          "type": "parameter_id"
+        },
+        "change_type": {
+          "description": "Controlled description of the type of parameter change. Recommended values include 'Increase', 'Decrease', 'Stabilization', 'Fluctuation', 'Acceleration', 'Deceleration', 'ThresholdCrossing', 'Shift', 'Suppression', or 'Other'.",
+          "type": "string"
+        },
+        "direction": {
+          "description": "Optional simplified direction label describing the overall trend of the parameter change. Recommended values include 'Positive', 'Negative', 'NonMonotonic', 'Neutral', or 'Unknown'.",
+          "type": "optional string"
+        },
+        "magnitude": {
+          "description": "Optional numerical value, range, or qualitative magnitude descriptor associated with the effect. Examples include '10%', '[0.2,0.5]', 'significant', or 'slight'. Only record values explicitly supported by the paper.",
+          "type": "optional string"
+        },
+        "evidence": {
+          "description": "Verbatim text copied from the paper that explicitly describes the parameter change. The text must contain original paper text only and must not include paraphrasing or citation wrappers.",
+          "type": "string"
+        }
       }
     },
 
     "Phenomenon": {
-      "description": "A physical process or behavior studied in the paper.",
+      "description": "A canonical physical process or behavior occurring in a material system that a simulation model aims to represent, analyze, or predict. A Phenomenon corresponds to a real physical mechanism or observable process rather than a modeling construct. Examples include dendrite growth, electrodeposition, lithium plating, SEI formation, and stress-induced crack propagation. Phenomena serve as reusable domain-level concepts linking simulation models to real physical behavior.",
       "properties": {
-        "phenomenon_id": "string",
-        "name": "string",
-        "description": "string",
-        "evidence": "string"
+        "phenomenon_id": {
+          "description": "Stable canonical identifier and standardized name of the physical phenomenon. The identifier must follow UpperCamelCase naming convention without spaces or punctuation, for example 'DendriteGrowth', 'LithiumPlating', or 'SEIFormation'. The same identifier should be reused across papers when referring to the same phenomenon.",
+          "type": "string"
+        },
+        "description": {
+          "description": "Detailed explanation of the physical process represented by the phenomenon, describing the mechanisms involved and the system behavior it produces.",
+          "type": "string"
+        },
+        "observe_under_conditions": {
+          "description": "List of identifiers of Condition entities describing the environmental or operational contexts under which this phenomenon is observed or studied.",
+          "type": "optional condition_id []"
+        },
+        "related_effects": {
+          "description": "List of identifiers of Effect entities describing parameter-level changes associated with this phenomenon.",
+          "type": "optional effect_id []"
+        },
+        "evidence": {
+          "description": "Verbatim text copied from the paper that explicitly mentions or clearly describes the phenomenon.",
+          "type": "string"
+        }
       }
     },
 
     "MaterialSystem": {
-      "description": "The materials system investigated in the paper.",
+      "description": "A structured representation of the physical material environment that is directly studied or simulated in the paper's own research. A MaterialSystem should only be created for systems that the paper explicitly models, simulates, analyzes, or experimentally investigates in its main study. Material systems mentioned only in literature review, background discussion, or citations to prior work must not be extracted. The entity captures the primary materials and phases participating in the system under investigation.",
       "properties": {
-        "material_system_id": "string",
-        "anode_material": "string",
-        "electrolyte_material": "string",
-        "separator_material": "string",
-        "salt": "string",
-        "solvent": "string",
-        "description": "string",
-        "evidence": "string"
+        "material_system_id": {
+          "description": "Stable identifier summarizing the main participating materials. Format: Title Case phrase where components are separated by ' | '. Examples include 'Li Metal | Liquid Electrolyte' or 'Li Metal | Solid Electrolyte'.",
+          "type": "string"
+        },
+        "type": {
+          "description": "High-level classification describing the technological or physical system being studied. Examples include 'LithiumMetalBattery', 'LithiumIonBattery', 'SolidStateBattery', 'ElectrochemicalDepositionSystem', or 'GenericElectrochemicalSystem'.",
+          "type": "string"
+        },
+        "composition": {
+          "description": "Structured description of material components using semicolon-separated key=value pairs. Recommended keys include anode, electrolyte, separator, salt, solvent, additive, and other.",
+          "type": "string"
+        },
+        "evidence": {
+          "description": "Verbatim text copied from the paper supporting the identification of the material system.",
+          "type": "string"
+        }
       }
     },
 
-    "Geometry": {
-      "description": "The spatial domain used in the model or simulation.",
+    "Assumption": {
+      "description": "An explicit modeling assumption, approximation, simplification, or idealization used in a simulation model. An Assumption constrains the physical description, mathematical formulation, numerical treatment, or applicability range of the model.",
       "properties": {
-        "geometry_id": "string",
-        "dimension": "string",
-        "shape": "string",
-        "domain_size": "string",
-        "description": "string",
-        "evidence": "string"
+        "assumption_id": {
+          "description": "Stable identifier representing the assumption and its canonical label. Examples include 'electroneutrality', 'linear elasticity', 'diffuse interface', or 'isothermal condition'.",
+          "type": "string"
+        },
+        "type": {
+          "description": "Category describing the aspect of the model that the assumption constrains. Examples include 'physical', 'electrochemical', 'thermal', 'mechanical', 'transport', 'geometric', or 'numerical'.",
+          "type": "string"
+        },
+        "statement": {
+          "description": "Precise natural-language statement of the assumption as used in the paper.",
+          "type": "string"
+        },
+        "evidence": {
+          "description": "Verbatim text copied from the paper supporting the assumption.",
+          "type": "string"
+        }
       }
     },
 
-    "Condition": {
-      "description": "A contextual condition under which simulations or results are evaluated.",
+    "SimulationModel": {
+      "description": "A specific computational or mathematical formulation implemented and used by the paper in its own study. A SimulationModel represents the concrete model configuration developed, adopted, or executed in the work, including its governing equations, assumptions, and the material system to which it is applied. Only models that are explicitly used or implemented in the paper's main methodology should be extracted. Models mentioned solely in literature review, background discussion, or citations to prior studies must not be extracted.",
       "properties": {
-        "condition_id": "string",
-        "type": "string",
-        "value": "string",
-        "unit": "string",
-        "description": "string",
-        "evidence": "string"
+        "model_id": {
+          "description": "Stable identifier summarizing the model formulation and purpose. Format: UpperCamelCase phrase without spaces.",
+          "type": "string"
+        },
+        "type": {
+          "description": "High-level classification of the modeling paradigm, such as PhaseFieldModel, ContinuumTransportModel, or MolecularDynamicsModel.",
+          "type": "string"
+        },
+        "model_type": {
+          "description": "Methodological category using snake_case naming, such as phase_field, finite_element, molecular_dynamics, or continuum_transport_model.",
+          "type": "string"
+        },
+        "material_system": {
+          "description": "Identifier referencing the MaterialSystem entity describing the simulated system.",
+          "type": "system_id"
+        },
+        "use_assumptions": {
+          "description": "List of identifiers of Assumption entities used in the model.",
+          "type": "optional assumption_id []"
+        },
+        "use_equations": {
+          "description": "List of ModelEquation identifiers used by this model.",
+          "type": "equation_id []"
+        },
+        "spatial_dimension": {
+          "description": "Dimensionality of the simulation domain such as '1D', '2D', or '3D'.",
+          "type": "string | string[]"
+        },
+        "temporal_type": {
+          "description": "Whether the model describes transient evolution, steady-state behavior, or both.",
+          "type": "string"
+        },
+        "numerical_method": {
+          "description": "Optional description of the numerical technique used to solve the model equations.",
+          "type": "string"
+        },
+        "software_or_solver": {
+          "description": "Optional name of the software package or solver used to implement the model.",
+          "type": "string"
+        },
+        "objective": {
+          "description": "Short description of the main modeling goal in the paper.",
+          "type": "string"
+        },
+        "evidence": {
+          "description": "Verbatim text copied from the paper describing the model or its formulation.",
+          "type": "string"
+        }
       }
     },
 
-    "Result": {
-      "description": "A scientific finding reported in the paper, including qualitative observations, morphology changes, comparisons, or quantitative outcomes.",
+    "ModelEquation": {
+      "description": "A high-level governing equation that is explicitly used in the simulation model implemented in the paper's own study. A ModelEquation represents one of the primary mathematical relations defining the model's behavior, such as evolution equations, transport equations, equilibrium equations, or free-energy functionals. Only equations that are directly part of the model used in the paper's methodology should be extracted. Equations mentioned only in literature review, background discussion, or citations to other studies must not be extracted.",
       "properties": {
-        "result_id": "string",
-        "description": "string",
-        "result_type": "string",
-        "condition": "string",
-        "evidence": "string"
+        "equation_id": {
+          "description": "Stable identifier and canonical name of the model-level equation, such as 'PhaseFieldEvolutionEquation' or 'IonTransportEquation'.",
+          "type": "string"
+        },
+        "expression": {
+          "description": "Mathematical expression of the equation written in plain text or LaTeX-like format.",
+          "type": "string"
+        },
+        "form": {
+          "description": "Controlled classification of the mathematical form such as PartialDifferentialEquation or IntegralFunctional.",
+          "type": "string"
+        },
+        "description": {
+          "description": "Explanation of the physical and mathematical meaning of the equation.",
+          "type": "string"
+        },
+        "use_terms": {
+          "description": "List of Term identifiers representing the internal components of the equation.",
+          "type": "term_id []"
+        },
+        "use_parameters": {
+          "description": "List of Parameter identifiers explicitly appearing in the equation.",
+          "type": "parameter_id []"
+        },
+        "evidence": {
+          "description": "Verbatim text from the paper showing the equation.",
+          "type": "string"
+        }
       }
     },
 
-    "Metric": {
-      "description": "A quantitative metric defined or reported by the paper.",
+    "Term": {
+      "description": "A lower-level mathematical component appearing inside a ModelEquation, such as diffusion, migration, reaction, or gradient-energy contributions.",
       "properties": {
-        "metric_id": "string",
-        "name": "string",
-        "value": "string",
-        "unit": "string",
-        "condition": "string",
-        "description": "string",
-        "evidence": "string"
+        "term_id": {
+          "description": "Stable identifier representing the type and name of the term, such as DiffusionTerm or GradientEnergyTerm.",
+          "type": "string"
+        },
+        "expression": {
+          "description": "Mathematical expression representing the term.",
+          "type": "string"
+        },
+        "parameter_ids": {
+          "description": "List of Parameter identifiers used within this term.",
+          "type": "parameter_id []"
+        },
+        "description": {
+          "description": "Explanation of the physical meaning of the term.",
+          "type": "string"
+        },
+        "evidence": {
+          "description": "Verbatim text copied from the paper describing the term.",
+          "type": "string"
+        }
+      }
+    },
+
+    "Parameter": {
+      "description": "A measurable physical or mathematical quantity appearing in equations, terms, conditions, or effects.",
+      "properties": {
+        "parameter_id": {
+          "description": "Stable identifier representing the canonical name of the parameter such as CurrentDensity, Temperature, or DiffusionCoefficient.",
+          "type": "string"
+        },
+        "symbol": {
+          "description": "Optional mathematical symbol used in the paper.",
+          "type": "string"
+        },
+        "description": {
+          "description": "Explanation of the physical meaning of the parameter.",
+          "type": "string"
+        },
+        "unit": {
+          "description": "Physical unit associated with the parameter.",
+          "type": "string"
+        },
+        "evidence": {
+          "description": "Verbatim text copied from the paper defining the parameter.",
+          "type": "string"
+        }
+      }
+    },
+
+    "ParameterValue": {
+      "description": "A specific value assigned to a Parameter within a simulation setup, experimental condition, or reported result.",
+      "properties": {
+        "parameter_value_id": {
+          "description": "Identifier representing a parameter-value pair such as 'CurrentDensity=5e3A_m2' or 'Temperature=300K'.",
+          "type": "string"
+        }
       }
     }
+
   },
+
   "relationships": [
-    { "type": "USES_MODEL", "from": "Paper", "to": "Model" },
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "Paper", "to": "ModelVariant" },
-
-    { "type": "HAS_EQUATION", "from": "Model", "to": "Equation" },
-    { "type": "HAS_EQUATION", "from": "ModelVariant", "to": "Equation" },
-
-    { "type": "DERIVED_FROM", "from": "Equation", "to": "Equation" },
-    { "type": "HAS_TERM", "from": "Equation", "to": "Term" },
-
-    { "type": "USES_VARIABLE", "from": "Equation", "to": "Variable" },
-    { "type": "USES_PARAMETER", "from": "Equation", "to": "Parameter" },
-
-    { "type": "USES_VARIABLE", "from": "Term", "to": "Variable" },
-    { "type": "USES_PARAMETER", "from": "Term", "to": "Parameter" },
-
-    { "type": "SUBTERM_OF", "from": "Term", "to": "Term" },
-    { "type": "EQUIVALENT_TO", "from": "Term", "to": "Term" },
-
-    { "type": "HAS_PARAMETER_VALUE", "from": "Parameter", "to": "ParameterValue" },
-
-    { "type": "MODELS_PHENOMENON", "from": "Model", "to": "Phenomenon" },
-    { "type": "USES_MATERIAL_SYSTEM", "from": "Model", "to": "MaterialSystem" },
-    { "type": "HAS_GEOMETRY", "from": "Model", "to": "Geometry" },
-    { "type": "HAS_CONDITION", "from": "Model", "to": "Condition" },
-
-    { "type": "PRODUCES_RESULT", "from": "Model", "to": "Result" },
-    { "type": "HAS_METRIC", "from": "Result", "to": "Metric" }
+    {
+      "relationship_id": "ModelsPhenomenon",
+      "from_entity": "SimulationModel",
+      "to_entity": "Phenomenon",
+      "description": "Indicates that a SimulationModel is constructed to represent, analyze, simulate, or predict a specific physical Phenomenon. This is a semantic relation between the mathematical model and the real physical process it targets. It should be used when the paper clearly states that the model is intended to study that phenomenon."
+    },
+    {
+      "relationship_id": "OccursInMaterialSystem",
+      "from_entity": "Phenomenon",
+      "to_entity": "MaterialSystem",
+      "description": "Indicates that a Phenomenon physically occurs in, or is specifically associated with, a given MaterialSystem. This relation connects a reusable canonical physical process to the material environment in which it is observed or studied."
+    },
+    {
+      "relationship_id": "ExplainedByEquation",
+      "from_entity": "Phenomenon",
+      "to_entity": "ModelEquation",
+      "description": "Indicates that a ModelEquation directly describes, constrains, or mathematically explains a Phenomenon. This relation should be used when the equation plays a direct role in representing the mechanism of the phenomenon, rather than merely being part of the same model."
+    },
+    {
+      "relationship_id": "DerivedFrom",
+      "from_entity": "ModelEquation",
+      "to_entity": "ModelEquation",
+      "description": "Indicates that one ModelEquation is explicitly derived from, simplified from, extended from, generalized from, or specialized from another ModelEquation. This relation should only be used when the dependency is clearly stated or mathematically implied by the paper in an unambiguous way."
+    },
+    {
+      "relationship_id": "ConstrainsEquation",
+      "from_entity": "Assumption",
+      "to_entity": "ModelEquation",
+      "description": "Indicates that an Assumption directly constrains the validity, form, or interpretation of a specific ModelEquation. This relation is useful when an assumption applies not just to the whole model, but specifically to one equation or one mathematical subsystem."
+    },
+    {
+      "relationship_id": "AppliesToMaterialSystem",
+      "from_entity": "Assumption",
+      "to_entity": "MaterialSystem",
+      "description": "Indicates that an Assumption is specifically introduced for, justified by, or valid within a given MaterialSystem. This relation should be used when the paper ties an assumption to a particular material environment rather than treating it as globally model-wide."
+    },
+    {
+      "relationship_id": "TriggersEffect",
+      "from_entity": "Condition",
+      "to_entity": "Effect",
+      "description": "Indicates that a Condition is the explicit contextual trigger, regime, or constraint under which an Effect is observed. This relation expresses that the parameter-level change represented by the Effect occurs under the parameter-level constraint represented by the Condition."
+    },
+    {
+      "relationship_id": "HasParameterValue",
+      "from_entity": "Parameter",
+      "to_entity": "ParameterValue",
+      "description": "Indicates that a ParameterValue is a concrete instantiated value of a Parameter. This relation is useful because ParameterValue currently stores only a compact identifier and does not explicitly keep a separate parameter reference field."
+    },
+    {
+      "relationship_id": "ValidInMaterialSystem",
+      "from_entity": "ParameterValue",
+      "to_entity": "MaterialSystem",
+      "description": "Indicates that a specific ParameterValue is valid for, measured in, or assigned within a particular MaterialSystem. This relation should be used when the paper makes clear that the value depends on the material environment."
+    },
+    {
+      "relationship_id": "ValidUnderCondition",
+      "from_entity": "ParameterValue",
+      "to_entity": "Condition",
+      "description": "Indicates that a specific ParameterValue is valid, measured, or used under a particular Condition. This relation is useful when the same Parameter may take different values in different regimes or operating conditions."
+    }
   ]
 }

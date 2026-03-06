@@ -11,53 +11,24 @@ st.set_page_config(page_title="KG Viewer", layout="wide")
 
 
 # ---------- Helpers ----------
-
-ENTITY_ID_KEYS = {
-    "Paper": "paper_id",
-    "Model": "model_id",
-    "ModelVariant": "variant_id",
-    "Equation": "equation_id",
-    "Term": "term_id",
-    "Variable": "variable_id",
-    "Parameter": "parameter_id",
-    "ParameterValue": "value_id",
-    "Phenomenon": "phenomenon_id",
-    "MaterialSystem": "material_system_id",
-    "Geometry": "geometry_id",
-    "Condition": "condition_id",
-    "Result": "result_id",
-    "Metric": "metric_id"
-}
-
-
-COLORS = {
-    "Paper": "#1f77b4",
-    "Model": "#ff7f0e",
-    "ModelVariant": "#9467bd",
-    "Equation": "#2ca02c",
-    "Term": "#17becf",
-    "Variable": "#d62728",
-    "Parameter": "#8c564b",
-    "ParameterValue": "#c49c94",
-    "Phenomenon": "#e377c2",
-    "MaterialSystem": "#7f7f7f",
-    "Geometry": "#bcbd22",
-    "Condition": "#aec7e8",
-    "Result": "#98df8a",
-    "Metric": "#ff9896"
-}
-
-
 def get_entity_uid(entity_type: str, entity: Dict[str, Any]) -> str:
-    key = ENTITY_ID_KEYS.get(entity_type)
-    if key and key in entity:
-        return str(entity[key])
-    # fallback
+    # 1 优先寻找 *_id
     for k, v in entity.items():
-        if k.endswith("_id"):
+        if k.endswith("_id") and v:
             return str(v)
-    return f"{entity_type}_{id(entity)}"
 
+    # 2 再找 id
+    if "id" in entity:
+        return str(entity["id"])
+
+    # 3 最后 fallback
+    return f"{entity_type}_{abs(hash(json.dumps(entity, sort_keys=True)))}"
+
+import hashlib
+
+def color_from_type(entity_type: str) -> str:
+    h = hashlib.md5(entity_type.encode()).hexdigest()
+    return f"#{h[:6]}"
 
 def get_entity_label(entity_type: str, entity: Dict[str, Any]) -> str:
     for key in ["name", "title", "symbol", "description"]:
@@ -132,7 +103,7 @@ def build_network(nodes: Dict[str, Dict[str, Any]], relationships: List[Dict[str
             node_id,
             label=label,
             title=title,
-            color=COLORS.get(entity_type, "#cccccc"),
+            color=color_from_type(entity_type),
             shape="dot",
             size=18,
         )

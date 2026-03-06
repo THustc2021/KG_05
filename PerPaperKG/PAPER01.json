@@ -1,1023 +1,1112 @@
 {
+  "title": "Phase Field Simulation for Dendrite Growth in Energy Storage Batteries",
+  "year": "2025",
+  "authors": [
+    "Yan Li",
+    "Yu Shan",
+    "Tianbo Zhang",
+    "Xuheng Chen",
+    "Yan Li",
+    "Jun Xie",
+    "Kun Zhang",
+    "Yan Ming"
+  ],
+  "journal": "Journal of The Electrochemical Society",
+  "doi": "10.1149/1945-7111/adeb2e",
   "entities": {
-    "Paper": [
+    "MaterialSystem": [
       {
-        "paper_id": "paper_1",
-        "title": "Phase Field Simulation for Dendrite Growth in Energy Storage Batteries",
-        "year": 2025,
-        "authors": [
-          "Yan Li",
-          "Yu Shan",
-          "Tianbo Zhang",
-          "Xuheng Chen",
-          "Yan Li",
-          "Jun Xie",
-          "Kun Zhang",
-          "Yan Ming"
+        "material_system_id": "Metal Anode | Electrolyte",
+        "type": "GenericElectrochemicalSystem",
+        "composition": "anode=metal electrode; electrolyte=electrolyte; other=electrode-electrolyte interface",
+        "evidence": "In this paper the phase transition means the transformation from the electrolyte phase to the electrode phase, as shown in Fig. 1b."
+      },
+      {
+        "material_system_id": "Li Metal | Liquid Electrolyte",
+        "type": "LithiumMetalBattery",
+        "composition": "anode=lithium metal; electrolyte=liquid electrolyte",
+        "evidence": "To investigate the underlying mechanisms of lithium dendrite growth and explore effective suppression strategies, many researchers have employed phase field models to simulate the dendrite growth process in lithium metal batteries."
+      },
+      {
+        "material_system_id": "Li Metal | Solid Electrolyte",
+        "type": "SolidStateBattery",
+        "composition": "anode=lithium metal; electrolyte=solid electrolyte",
+        "evidence": "With the rise of solid-state metal batteries, a growing number of researchers have also applied phase field modeling to solid-state lithium metal batteries."
+      }
+    ],
+    "Phenomenon": [
+      {
+        "phenomenon_id": "DendriteGrowth",
+        "description": "Formation and evolution of metal dendrites on the electrode surface during charging and discharging in energy storage batteries.",
+        "observe_under_conditions": [
+          "HighOverpotential",
+          "HighTemperature",
+          "HighExternalStress",
+          "StrongAnisotropy",
+          "LowElectrolyteConcentration",
+          "SmallSeparatorPoreSize"
         ],
-        "journal": "Journal of The Electrochemical Society",
-        "doi": "10.1149/1945-7111/adeb2e"
-      }
-    ],
-    "Model": [
-      {
-        "model_id": "model_1",
-        "name": "Phase-field model for dendrite growth in energy storage batteries",
-        "model_type": "multiphysics phase-field model / review framework",
-        "description": "A phase-field framework for simulating dendrite growth by tracking the transformation from electrolyte phase to electrode phase using phase-field variables, free-energy functionals, and coupled evolution equations. The review emphasizes coupling ion concentration, electric field, temperature, stress, SEI effects, and anisotropy.",
-        "evidence": "The paper states that the phase-field method constructs a free-energy functional and describes dendritic growth through time-dependent evolution equations, with key influencing factors including ion distribution, electric field, temperature, stress, SEI, and anisotropy."
-      }
-    ],
-    "ModelVariant": [
-      {
-        "variant_id": "variant_1",
-        "name": "Guyer electrochemical phase-field model",
-        "origin_paper": "Guyer et al., 2003",
-        "description": "An early electrochemical phase-field model with simplified electrochemical kinetics, linear ion diffusion assumptions, and Poisson-based charge balance.",
-        "evidence": "The review identifies Guyer et al. as the first to construct a phase-field model applied to electrochemical reactions, using simplified control equations for phase field, ion diffusion, and potential balance."
+        "related_effects": [
+          "GrowthRateIncrease",
+          "BranchingDegreeIncrease",
+          "DendriteSizeDecrease",
+          "MorphologyShiftToFibrous",
+          "MechanicalSuppressionIncrease"
+        ],
+        "evidence": "during the repeated charging and discharging processes of energy storage devices, the uneven deposition of metal ions leads to the generation of dendrites on the electrode surface."
       },
       {
-        "variant_id": "variant_2",
-        "name": "Shibuta KKS-coupled phase-field model",
-        "origin_paper": "Shibuta et al., 2006",
-        "description": "A revised phase-field model coupling Kim-Kim-Suzuki equations, considering interfacial energy and chemical potential, and extending from 1D to 2D.",
-        "evidence": "The review states that Shibuta et al. coupled KKS equations into the control equations, yielding a more accurate description of phase field, ion concentration, and electric potential evolution."
+        "phenomenon_id": "Electrodeposition",
+        "description": "Electrochemical deposition of metal ions at the electrode/electrolyte interface, including interface evolution and morphological instability.",
+        "observe_under_conditions": [
+          "HighOverpotential",
+          "PulsedVoltage"
+        ],
+        "related_effects": [
+          "MorePronouncedBranching",
+          "UniformDepositionIncrease"
+        ],
+        "evidence": "In the process of using the phase field model to simulate metal deposition and dendrite growth in electrochemical systems, the ion concentration field and applied electric field are closely linked to the complex chemical reactions in dendrite growth."
       },
       {
-        "variant_id": "variant_3",
-        "name": "Nonlinear nonequilibrium electrodeposition phase-field model",
-        "origin_paper": "2012 nonlinear model (Refs. 44–46)",
-        "description": "A nonlinear phase-field model for highly nonequilibrium electrochemical systems; its phase-field evolution includes both free-energy and electrochemical-reaction driving forces, and ion diffusion includes ion accumulation and consumption during dendrite growth.",
-        "evidence": "The review describes a nonlinear model developed in 2012 for highly nonequilibrium electrochemical systems, broader than earlier linear or semi-linear models."
+        "phenomenon_id": "DeadLithiumFormation",
+        "description": "Formation of electrically isolated lithium during stripping and dendrite evolution, causing performance degradation.",
+        "observe_under_conditions": [
+          "LowTemperature",
+          "HighMechanicalStress"
+        ],
+        "related_effects": [
+          "ActiveLithiumSurfaceAreaDecrease",
+          "BatteryPolarizationIncrease",
+          "CapacityLossIncrease"
+        ],
+        "evidence": "The phase-field method exhibits powerful analytical capabilities in the study of dead lithium by dynamically simulating lithium stripping and dendrite growth, thereby revealing the key factors contributing to dead lithium formation."
       },
       {
-        "variant_id": "variant_4",
-        "name": "Chen Butler-Volmer/Nernst-Planck/charge-neutrality phase-field model",
-        "origin_paper": "Chen et al., 2015",
-        "description": "A widely used phase-field model integrating a modified Butler-Volmer equation, Nernst-Planck transport, and charge neutrality to solve phase field, electric potential, and ion concentration simultaneously.",
-        "evidence": "The review identifies Chen et al.'s 2015 model as widely used, with control equations coupling phase field, overpotential, electric potential, and ion concentration."
+        "phenomenon_id": "CrackPropagation",
+        "description": "Crack growth and interaction with dendrites in solid-state electrolytes under stress and dendrite penetration.",
+        "observe_under_conditions": [
+          "HighMechanicalStress",
+          "HighYoungsModulus"
+        ],
+        "related_effects": [
+          "CrackExpansionIncrease",
+          "DendritePenetrationSuppression"
+        ],
+        "evidence": "These studies collectively indicate that: (1) electrolytes may crack and expand under dendritic stress, leading to material failure; (2) stress concentrations at crack tips and voids can alter dendrite morphology"
       },
       {
-        "variant_id": "variant_5",
-        "name": "Temperature-coupled phase-field model",
-        "origin_paper": "Assadi, 2007; Yan et al., 2018",
-        "description": "A phase-field model coupled to heat transfer, first through a simple temperature equation and later through a heat-transfer model including internal heat production and temperature-dependent transport parameters.",
-        "evidence": "The review discusses Assadi's early temperature coupling and Yan et al.'s 2018 coupling of Chen's model with heat transfer."
-      },
-      {
-        "variant_id": "variant_6",
-        "name": "Stress-coupled phase-field model",
-        "origin_paper": "Yurkiv et al., 2018; Hong et al.",
-        "description": "A phase-field formulation incorporating elastic strain energy and mechanical equilibrium to model stress evolution during dendrite growth, especially in solid-state electrolytes and cracked media.",
-        "evidence": "The review explains that elastic strain energy is included in the total free energy and the mechanical equilibrium equation is solved to obtain local stress tensors."
-      },
-      {
-        "variant_id": "variant_7",
-        "name": "SEI-aware phase-field model",
-        "origin_paper": "Mu et al.; Chen et al.; Yurkiv et al.",
-        "description": "A family of phase-field models accounting for the solid electrolyte interphase via geometric reconstruction, current correction, or free-energy noise terms; later work begins to incorporate SEI chemistry.",
-        "evidence": "The review describes approaches using porous SEI reconstruction, current correction factors, and noise terms, and notes recent progress on incorporating chemical characteristics of the SEI."
-      },
-      {
-        "variant_id": "variant_8",
-        "name": "Anisotropy-aware phase-field model",
-        "origin_paper": "Assadi; later formulation from Ref. 89",
-        "description": "A phase-field model with anisotropic interface thickness or surface energy to capture directional growth, branching, and coarsening of dendrites.",
-        "evidence": "The review notes that anisotropy is introduced either through angle-dependent interface thickness or the widely adopted surface-energy anisotropy formulation k(theta)=k0[1+delta cos(lambda theta)]."
-      }
-    ],
-    "Equation": [
-      {
-        "equation_id": "eq_1",
-        "name": "Allen-Cahn evolution equation",
-        "expression": "∂ξα/∂t = -Σβ Lαβ (δf/δξβ)",
-        "form": "partial differential equation",
-        "equation_role": "phase-field evolution",
-        "description": "Describes the evolution of non-conserved phase-field variables representing phase states.",
-        "evidence": "The review presents the Allen-Cahn equation as the evolution law for non-conserved phase-field variables."
-      },
-      {
-        "equation_id": "eq_2",
-        "name": "Cahn-Hilliard equation",
-        "expression": "∂ci/∂t = ∇·(Σj Mij ∇(δf/δcj))",
-        "form": "partial differential equation",
-        "equation_role": "species conservation / concentration evolution",
-        "description": "Describes the evolution of conserved concentration variables when no chemical reaction is present.",
-        "evidence": "The review presents the Cahn-Hilliard equation for conserved concentration variables ci."
-      },
-      {
-        "equation_id": "eq_3",
-        "name": "Total free-energy functional",
-        "expression": "F = ∫V f dV = ∫V (fchem + felec + felas + ... ) dV",
-        "form": "integral functional",
-        "equation_role": "energy functional",
-        "description": "Defines the total free energy as the sum of chemical, electrostatic, elastic, and other contributions.",
-        "evidence": "The review defines the total free energy as an integral over energy terms including chemical, electrostatic, and elastic energies."
-      },
-      {
-        "equation_id": "eq_4",
-        "name": "Guyer phase-field control equation",
-        "expression": "Phase-field evolution with interpolation p(ξ), double-well potential g(ξ), gradient energy kξ, concentrations Cj, and electric field term ε'(ξ)(∇φ)^2/2",
-        "form": "phase-field PDE",
-        "equation_role": "variant-specific phase-field evolution",
-        "description": "Early electrochemical phase-field control equation derived from an ideal-solution thermodynamic framework.",
-        "evidence": "The review summarizes Guyer et al.'s phase-field control equation and explains the meaning of ξ, p(ξ), g(ξ), kξ, ε(ξ), φ, Cj, μj, Wj, Mj, Vj, and ρ."
-      },
-      {
-        "equation_id": "eq_5",
-        "name": "Guyer ion diffusion equation",
-        "expression": "Jj = -Mj∇(μj - Vj/Vs μn); ∂Cj/∂t = -∇·Jj",
-        "form": "transport PDE",
-        "equation_role": "variant-specific concentration evolution",
-        "description": "Simple linear kinetic ion-transport equation used in the early electrochemical phase-field model.",
-        "evidence": "The review states that Guyer's ion diffusion equation adopts a simple linear kinetic assumption."
-      },
-      {
-        "equation_id": "eq_6",
-        "name": "Poisson equation for charge balance",
-        "expression": "∇·[ε(ξ)∇φ] + ρ = 0",
-        "form": "elliptic PDE",
-        "equation_role": "electrostatic potential balance",
-        "description": "Maintains charge/potential balance at the electrode/electrolyte interface.",
-        "evidence": "The review notes that the Poisson equation is used in Guyer's model to maintain potential balance."
-      },
-      {
-        "equation_id": "eq_7",
-        "name": "Shibuta KKS phase-field equation",
-        "expression": "Mξ[kξ^2∇^2ξ + (dp/dξ)(RT/Vm)ln(CMβ+Ceα / CMα+Ceβ) - W(dg/dξ)]",
-        "form": "phase-field PDE",
-        "equation_role": "variant-specific phase-field evolution",
-        "description": "A KKS-coupled phase-field equation accounting for interfacial energy and chemical potential.",
-        "evidence": "The review describes Eq. 7 as part of the Shibuta model, improving the evolution of phase field, ion concentration field, and electric potential field."
-      },
-      {
-        "equation_id": "eq_8",
-        "name": "Shibuta concentration/potential coupling equation",
-        "expression": "∂CM+/∂t = ∇·[D(ξ){...}∇ln(CM+/...) - ...∇φ]",
-        "form": "transport PDE",
-        "equation_role": "variant-specific ion transport",
-        "description": "Couples concentration evolution to diffusion and electric-potential effects in the KKS model.",
-        "evidence": "The review presents Eq. 8 as the second control equation in the Shibuta model."
-      },
-      {
-        "equation_id": "eq_9",
-        "name": "Nonlinear phase-field evolution equation",
-        "expression": "∂ξ/∂t = -Lσ(δΣ/δξ) - Lη h'(ξ){exp[(1-α)ΔG/RT] - (CLis CLi0+ / CLis+ CLi0)exp[-αΔG/RT]}",
-        "form": "nonlinear PDE",
-        "equation_role": "phase-field evolution under nonequilibrium electrochemistry",
-        "description": "Includes two driving forces: interfacial free energy and electrochemical reactions.",
-        "evidence": "The review states that Eq. 9 incorporates free-energy and electrochemical-reaction driving factors."
-      },
-      {
-        "equation_id": "eq_10",
-        "name": "Nonlinear lithium-ion diffusion equation",
-        "expression": "∂CLi+/∂t = ∇·(Dξ ∇CLi+) - ṘLi+",
-        "form": "transport PDE",
-        "equation_role": "ion concentration evolution with reaction source/sink",
-        "description": "Describes ion diffusion while accounting for accumulation and consumption of lithium ions during dendrite growth.",
-        "evidence": "The review explains that Eq. 10 includes accumulation and depletion of Li+ due to chemical reactions at the electrode-electrolyte interface."
-      },
-      {
-        "equation_id": "eq_11",
-        "name": "Chen modified Butler-Volmer phase-field equation",
-        "expression": "∂ξ/∂t = -Lσ[p'(ξ)-k∇²ξ] - Lη h'(ξ){exp[-αnFηa/RT] - c̃+ exp[(1-α)nFηa/RT]}",
-        "form": "coupled reaction-diffusion PDE",
-        "equation_role": "widely used phase-field evolution",
-        "description": "A modified Butler-Volmer-type phase-field equation with gradient-energy and electrochemical-reaction terms.",
-        "evidence": "The review identifies Eq. 11 as a modified Butler-Volmer formulation widely used in later work."
-      },
-      {
-        "equation_id": "eq_12",
-        "name": "Chen Nernst-Planck and charge-neutrality transport equation",
-        "expression": "∂c+/∂t = ∇·(D+∇c+) + ∇·(D+ c+/ΦT ∇φ) - ∂cLi/∂t; ∂c-/∂t = ∇·(D-∇c-) - ∇·(D- c-/ΦT ∇φ); c+ = c-",
-        "form": "coupled transport PDE system",
-        "equation_role": "ion transport and charge neutrality",
-        "description": "Describes cation/anion transport under diffusion and migration and enforces charge neutrality.",
-        "evidence": "The review explains that Eq. 12 uses the Nernst-Planck equation together with charge neutrality."
-      },
-      {
-        "equation_id": "eq_13",
-        "name": "Assadi temperature-field equation",
-        "expression": "∂T/∂t = αth∇²T + (1/cp)∂Htr/∂t",
-        "form": "heat equation",
-        "equation_role": "temperature evolution",
-        "description": "Early temperature-field evolution equation coupled to solute and phase field.",
-        "evidence": "The review cites Assadi's 2007 temperature evolution formula."
-      },
-      {
-        "equation_id": "eq_14",
-        "name": "Yan heat-transfer equation",
-        "expression": "Cpρ ∂T/∂t = Ra(∂²T/∂x² + ∂²T/∂y²) + Q",
-        "form": "heat equation",
-        "equation_role": "temperature coupling with internal heat generation",
-        "description": "Heat-transfer equation used to couple temperature to phase-field simulations through diffusion and thermal effects.",
-        "evidence": "The review presents Eq. 14 as the mainstream temperature-coupling approach."
-      },
-      {
-        "equation_id": "eq_15",
-        "name": "Elastic strain energy density",
-        "expression": "fels(u,ξ) = (1/2) Cijkl εijE εklE",
-        "form": "energy density expression",
-        "equation_role": "mechanical free-energy contribution",
-        "description": "Elastic strain energy term incorporated into the total free energy functional.",
-        "evidence": "The review states that Yurkiv proposed calculating elastic strain energy and incorporating it into the total free energy."
-      },
-      {
-        "equation_id": "eq_16",
-        "name": "Mechanical equilibrium equation",
-        "expression": "σij,j = 0",
-        "form": "mechanical equilibrium equation",
-        "equation_role": "stress equilibrium",
-        "description": "Mechanical equilibrium condition used in stress-coupled phase-field models.",
-        "evidence": "The review states that Hong et al. solved the mechanical equilibrium equation to obtain local stress tensors."
-      },
-      {
-        "equation_id": "eq_17",
-        "name": "Constitutive stress relation",
-        "expression": "σij = Cijkl(εij - εij0)",
-        "form": "constitutive relation",
-        "equation_role": "stress-strain relation",
-        "description": "Relates local stress tensor to total strain and eigenstrain.",
-        "evidence": "The review presents the stress tensor relation in the stress-coupled model."
-      },
-      {
-        "equation_id": "eq_18",
-        "name": "SEI noise-augmented free-energy functional",
-        "expression": "F = ∫V [fchem + ... + felas + fns] dV",
-        "form": "integral functional",
-        "equation_role": "SEI effect representation",
-        "description": "Adds a noise term to the free energy to implicitly represent SEI influence on dendrite growth.",
-        "evidence": "The review states that a widely adopted SEI approach is to incorporate a noise term into the total free energy functional."
-      },
-      {
-        "equation_id": "eq_19",
-        "name": "Anisotropic Allen-Cahn form",
-        "expression": "∂ϕ/∂t = -M(∂f/∂ϕ - ε²∇²ϕ)",
-        "form": "phase-field PDE",
-        "equation_role": "anisotropic phase-field evolution",
-        "description": "Allen-Cahn-type evolution equation used with angle-dependent interface thickness.",
-        "evidence": "The review attributes this anisotropy treatment to Assadi."
-      },
-      {
-        "equation_id": "eq_20",
-        "name": "Surface-energy anisotropy function",
-        "expression": "k(θ) = k0[1 + δ cos(λθ)]",
-        "form": "parameterization",
-        "equation_role": "anisotropic interface energy",
-        "description": "Predominant formulation for incorporating surface-energy anisotropy into phase-field models.",
-        "evidence": "The review states that Eq. 20 remains the predominant approach for anisotropy."
-      }
-    ],
-    "Term": [
-      {
-        "term_id": "term_1",
-        "name": "chemical free energy",
-        "expression": "fchem",
-        "description": "Chemical contribution to the total free-energy functional.",
-        "evidence": "The total free energy includes a chemical energy term fchem."
-      },
-      {
-        "term_id": "term_2",
-        "name": "electrostatic energy",
-        "expression": "felec",
-        "description": "Electrostatic contribution to the total free-energy functional.",
-        "evidence": "The total free energy includes an electrostatic energy term felec."
-      },
-      {
-        "term_id": "term_3",
-        "name": "elastic strain energy",
-        "expression": "felas",
-        "description": "Elastic/mechanical contribution to the total free-energy functional.",
-        "evidence": "The total free energy includes an elastic energy term felas."
-      },
-      {
-        "term_id": "term_4",
-        "name": "SEI noise term",
-        "expression": "fns",
-        "description": "Noise-field term used to represent SEI effects in simplified form.",
-        "evidence": "The review identifies fns as the noise term in the SEI-augmented free energy."
-      },
-      {
-        "term_id": "term_5",
-        "name": "diffusion term",
-        "expression": "∇·(D∇c)",
-        "description": "Species diffusion contribution in transport equations.",
-        "evidence": "The review repeatedly describes ion diffusion terms in the Cahn-Hilliard, nonlinear, and Nernst-Planck equations."
-      },
-      {
-        "term_id": "term_6",
-        "name": "migration term",
-        "expression": "∇·(Dc/ΦT ∇φ)",
-        "description": "Electromigration contribution in ion transport equations.",
-        "evidence": "The review decomposes the Chen transport equation into diffusion, migration, and reduction contributions."
-      },
-      {
-        "term_id": "term_7",
-        "name": "reaction term",
-        "expression": "Butler-Volmer-like exponential term / ṘLi+",
-        "description": "Electrochemical-reaction contribution driving deposition and consumption/production of Li species.",
-        "evidence": "The review states that electrochemical reaction terms directly affect phase evolution and lithium-ion accumulation/consumption."
-      },
-      {
-        "term_id": "term_8",
-        "name": "gradient energy term",
-        "expression": "k∇²ξ or kξ²∇²ξ",
-        "description": "Interfacial gradient contribution controlling diffuse-interface energetics.",
-        "evidence": "The review notes the gradient term in the free-energy component of the Chen model and earlier variants."
-      }
-    ],
-    "Variable": [
-      {
-        "variable_id": "var_1",
-        "symbol": "ξα",
-        "name": "phase-field variable",
-        "physical_meaning": "Describes the phase state of the system; tracks transformation from electrolyte phase to electrode phase.",
-        "variable_type": "field / non-conserved order parameter",
-        "unit": "",
-        "domain": "electrode-electrolyte interface and simulation domain",
-        "evidence": "The review states that ξα are the basic field variables describing phase states, and that phase transition means transformation from electrolyte to electrode phase."
-      },
-      {
-        "variable_id": "var_2",
-        "symbol": "ci",
-        "name": "concentration variable",
-        "physical_meaning": "Concentration of component i in a multicomponent system.",
-        "variable_type": "field / conserved variable",
-        "unit": "concentration",
-        "domain": "electrolyte/electrode system",
-        "evidence": "The review introduces ci as concentration variables related to the chemical free energy."
-      },
-      {
-        "variable_id": "var_3",
-        "symbol": "φ",
-        "name": "electric potential",
-        "physical_meaning": "Electrostatic potential field in the electrochemical system.",
-        "variable_type": "field",
-        "unit": "V",
-        "domain": "electrolyte/electrode interface",
-        "evidence": "The review explicitly defines φ as the electric potential."
-      },
-      {
-        "variable_id": "var_4",
-        "symbol": "ρ",
-        "name": "charge density",
-        "physical_meaning": "Local electric charge density entering the Poisson equation.",
-        "variable_type": "field",
-        "unit": "charge density",
-        "domain": "electrochemical domain",
-        "evidence": "The review defines ρ in the Poisson equation."
-      },
-      {
-        "variable_id": "var_5",
-        "symbol": "T",
-        "name": "temperature",
-        "physical_meaning": "Temperature field affecting transport and morphology.",
-        "variable_type": "field",
-        "unit": "K",
-        "domain": "simulation domain",
-        "evidence": "The review introduces temperature-field equations and discusses temperature-dependent dendrite morphologies."
-      },
-      {
-        "variable_id": "var_6",
-        "symbol": "σij",
-        "name": "local stress tensor",
-        "physical_meaning": "Mechanical stress state during dendrite growth.",
-        "variable_type": "tensor field",
-        "unit": "stress",
-        "domain": "solid electrolyte / electrode region",
-        "evidence": "The review states that stress-coupled models solve for local stress tensors."
-      },
-      {
-        "variable_id": "var_7",
-        "symbol": "εij",
-        "name": "total strain tensor",
-        "physical_meaning": "Total strain entering the constitutive relation for stress.",
-        "variable_type": "tensor field",
-        "unit": "",
-        "domain": "mechanical domain",
-        "evidence": "The review defines εij as the total strain tensor."
-      },
-      {
-        "variable_id": "var_8",
-        "symbol": "εij0",
-        "name": "eigenstrain tensor",
-        "physical_meaning": "Reference/eigen strain entering the constitutive stress relation.",
-        "variable_type": "tensor field",
-        "unit": "",
-        "domain": "mechanical domain",
-        "evidence": "The review defines εij0 as the eigen strain."
-      },
-      {
-        "variable_id": "var_9",
-        "symbol": "c+",
-        "name": "cation concentration",
-        "physical_meaning": "Concentration field of positive ions.",
-        "variable_type": "field",
-        "unit": "concentration",
-        "domain": "electrolyte",
-        "evidence": "The review defines c+ as the concentration field of positive ions."
-      },
-      {
-        "variable_id": "var_10",
-        "symbol": "c-",
-        "name": "anion concentration",
-        "physical_meaning": "Concentration field of negative ions.",
-        "variable_type": "field",
-        "unit": "concentration",
-        "domain": "electrolyte",
-        "evidence": "The review defines c- as the concentration field of negative ions."
-      },
-      {
-        "variable_id": "var_11",
-        "symbol": "cLi",
-        "name": "lithium atom concentration in anode",
-        "physical_meaning": "Concentration of lithium atoms in the anode phase.",
-        "variable_type": "field",
-        "unit": "concentration",
-        "domain": "anode",
-        "evidence": "The review defines cLi as the concentration of lithium atoms in the anode."
-      },
-      {
-        "variable_id": "var_12",
-        "symbol": "ηa",
-        "name": "overpotential",
-        "physical_meaning": "Electrochemical driving force for deposition and dendrite growth.",
-        "variable_type": "field or local scalar",
-        "unit": "V",
-        "domain": "electrode/electrolyte interface",
-        "evidence": "The review identifies overpotential as a key variable and primary driving force for dendrite growth."
-      },
-      {
-        "variable_id": "var_13",
-        "symbol": "θ",
-        "name": "interface orientation angle",
-        "physical_meaning": "Angle between reference direction and normal vector of the solid/liquid interface used in anisotropy formulations.",
-        "variable_type": "geometric variable",
-        "unit": "rad or degree",
-        "domain": "interface",
-        "evidence": "The review defines θ in the anisotropy formulation."
+        "phenomenon_id": "SEIInfluencedDendriteEvolution",
+        "description": "Modification of dendrite growth behavior by the solid electrolyte interphase through physical barrier effects, structural heterogeneity, and chemistry-dependent transport/mechanics.",
+        "observe_under_conditions": [
+          "SEIPorosityPresent",
+          "SEINoiseRepresentation",
+          "AppliedPressure"
+        ],
+        "related_effects": [
+          "DendriteSuppression",
+          "UniformIonDistributionIncrease",
+          "ElectricFieldDistortionDecrease"
+        ],
+        "evidence": "The solid electrolyte interphase (SEI), formed as a passivation layer at the interface between the electrolyte and the electrode, can significantly affect the growth of lithium dendrites."
       }
     ],
     "Parameter": [
       {
-        "parameter_id": "param_1",
+        "parameter_id": "PhaseFieldVariable",
+        "symbol": "ξ",
+        "description": "Order parameter describing the phase states of the system.",
+        "unit": "dimensionless",
+        "evidence": "In the phase field model, the basic field variables are the phase field variable ξα (α = 1,…,n), which describe the phase states of the system."
+      },
+      {
+        "parameter_id": "Concentration",
+        "symbol": "c_i",
+        "description": "Concentration variable for system components.",
+        "unit": "mol m^-3",
+        "evidence": "the concentration variables ci(I = 1,…,m) are also introduced into the system."
+      },
+      {
+        "parameter_id": "InterfaceMobility",
         "symbol": "Lαβ",
-        "name": "interface mobility",
-        "physical_meaning": "Mobility between phase α and phase β in Allen-Cahn evolution.",
-        "unit": "",
-        "evidence": "The review defines Lαβ as the interface mobility between phase α and phase β."
+        "description": "Interface mobility between phase α and phase β.",
+        "unit": "not specified",
+        "evidence": "In the formula, Lαβ represents the interface mobility between phase α and phase β"
       },
       {
-        "parameter_id": "param_2",
+        "parameter_id": "AtomicMobility",
         "symbol": "Mij",
-        "name": "atomic mobility",
-        "physical_meaning": "Mobility between component i and component j in the Cahn-Hilliard equation.",
-        "unit": "",
-        "evidence": "The review defines Mij as atomic mobility."
+        "description": "Atomic mobility between component i and component j.",
+        "unit": "not specified",
+        "evidence": "In the formula, Mij is the atomic mobility between component i and component j."
       },
       {
-        "parameter_id": "param_3",
-        "symbol": "Mξ",
-        "name": "phase-field mobility / dynamic evolution coefficient",
-        "physical_meaning": "Controls the evolution rate of the phase-field variable.",
-        "unit": "",
-        "evidence": "The review defines Mξ as the mobility of the phase field or dynamic evolution coefficient."
+        "parameter_id": "ChemicalFreeEnergyDensity",
+        "symbol": "fchem",
+        "description": "Chemical contribution to total free energy density.",
+        "unit": "J m^-3",
+        "evidence": "In the formula, fchem represents chemical energy"
       },
       {
-        "parameter_id": "param_4",
-        "symbol": "kξ",
-        "name": "gradient energy coefficient",
-        "physical_meaning": "Controls interface gradient energy in phase-field equations.",
-        "unit": "",
-        "evidence": "The review defines kξ as the gradient energy coefficient of the phase field."
+        "parameter_id": "ElectrostaticEnergyDensity",
+        "symbol": "felec",
+        "description": "Electrostatic contribution to total free energy density.",
+        "unit": "J m^-3",
+        "evidence": "felec represents electrostatic energy"
       },
       {
-        "parameter_id": "param_5",
-        "symbol": "ε(ξ)",
-        "name": "dielectric constant",
-        "physical_meaning": "Dielectric property entering the Poisson equation.",
-        "unit": "",
-        "evidence": "The review defines ε(ξ) as the dielectric constant."
+        "parameter_id": "ElasticEnergyDensity",
+        "symbol": "felas",
+        "description": "Elastic contribution to total free energy density.",
+        "unit": "J m^-3",
+        "evidence": "and felas represents elastic energy."
       },
       {
-        "parameter_id": "param_6",
-        "symbol": "W or Wj",
-        "name": "double-well barrier height",
-        "physical_meaning": "Energy barrier between different phase states or components.",
-        "unit": "",
-        "evidence": "The review defines Wj and W as barrier-height parameters."
+        "parameter_id": "ElectricPotential",
+        "symbol": "φ",
+        "description": "Electric potential field in the electrochemical system.",
+        "unit": "V",
+        "evidence": "φ represents the electric potential."
       },
       {
-        "parameter_id": "param_7",
-        "symbol": "D(ξ)",
-        "name": "diffusion coefficient",
-        "physical_meaning": "Transport coefficient for ion diffusion, potentially phase- or temperature-dependent.",
-        "unit": "",
-        "evidence": "The review defines D(ξ) as the diffusion coefficient and later notes temperature dependence of diffusion coefficients."
+        "parameter_id": "Temperature",
+        "symbol": "T",
+        "description": "System temperature or ambient/electrolyte temperature.",
+        "unit": "K",
+        "evidence": "T represents the system temperature."
       },
       {
-        "parameter_id": "param_8",
-        "symbol": "F",
-        "name": "Faraday constant",
-        "physical_meaning": "Electrochemical constant entering transport and reaction equations.",
-        "unit": "C mol^-1",
-        "evidence": "The review explicitly defines F as the Faraday constant."
+        "parameter_id": "Overpotential",
+        "symbol": "η",
+        "description": "Electrochemical overpotential driving electrodeposition and dendrite growth.",
+        "unit": "V",
+        "evidence": "In phase-field models, overpotential serves as one of the key variables in the control equations, acting as the primary driving force for dendrite growth."
       },
       {
-        "parameter_id": "param_9",
-        "symbol": "R",
-        "name": "gas constant",
-        "physical_meaning": "Thermodynamic constant appearing in electrochemical and thermal equations.",
-        "unit": "J mol^-1 K^-1",
-        "evidence": "The review explicitly defines R as the gas constant."
+        "parameter_id": "ExternalStress",
+        "symbol": "σ",
+        "description": "Mechanical stress or external pressure affecting dendrite growth.",
+        "unit": "Pa",
+        "evidence": "Most findings suggest that higher mechanical strength of the electrolyte and greater external stress exert a suppressive effect on dendrite growth"
       },
       {
-        "parameter_id": "param_10",
-        "symbol": "Vm",
-        "name": "molar volume",
-        "physical_meaning": "Molar volume entering KKS and electrochemical formulations.",
-        "unit": "",
-        "evidence": "The review defines Vm as the molar volume."
+        "parameter_id": "YoungsModulus",
+        "symbol": "E",
+        "description": "Mechanical stiffness of electrolyte or SEI related to dendrite suppression.",
+        "unit": "Pa",
+        "evidence": "Most results indicate that a high Young’s modulus and external stress can effectively inhibit dendrite growth."
       },
       {
-        "parameter_id": "param_11",
-        "symbol": "Lσ",
-        "name": "interfacial mobility",
-        "physical_meaning": "Interfacial mobility parameter in the nonlinear phase-field model.",
-        "unit": "",
-        "evidence": "The review defines Lσ as interfacial mobility."
-      },
-      {
-        "parameter_id": "param_12",
-        "symbol": "Lη",
-        "name": "reaction rate constant",
-        "physical_meaning": "Controls electrochemical reaction kinetics in nonlinear and Chen-type models.",
-        "unit": "",
-        "evidence": "The review defines Lη as the reaction rate constant."
-      },
-      {
-        "parameter_id": "param_13",
-        "symbol": "αth",
-        "name": "thermal diffusivity",
-        "physical_meaning": "Thermal diffusivity in the temperature equation.",
-        "unit": "",
-        "evidence": "The review defines αth as thermal diffusivity."
-      },
-      {
-        "parameter_id": "param_14",
-        "symbol": "cp",
-        "name": "heat capacity",
-        "physical_meaning": "Heat capacity in the temperature equation.",
-        "unit": "",
-        "evidence": "The review defines cp as heat capacity."
-      },
-      {
-        "parameter_id": "param_15",
-        "symbol": "Ra",
-        "name": "effective thermal conductivity",
-        "physical_meaning": "Thermal conductivity in the Yan heat-transfer equation.",
-        "unit": "",
-        "evidence": "The review defines Ra as effective thermal conductivity."
-      },
-      {
-        "parameter_id": "param_16",
-        "symbol": "Q",
-        "name": "internal heat production rate",
-        "physical_meaning": "Internal heat source term in the heat equation.",
-        "unit": "",
-        "evidence": "The review defines Q as internal heat production rate."
-      },
-      {
-        "parameter_id": "param_17",
-        "symbol": "Cijkl",
-        "name": "elastic constant tensor",
-        "physical_meaning": "Elastic stiffness tensor used in stress and strain energy expressions.",
-        "unit": "",
-        "evidence": "The review defines Cijkl as the elastic constant."
-      },
-      {
-        "parameter_id": "param_18",
-        "symbol": "k0",
-        "name": "surface energy",
-        "physical_meaning": "Base surface-energy parameter in anisotropy formulation.",
-        "unit": "",
-        "evidence": "The review defines k0 as the surface energy."
-      },
-      {
-        "parameter_id": "param_19",
+        "parameter_id": "AnisotropyStrength",
         "symbol": "δ",
-        "name": "anisotropic strength",
-        "physical_meaning": "Strength of anisotropy in the surface-energy function.",
-        "unit": "",
-        "evidence": "The review defines δ as anisotropic strength."
+        "description": "Strength of surface-energy anisotropy.",
+        "unit": "dimensionless",
+        "evidence": "δ is the anisotropic strength."
       },
       {
-        "parameter_id": "param_20",
-        "symbol": "λ",
-        "name": "anisotropy mode",
-        "physical_meaning": "Mode/order of anisotropy in the surface-energy function.",
-        "unit": "",
-        "evidence": "The review defines λ as the mode of anisotropy."
+        "parameter_id": "SeparatorPoreSize",
+        "symbol": "not specified",
+        "description": "Pore size of porous separator.",
+        "unit": "not specified",
+        "evidence": "smaller pore sizes lead to more uniform lithium-ion concentrations on the electrode surface"
+      },
+      {
+        "parameter_id": "SeparatorThickness",
+        "symbol": "not specified",
+        "description": "Thickness of separator.",
+        "unit": "not specified",
+        "evidence": "thicker separators result in more uniform dendrite growth, thereby reducing overall growth rates"
+      },
+      {
+        "parameter_id": "IonConcentration",
+        "symbol": "c+",
+        "description": "Lithium-ion or cation concentration field near the electrode.",
+        "unit": "not specified",
+        "evidence": "the ion concentration at the dendrite tip dynamically evolves during the growth process"
+      },
+      {
+        "parameter_id": "DendriteGrowthRate",
+        "symbol": "v",
+        "description": "Rate of dendrite elongation or growth velocity.",
+        "unit": "m s^-1",
+        "evidence": "a linear relationship has also been observed between the cation concentration on the electrode surface and the dendrite growth rate."
+      },
+      {
+        "parameter_id": "BranchingDegree",
+        "symbol": "not specified",
+        "description": "Degree of side branching in dendrite morphology.",
+        "unit": "qualitative",
+        "evidence": "as the overpotential increases, the dendrite growth rate accelerates significantly... the instability of the electrodeposition process is also intensified, leading to more pronounced dendritic branching"
+      },
+      {
+        "parameter_id": "DendriteMorphology",
+        "symbol": "not specified",
+        "description": "Qualitative morphology of dendrites such as mossy, tree-like, fibrous, spherical, or needle-like.",
+        "unit": "qualitative",
+        "evidence": "the electric field leads to a morphological evolution from mossy structures (initially also needle-like or fibrous) to tree-like structures with increased branching as the applied voltage increases."
+      },
+      {
+        "parameter_id": "DeadLithiumAmount",
+        "symbol": "not specified",
+        "description": "Residual or accumulated amount of dead lithium.",
+        "unit": "not specified",
+        "evidence": "the relationship between residual dead lithium and discharge voltage/current is non-monotonic"
+      },
+      {
+        "parameter_id": "ActiveLithiumSurfaceArea",
+        "symbol": "not specified",
+        "description": "Available active lithium surface area in the battery.",
+        "unit": "not specified",
+        "evidence": "The presence of dead lithium directly reduces the active lithium surface area"
+      },
+      {
+        "parameter_id": "BatteryPolarization",
+        "symbol": "not specified",
+        "description": "Battery polarization or overpotential increase associated with dead lithium.",
+        "unit": "not specified",
+        "evidence": "increases overpotential/battery polarization"
+      },
+      {
+        "parameter_id": "CapacityLoss",
+        "symbol": "not specified",
+        "description": "Loss of battery capacity.",
+        "unit": "not specified",
+        "evidence": "and leads to capacity loss"
+      },
+      {
+        "parameter_id": "AppliedVoltage",
+        "symbol": "V",
+        "description": "Applied voltage in dendrite simulations or experiments.",
+        "unit": "V",
+        "evidence": "the electric field leads to a morphological evolution from mossy structures (initially also needle-like or fibrous) to tree-like structures with increased branching as the applied voltage increases."
+      },
+      {
+        "parameter_id": "CurrentDensity",
+        "symbol": "not specified",
+        "description": "Applied current density affecting deposition and dendrite growth.",
+        "unit": "not specified",
+        "evidence": "under appropriate current density conditions, can effectively hinder dendrite propagation."
       }
     ],
-    "ParameterValue": [],
-    "Phenomenon": [
+    "Assumption": [
       {
-        "phenomenon_id": "phen_1",
-        "name": "dendrite growth",
-        "description": "Growth of metal dendrites on electrode surfaces during battery charging/discharging.",
-        "evidence": "The paper is centered on dendrite growth in energy storage batteries."
+        "assumption_id": "DiffuseInterface",
+        "type": "physical",
+        "statement": "The electrode-electrolyte interface is treated as a transition region rather than a sharp interface.",
+        "evidence": "During dendrite growth, the electrode–electrolyte interface (EEI) surface does not exhibit a simply sharp interface but rather features a distinct transition region."
       },
       {
-        "phenomenon_id": "phen_2",
-        "name": "electrodeposition",
-        "description": "Electrochemical deposition of metal ions leading to interface evolution and possible dendrite formation.",
-        "evidence": "The review repeatedly discusses metal deposition and electrodeposition in electrochemical systems."
+        "assumption_id": "NonConservedPhaseVariable",
+        "type": "numerical",
+        "statement": "Phase variables are treated as non-conserved variables governed by the Allen-Cahn equation.",
+        "evidence": "Phases are usually regarded as non-conserved variables, and their evolution follows the Allen-Cahn equation"
       },
       {
-        "phenomenon_id": "phen_3",
-        "name": "dead lithium formation",
-        "description": "Formation of electrically disconnected lithium during plating/stripping, reducing active lithium surface area and capacity.",
-        "evidence": "The review identifies dead lithium analysis as a major application of phase-field models."
+        "assumption_id": "ConservedConcentrationWithoutReaction",
+        "type": "transport",
+        "statement": "Concentration variables are conserved and follow the Cahn-Hilliard equation when there is no chemical reaction.",
+        "evidence": "If there is no chemical reaction, the concentration variable are conserved variables and follows the Cahn-Hilliard equation"
       },
       {
-        "phenomenon_id": "phen_4",
-        "name": "stress-coupled crack propagation",
-        "description": "Interaction between dendrite growth, stress concentration, and crack formation/propagation in solid electrolytes.",
-        "evidence": "The review discusses crack propagation, stress concentration at crack tips, and dendrite infiltration in solid electrolytes."
+        "assumption_id": "IdealSolutionFramework",
+        "type": "electrochemical",
+        "statement": "Guyer's phase-field control equation for the phase field variable is derived from the thermodynamic framework of an ideal solution.",
+        "evidence": "the control equation for the phase field variable (Eq. 4) is derived from the thermodynamic framework of an ideal solution."
       },
       {
-        "phenomenon_id": "phen_5",
-        "name": "SEI-mediated dendrite regulation",
-        "description": "Modification of dendrite growth by the solid electrolyte interphase through morphology, transport, mechanics, and chemistry.",
-        "evidence": "The review dedicates a section to SEI influence on dendrite growth."
+        "assumption_id": "LinearIonKinetics",
+        "type": "transport",
+        "statement": "The ion diffusion equation adopts a simple linear kinetic assumption.",
+        "evidence": "The ion diffusion equation (Eq. 5) adopts a simple linear kinetic assumption, ignoring the complex interactions between ions."
       },
       {
-        "phenomenon_id": "phen_6",
-        "name": "anisotropic dendritic growth",
-        "description": "Directional dendrite evolution governed by anisotropy in surface energy, interface thickness, or transport.",
-        "evidence": "The review describes anisotropy as enabling more realistic branching and coarsening behavior."
+        "assumption_id": "UniformChargeDistribution",
+        "type": "electrochemical",
+        "statement": "Charge distribution at the electrode/electrolyte interface is treated as uniform in the simplified model.",
+        "evidence": "For the charge distribution at the electrode/electrolyte interface, an idealized treatment is adopted, considering the charge distribution to be uniform."
+      },
+      {
+        "assumption_id": "LinearElasticity",
+        "type": "mechanical",
+        "statement": "The electrolyte and anode are considered as linear elastic materials in the coupled mechanical model.",
+        "evidence": "Considering the electrolyte and anode as linear elastic materials"
       }
     ],
-    "MaterialSystem": [
+    "Term": [
       {
-        "material_system_id": "mat_1",
-        "anode_material": "Lithium metal (primary focus); also sodium, magnesium, uranium in discussed literature",
-        "electrolyte_material": "Liquid and solid electrolytes",
-        "separator_material": "Porous separators and structured separators (in discussed applications)",
-        "salt": "",
-        "solvent": "",
-        "description": "Review spans energy storage batteries, primarily lithium metal batteries and solid-state lithium batteries, with extension to other metal systems.",
-        "evidence": "The review focuses on lithium dendrites and also notes extensions to sodium, magnesium, and uranium systems."
+        "term_id": "GradientEnergyTerm",
+        "expression": "k∇^2ξ or related interface-gradient contribution",
+        "parameter_ids": [
+          "PhaseFieldVariable"
+        ],
+        "description": "Interfacial gradient contribution controlling diffuse-interface evolution.",
+        "evidence": "Compared with earlier models, Eq. 11 represents a modified form of the Butler–Volmer formulation... The free energy component includes a gradient term"
+      },
+      {
+        "term_id": "DiffusionTerm",
+        "expression": "∇·(D∇c)",
+        "parameter_ids": [
+          "IonConcentration"
+        ],
+        "description": "Species diffusion contribution in transport equations.",
+        "evidence": "Equation 12 employs the Nernst–Planck equation in conjunction with the charge neutrality condition to describe the coupling between lithium-ion concentration and the electric field."
+      },
+      {
+        "term_id": "MigrationTerm",
+        "expression": "∇·(D c ∇ϕ)",
+        "parameter_ids": [
+          "IonConcentration",
+          "ElectricPotential"
+        ],
+        "description": "Electromigration contribution coupling ion transport to electric field.",
+        "evidence": "Equation 12 employs the Nernst–Planck equation in conjunction with the charge neutrality condition to describe the coupling between lithium-ion concentration and the electric field."
+      },
+      {
+        "term_id": "ReactionTerm",
+        "expression": "Butler-Volmer-type electrochemical reaction term",
+        "parameter_ids": [
+          "Overpotential"
+        ],
+        "description": "Electrochemical reaction contribution controlling interface motion.",
+        "evidence": "Eq. 11 represents a modified form of the Butler–Volmer formulation, incorporating driving forces from both free energy and electrochemical reactions."
+      },
+      {
+        "term_id": "NoiseTerm",
+        "expression": "fns",
+        "parameter_ids": [],
+        "description": "Noise term added to represent SEI influence in total free energy.",
+        "evidence": "A widely adopted approach in recent studies is to incorporate a noise term into the total free energy functional to implicitly represent the influence of the SEI on dendrite growth"
+      },
+      {
+        "term_id": "ElasticStrainEnergyTerm",
+        "expression": "1/2 Cijkl εij^E εkl^E",
+        "parameter_ids": [
+          "ExternalStress",
+          "YoungsModulus"
+        ],
+        "description": "Elastic strain energy contribution for mechanical coupling.",
+        "evidence": "In 2018, Yurkiv36 proposed a method for calculating elastic strain energy (Eq. 15) and incorporated it into the total free energy functional."
       }
     ],
-    "Geometry": [
+    "ModelEquation": [
       {
-        "geometry_id": "geom_1",
-        "dimension": "1D and 2D",
-        "shape": "Electrode-electrolyte interface / simulation domains with planar interfaces and structured geometries",
-        "domain_size": "",
-        "description": "The review discusses early 1D models, extensions to 2D, and structured geometries such as porous electrodes, grooves, separators, and crack-containing solids.",
-        "evidence": "The review notes that Shibuta extended from one-dimensional to two-dimensional scales and later applications include porous and grooved geometries."
+        "equation_id": "AllenCahnEquation",
+        "expression": "∂ξα/∂t = -Σβ Lαβ δf/δξβ",
+        "form": "PartialDifferentialEquation",
+        "description": "Evolution equation for non-conserved phase-field variables.",
+        "use_terms": [],
+        "use_parameters": [
+          "PhaseFieldVariable",
+          "InterfaceMobility"
+        ],
+        "evidence": "Phases are usually regarded as non-conserved variables, and their evolution follows the Allen-Cahn equation"
+      },
+      {
+        "equation_id": "CahnHilliardEquation",
+        "expression": "∂ci/∂t = ∇·(Σj Mij ∇(δf/δcj))",
+        "form": "PartialDifferentialEquation",
+        "description": "Conserved evolution equation for component concentrations.",
+        "use_terms": [
+          "DiffusionTerm"
+        ],
+        "use_parameters": [
+          "Concentration",
+          "AtomicMobility"
+        ],
+        "evidence": "If there is no chemical reaction, the concentration variable are conserved variables and follows the Cahn-Hilliard equation"
+      },
+      {
+        "equation_id": "TotalFreeEnergyFunctional",
+        "expression": "F = ∫V (fchem + felec + felas + …) dV",
+        "form": "IntegralFunctional",
+        "description": "Total free-energy functional composed of chemical, electrostatic, elastic and additional energy terms.",
+        "use_terms": [
+          "ElasticStrainEnergyTerm",
+          "NoiseTerm"
+        ],
+        "use_parameters": [
+          "ChemicalFreeEnergyDensity",
+          "ElectrostaticEnergyDensity",
+          "ElasticEnergyDensity"
+        ],
+        "evidence": "To solve the above equations, the total free energy of the system is expressed as an integral of energy terms, as shown in Eq. 3."
+      },
+      {
+        "equation_id": "PoissonEquation",
+        "expression": "∇·[ε(ξ)∇ϕ] + ρ = 0",
+        "form": "PartialDifferentialEquation",
+        "description": "Electrostatic balance relation used in simplified electrochemical phase-field models.",
+        "use_terms": [],
+        "use_parameters": [
+          "ElectricPotential",
+          "PhaseFieldVariable"
+        ],
+        "evidence": "The Poisson equation (Eq. 6) is then used to maintain potential balance."
+      },
+      {
+        "equation_id": "ModifiedButlerVolmerPhaseFieldEquation",
+        "expression": "Phase-field evolution equation combining gradient/free-energy driving force with Butler-Volmer electrochemical reaction kinetics",
+        "form": "PartialDifferentialEquation",
+        "description": "Modified interface evolution law for dendrite growth under electrochemical driving.",
+        "use_terms": [
+          "GradientEnergyTerm",
+          "ReactionTerm"
+        ],
+        "use_parameters": [
+          "PhaseFieldVariable",
+          "Overpotential"
+        ],
+        "evidence": "Eq. 11 represents a modified form of the Butler–Volmer formulation, incorporating driving forces from both free energy and electrochemical reactions."
+      },
+      {
+        "equation_id": "NernstPlanckChargeNeutralityEquation",
+        "expression": "Coupled ion transport equation using Nernst-Planck transport and charge neutrality",
+        "form": "PartialDifferentialEquation",
+        "description": "Coupled transport relation for lithium-ion concentration and electric field.",
+        "use_terms": [
+          "DiffusionTerm",
+          "MigrationTerm"
+        ],
+        "use_parameters": [
+          "IonConcentration",
+          "ElectricPotential"
+        ],
+        "evidence": "Equation 12 employs the Nernst–Planck equation in conjunction with the charge neutrality condition to describe the coupling between lithium-ion concentration and the electric field."
+      },
+      {
+        "equation_id": "HeatTransferEquation",
+        "expression": "Cpρ ∂T/∂t = Ra(∂²T/∂x² + ∂²T/∂y²) + Q",
+        "form": "PartialDifferentialEquation",
+        "description": "Heat transfer equation used to couple temperature effects into phase-field simulations.",
+        "use_terms": [],
+        "use_parameters": [
+          "Temperature"
+        ],
+        "evidence": "In 2018, Yan et al.25 coupled Chen’s33 phase field model and heat transfer model (Eq. 14) through the diffusion coefficient."
+      },
+      {
+        "equation_id": "MechanicalEquilibriumEquation",
+        "expression": "σij,j = 0",
+        "form": "PartialDifferentialEquation",
+        "description": "Mechanical equilibrium relation used to compute local stresses during dendrite growth.",
+        "use_terms": [
+          "ElasticStrainEnergyTerm"
+        ],
+        "use_parameters": [
+          "ExternalStress"
+        ],
+        "evidence": "they solved the mechanical equilibrium equation (Eq. 16) and obtained the local stress tensor (Eq. 17)."
+      },
+      {
+        "equation_id": "AnisotropicSurfaceEnergyEquation",
+        "expression": "k(θ) = k0[1 + δ cos(λθ)]",
+        "form": "AlgebraicEquation",
+        "description": "Surface-energy anisotropy relation used in phase-field models.",
+        "use_terms": [],
+        "use_parameters": [
+          "AnisotropyStrength"
+        ],
+        "evidence": "adopted the formulation proposed in Ref. [89] (Eq. 20) to account for surface energy anisotropy"
+      },
+      {
+        "equation_id": "SEINoiseAugmentedFreeEnergyEquation",
+        "expression": "F = ∫V [fchem + … + felas + fns] dV",
+        "form": "IntegralFunctional",
+        "description": "Free-energy functional augmented by a noise term to represent SEI effects.",
+        "use_terms": [
+          "NoiseTerm"
+        ],
+        "use_parameters": [
+          "ChemicalFreeEnergyDensity",
+          "ElasticEnergyDensity"
+        ],
+        "evidence": "A widely adopted approach in recent studies is to incorporate a noise term into the total free energy functional to implicitly represent the influence of the SEI on dendrite growth"
+      }
+    ],
+    "SimulationModel": [
+      {
+        "model_id": "ReviewPhaseFieldDendriteModel",
+        "type": "PhaseFieldModel",
+        "model_type": "phase_field",
+        "material_system": "Metal Anode | Electrolyte",
+        "use_assumptions": [
+          "DiffuseInterface",
+          "NonConservedPhaseVariable",
+          "ConservedConcentrationWithoutReaction"
+        ],
+        "use_equations": [
+          "AllenCahnEquation",
+          "CahnHilliardEquation",
+          "TotalFreeEnergyFunctional"
+        ],
+        "spatial_dimension": [
+          "1D",
+          "2D",
+          "3D"
+        ],
+        "temporal_type": "transient",
+        "numerical_method": "partial-differential-equation-based continuum simulation",
+        "software_or_solver": "",
+        "objective": "Describe and analyze dendrite growth in energy storage batteries using the phase-field framework.",
+        "evidence": "The phase-field method is an effective numerical simulation approach capable of accurately describing the dynamic process of dendrite growth in energy storage batteries."
+      },
+      {
+        "model_id": "ElectrochemicalCoupledPhaseFieldModel",
+        "type": "PhaseFieldModel",
+        "model_type": "phase_field",
+        "material_system": "Li Metal | Liquid Electrolyte",
+        "use_assumptions": [
+          "IdealSolutionFramework",
+          "LinearIonKinetics",
+          "UniformChargeDistribution"
+        ],
+        "use_equations": [
+          "ModifiedButlerVolmerPhaseFieldEquation",
+          "NernstPlanckChargeNeutralityEquation",
+          "PoissonEquation"
+        ],
+        "spatial_dimension": [
+          "1D",
+          "2D"
+        ],
+        "temporal_type": "transient",
+        "numerical_method": "coupled electrochemical phase-field control equations",
+        "software_or_solver": "",
+        "objective": "Couple phase field, ion concentration field, and electric potential field to simulate electrodeposition and dendrite growth.",
+        "evidence": "The phase field model usually couples the phase field, ion concentration field, and applied electric field together by using control equations."
+      },
+      {
+        "model_id": "ThermalPhaseFieldModel",
+        "type": "PhaseFieldModel",
+        "model_type": "phase_field",
+        "material_system": "Li Metal | Liquid Electrolyte",
+        "use_assumptions": [],
+        "use_equations": [
+          "ModifiedButlerVolmerPhaseFieldEquation",
+          "NernstPlanckChargeNeutralityEquation",
+          "HeatTransferEquation"
+        ],
+        "spatial_dimension": "2D",
+        "temporal_type": "transient",
+        "numerical_method": "phase-field model coupled with heat transfer through diffusion coefficient",
+        "software_or_solver": "",
+        "objective": "Study the influence of temperature field on dendrite growth.",
+        "evidence": "In 2018, Yan et al.25 coupled Chen’s33 phase field model and heat transfer model (Eq. 14) through the diffusion coefficient."
+      },
+      {
+        "model_id": "ElectroThermoMechanicalPhaseFieldModel",
+        "type": "PhaseFieldModel",
+        "model_type": "phase_field",
+        "material_system": "Li Metal | Solid Electrolyte",
+        "use_assumptions": [
+          "LinearElasticity"
+        ],
+        "use_equations": [
+          "ModifiedButlerVolmerPhaseFieldEquation",
+          "NernstPlanckChargeNeutralityEquation",
+          "MechanicalEquilibriumEquation",
+          "HeatTransferEquation",
+          "TotalFreeEnergyFunctional"
+        ],
+        "spatial_dimension": [
+          "2D",
+          "3D"
+        ],
+        "temporal_type": "transient",
+        "numerical_method": "multiphysics coupled phase-field model",
+        "software_or_solver": "",
+        "objective": "Analyze coupled electrochemical, thermal, and mechanical effects on dendrite growth and cracking in solid-state systems.",
+        "evidence": "developing multiphysics phase-field models that couple stress fields, thermal fields, and other physical phenomena."
+      },
+      {
+        "model_id": "SEIAwarePhaseFieldModel",
+        "type": "PhaseFieldModel",
+        "model_type": "phase_field",
+        "material_system": "Li Metal | Liquid Electrolyte",
+        "use_assumptions": [],
+        "use_equations": [
+          "SEINoiseAugmentedFreeEnergyEquation",
+          "ModifiedButlerVolmerPhaseFieldEquation",
+          "NernstPlanckChargeNeutralityEquation"
+        ],
+        "spatial_dimension": [
+          "2D",
+          "3D"
+        ],
+        "temporal_type": "transient",
+        "numerical_method": "free-energy augmentation using noise term, current correction factor, or geometric reconstruction",
+        "software_or_solver": "",
+        "objective": "Represent physical and chemical effects of the SEI on dendrite evolution.",
+        "evidence": "Some researchers have addressed the SEI’s role using methods such as current correction factors, geometric reconstruction, and the introduction of noise fields."
+      },
+      {
+        "model_id": "AnisotropicPhaseFieldModel",
+        "type": "PhaseFieldModel",
+        "model_type": "phase_field",
+        "material_system": "Li Metal | Liquid Electrolyte",
+        "use_assumptions": [],
+        "use_equations": [
+          "AllenCahnEquation",
+          "AnisotropicSurfaceEnergyEquation",
+          "ModifiedButlerVolmerPhaseFieldEquation"
+        ],
+        "spatial_dimension": [
+          "2D",
+          "3D"
+        ],
+        "temporal_type": "transient",
+        "numerical_method": "anisotropic interface-energy phase-field formulation",
+        "software_or_solver": "",
+        "objective": "Account for anisotropy in surface energy and morphology evolution of dendrites.",
+        "evidence": "Anisotropy reflects the variation in a material’s physical properties along different crystallographic orientations, enabling more realistic simulation of dendritic behaviors such as branching and coarsening"
       }
     ],
     "Condition": [
       {
-        "condition_id": "cond_1",
-        "type": "applied voltage / overpotential",
-        "value": "increasing",
-        "unit": "relative",
-        "description": "Higher applied voltage or overpotential strongly drives dendrite growth and branching.",
-        "evidence": "The review states that increasing applied voltage causes morphology to evolve from mossy/needle-like to tree-like with increased branching, and that higher overpotential accelerates growth."
+        "condition_id": "HighOverpotential",
+        "parameter_id": "Overpotential",
+        "constraint_type": "HighRegime",
+        "value": "",
+        "evidence": "as the overpotential increases, the dendrite growth rate accelerates significantly"
       },
       {
-        "condition_id": "cond_2",
-        "type": "temperature",
-        "value": "increasing",
-        "unit": "K",
-        "description": "Temperature influences dendrite size and morphology; many studies show higher temperature suppresses dendrites and branching, though some discrepancies with experiments exist.",
-        "evidence": "The review summarizes that increasing temperature often reduces dendrite size and branching, while also noting simulation/experiment discrepancies in some studies."
+        "condition_id": "LowOverpotential",
+        "parameter_id": "Overpotential",
+        "constraint_type": "LowRegime",
+        "value": "",
+        "evidence": "reducing the overpotential can inhibit the growth of dendrites"
       },
       {
-        "condition_id": "cond_3",
-        "type": "external stress / electrolyte mechanical strength",
-        "value": "increasing",
-        "unit": "relative",
-        "description": "Higher external stress or stronger solid electrolytes generally suppress dendrite growth.",
-        "evidence": "The review states that higher mechanical strength of the electrolyte and greater external stress exert a suppressive effect on dendrite growth."
+        "condition_id": "HighTemperature",
+        "parameter_id": "Temperature",
+        "constraint_type": "HighRegime",
+        "value": "",
+        "evidence": "With increasing temperature, the dendrite morphology evolves from tip-splitting tree-like to fibrous."
       },
       {
-        "condition_id": "cond_4",
-        "type": "electrolyte concentration",
-        "value": "increasing",
-        "unit": "relative",
-        "description": "Higher electrolyte ion concentration can reduce dendrite size, subject to saturation and transport constraints.",
-        "evidence": "The review notes that increasing electrolyte concentration can significantly reduce dendrite size."
+        "condition_id": "LowTemperature",
+        "parameter_id": "Temperature",
+        "constraint_type": "LowRegime",
+        "value": "",
+        "evidence": "lower temperatures slow down lithium-ion diffusion in the electrolyte, resulting in longer dendrites and a higher probability of dead lithium generation."
       },
       {
-        "condition_id": "cond_5",
-        "type": "anisotropy strength",
-        "value": "increasing",
-        "unit": "relative",
-        "description": "Higher anisotropy generally increases growth rate and favors needle-like/tree-like morphologies.",
-        "evidence": "The review states that increased anisotropy enhances growth rate and changes morphology from tip-splitting/mossy to needle-like/tree-like."
+        "condition_id": "HighExternalStress",
+        "parameter_id": "ExternalStress",
+        "constraint_type": "HighRegime",
+        "value": "",
+        "evidence": "greater external stress exert a suppressive effect on dendrite growth"
       },
       {
-        "condition_id": "cond_6",
-        "type": "separator pore size",
-        "value": "smaller",
-        "unit": "",
-        "description": "Smaller separator pores promote more uniform lithium-ion concentration on the electrode surface.",
-        "evidence": "The review states that smaller pore sizes lead to more uniform lithium-ion concentrations and smoother electrodeposition."
+        "condition_id": "HighYoungsModulus",
+        "parameter_id": "YoungsModulus",
+        "constraint_type": "HighRegime",
+        "value": "",
+        "evidence": "Most results indicate that a high Young’s modulus and external stress can effectively inhibit dendrite growth."
       },
       {
-        "condition_id": "cond_7",
-        "type": "separator thickness",
-        "value": "thicker",
-        "unit": "",
-        "description": "Thicker separators lead to more uniform dendrite growth and lower overall growth rates.",
-        "evidence": "The review states that thicker separators result in more uniform dendrite growth and reduced overall growth rates."
+        "condition_id": "StrongAnisotropy",
+        "parameter_id": "AnisotropyStrength",
+        "constraint_type": "HighRegime",
+        "value": "",
+        "evidence": "An increase in anisotropy gives rise to more nucleation sites and main trunks"
+      },
+      {
+        "condition_id": "LowElectrolyteConcentration",
+        "parameter_id": "IonConcentration",
+        "constraint_type": "LowRegime",
+        "value": "",
+        "evidence": "the depletion of lithium ion concentration near the anode under high applied voltage."
+      },
+      {
+        "condition_id": "HighElectrolyteConcentration",
+        "parameter_id": "IonConcentration",
+        "constraint_type": "HighRegime",
+        "value": "",
+        "evidence": "increasing the electrolyte concentration can significantly reduce dendrite size"
+      },
+      {
+        "condition_id": "SmallSeparatorPoreSize",
+        "parameter_id": "SeparatorPoreSize",
+        "constraint_type": "LowRegime",
+        "value": "",
+        "evidence": "smaller pore sizes lead to more uniform lithium-ion concentrations on the electrode surface"
+      },
+      {
+        "condition_id": "ThickSeparator",
+        "parameter_id": "SeparatorThickness",
+        "constraint_type": "HighRegime",
+        "value": "",
+        "evidence": "thicker separators result in more uniform dendrite growth, thereby reducing overall growth rates"
+      },
+      {
+        "condition_id": "PulsedVoltage",
+        "parameter_id": "AppliedVoltage",
+        "constraint_type": "Other",
+        "value": "pulsed",
+        "evidence": "compared to constant voltage conditions, lithium dendrites formed under pulsed voltage are shorter and narrower in morphology"
+      },
+      {
+        "condition_id": "HighCurrentDensity",
+        "parameter_id": "CurrentDensity",
+        "constraint_type": "HighRegime",
+        "value": "",
+        "evidence": "High overpotential accelerates dendrite growth"
+      },
+      {
+        "condition_id": "SEIPorosityPresent",
+        "parameter_id": "DendriteMorphology",
+        "constraint_type": "Other",
+        "value": "porous SEI structure",
+        "evidence": "employed a geometric reconstruction approach to investigate how the SEI’s geometric structure affects lithium dendrite growth"
+      },
+      {
+        "condition_id": "SEINoiseRepresentation",
+        "parameter_id": "DendriteMorphology",
+        "constraint_type": "Other",
+        "value": "noise-term SEI representation",
+        "evidence": "incorporate a noise term into the total free energy functional to implicitly represent the influence of the SEI on dendrite growth"
+      },
+      {
+        "condition_id": "AppliedPressure",
+        "parameter_id": "ExternalStress",
+        "constraint_type": "HighRegime",
+        "value": "",
+        "evidence": "applied pressure promotes LiF formation, thereby increasing the Young’s modulus of the SEI film."
       }
     ],
-    "Result": [
+    "Effect": [
       {
-        "result_id": "res_1",
-        "description": "Phase-field models accurately reproduce dynamic interface evolution and can capture the transformation from electrolyte phase to electrode phase during dendrite growth.",
-        "result_type": "model capability",
-        "condition": "general phase-field framework",
-        "evidence": "The review states that the phase-field model accurately simulates dynamic changes of the interface and captures phase transformation."
+        "effect_id": "GrowthRateIncrease",
+        "related_parameter": "DendriteGrowthRate",
+        "change_type": "Increase",
+        "direction": "Positive",
+        "magnitude": "significant",
+        "evidence": "as the overpotential increases, the dendrite growth rate accelerates significantly"
       },
       {
-        "result_id": "res_2",
-        "description": "Ion concentration, applied electric field, temperature, stress, SEI, and anisotropy are the six key influencing factors in dendrite-growth modeling.",
-        "result_type": "synthesis / conceptual finding",
-        "condition": "review summary",
-        "evidence": "The review explicitly lists these six factors and discusses their coupling."
+        "effect_id": "BranchingDegreeIncrease",
+        "related_parameter": "BranchingDegree",
+        "change_type": "Increase",
+        "direction": "Positive",
+        "magnitude": "more pronounced",
+        "evidence": "the instability of the electrodeposition process is also intensified, leading to more pronounced dendritic branching"
       },
       {
-        "result_id": "res_3",
-        "description": "Higher overpotential accelerates dendrite growth and increases branching; large overpotential is a critical trigger of dendrite formation.",
-        "result_type": "qualitative trend",
-        "condition": "increasing overpotential",
-        "evidence": "The review states that dendrite growth rate accelerates and branching becomes more pronounced as overpotential increases."
+        "effect_id": "DendriteSizeDecrease",
+        "related_parameter": "DendriteMorphology",
+        "change_type": "Decrease",
+        "direction": "Negative",
+        "magnitude": "significant",
+        "evidence": "increasing the electrolyte concentration can significantly reduce dendrite size"
       },
       {
-        "result_id": "res_4",
-        "description": "Pulse voltage charging can shorten and narrow dendrites compared with constant-voltage conditions under equivalent deposition capacity and average current rate.",
-        "result_type": "comparative result",
-        "condition": "pulsed voltage vs constant voltage",
-        "evidence": "The review reports that pulsed voltage yields shorter and narrower dendrites than constant voltage."
+        "effect_id": "UniformIonDistributionIncrease",
+        "related_parameter": "IonConcentration",
+        "change_type": "Increase",
+        "direction": "Positive",
+        "magnitude": "more uniform",
+        "evidence": "this artificial SEI exhibited more uniform ion distribution"
       },
       {
-        "result_id": "res_5",
-        "description": "Higher electrolyte concentration can significantly reduce dendrite size.",
-        "result_type": "qualitative trend",
-        "condition": "increasing electrolyte concentration",
-        "evidence": "The review cites Wang et al. finding that increasing electrolyte concentration significantly reduces dendrite size."
+        "effect_id": "ElectricFieldDistortionDecrease",
+        "related_parameter": "ElectricPotential",
+        "change_type": "Decrease",
+        "direction": "Negative",
+        "magnitude": "reduced",
+        "evidence": "reduced electric field distortion compared to untreated lithium"
       },
       {
-        "result_id": "res_6",
-        "description": "Temperature increase often reduces dendrite size and branching; morphology can shift from tip-splitting tree-like to fibrous or spherical forms depending on temperature and temperature gradient.",
-        "result_type": "qualitative trend",
-        "condition": "increasing temperature / temperature gradient",
-        "evidence": "The review summarizes these temperature-driven morphology transitions."
+        "effect_id": "MechanicalSuppressionIncrease",
+        "related_parameter": "YoungsModulus",
+        "change_type": "Increase",
+        "direction": "Positive",
+        "magnitude": "greater suppression capability",
+        "evidence": "higher Young’s modulus corresponds to greater mechanical suppression capability, effectively impeding lithium dendrite penetration."
       },
       {
-        "result_id": "res_7",
-        "description": "Higher mechanical strength of electrolytes and greater external stress generally suppress dendrite growth.",
-        "result_type": "qualitative trend",
-        "condition": "stress-coupled models",
-        "evidence": "The review repeatedly notes suppressive effects of higher mechanical strength and external stress."
+        "effect_id": "MorphologyShiftToFibrous",
+        "related_parameter": "DendriteMorphology",
+        "change_type": "Shift",
+        "direction": "Neutral",
+        "magnitude": "",
+        "evidence": "With increasing temperature, the dendrite morphology evolves from tip-splitting tree-like to fibrous."
       },
       {
-        "result_id": "res_8",
-        "description": "Cracks in solid electrolytes alter dendrite morphology, enable dendrite infiltration, and can be exacerbated by internal stress.",
-        "result_type": "mechanism finding",
-        "condition": "solid-state electrolytes with cracks",
-        "evidence": "The review summarizes how crack tips, voids, and excessive internal stress affect dendrite growth and penetration."
+        "effect_id": "MorePronouncedBranching",
+        "related_parameter": "BranchingDegree",
+        "change_type": "Increase",
+        "direction": "Positive",
+        "magnitude": "",
+        "evidence": "leading to more pronounced dendritic branching"
       },
       {
-        "result_id": "res_9",
-        "description": "SEI can suppress dendritic development, but simplified SEI representations often neglect chemical characteristics; incorporating SEI chemistry is a key future direction.",
-        "result_type": "synthesis / future direction",
-        "condition": "SEI-aware modeling",
-        "evidence": "The review states that SEI suppresses dendrites and that future work should incorporate chemical characteristics of the SEI."
+        "effect_id": "UniformDepositionIncrease",
+        "related_parameter": "DendriteMorphology",
+        "change_type": "Increase",
+        "direction": "Positive",
+        "magnitude": "more uniform",
+        "evidence": "lithium dendrites nucleate and deposit more uniformly within grooves"
       },
       {
-        "result_id": "res_10",
-        "description": "Increasing anisotropy enhances dendrite growth rates and can change morphology from mossy or tip-splitting forms to needle-like or tree-like structures.",
-        "result_type": "qualitative trend",
-        "condition": "increasing anisotropy strength",
-        "evidence": "The review reports these anisotropy-induced morphology changes."
+        "effect_id": "ActiveLithiumSurfaceAreaDecrease",
+        "related_parameter": "ActiveLithiumSurfaceArea",
+        "change_type": "Decrease",
+        "direction": "Negative",
+        "magnitude": "",
+        "evidence": "The presence of dead lithium directly reduces the active lithium surface area"
       },
       {
-        "result_id": "res_11",
-        "description": "Smaller separator pore size and larger separator thickness improve deposition uniformity and help suppress dendrite growth.",
-        "result_type": "design finding",
-        "condition": "separator optimization",
-        "evidence": "The review summarizes these separator-related structural optimization results."
+        "effect_id": "BatteryPolarizationIncrease",
+        "related_parameter": "BatteryPolarization",
+        "change_type": "Increase",
+        "direction": "Positive",
+        "magnitude": "",
+        "evidence": "increases overpotential/battery polarization"
       },
       {
-        "result_id": "res_12",
-        "description": "Dead lithium reduces active lithium surface area, increases overpotential/polarization, and leads to capacity loss; it is influenced by discharge voltage, current, stress, temperature, and dendrite morphology.",
-        "result_type": "application finding",
-        "condition": "dead-lithium analysis",
-        "evidence": "The review states these consequences and influencing factors for dead lithium."
+        "effect_id": "CapacityLossIncrease",
+        "related_parameter": "CapacityLoss",
+        "change_type": "Increase",
+        "direction": "Positive",
+        "magnitude": "",
+        "evidence": "and leads to capacity loss"
       },
       {
-        "result_id": "res_13",
-        "description": "Tree-like dendrites produce more dead lithium than needle-like dendrites, and lower temperature increases dead-lithium risk by slowing ion diffusion and lengthening dendrites.",
-        "result_type": "qualitative trend",
-        "condition": "dead-lithium studies",
-        "evidence": "The review explicitly states both findings."
+        "effect_id": "CrackExpansionIncrease",
+        "related_parameter": "ExternalStress",
+        "change_type": "Increase",
+        "direction": "Positive",
+        "magnitude": "",
+        "evidence": "electrolytes may crack and expand under dendritic stress"
       },
       {
-        "result_id": "res_14",
-        "description": "The phase-field framework has been extended beyond lithium to sodium, magnesium, and uranium dendrite systems, showing broad adaptability across metals.",
-        "result_type": "generality finding",
-        "condition": "different electrode materials",
-        "evidence": "The review states that the model has been extended to sodium, magnesium, and uranium systems."
+        "effect_id": "DendritePenetrationSuppression",
+        "related_parameter": "DendriteMorphology",
+        "change_type": "Suppression",
+        "direction": "Negative",
+        "magnitude": "effective",
+        "evidence": "enhancing the fracture toughness of solid dielectrics,82 and applying in-plane compression.82"
       },
       {
-        "result_id": "res_15",
-        "description": "Experimental studies are generally in strong agreement with phase-field simulations for dendritic, needle-like, spherical, and mossy morphologies, but discrepancies remain and require better thermodynamic parameters and matched boundary conditions.",
-        "result_type": "validation finding",
-        "condition": "simulation-experiment comparison",
-        "evidence": "The review concludes that experiments strongly support the simulations while also noting remaining discrepancies."
+        "effect_id": "DendriteSuppression",
+        "related_parameter": "DendriteGrowthRate",
+        "change_type": "Suppression",
+        "direction": "Negative",
+        "magnitude": "",
+        "evidence": "the SEI layer can suppress dendritic development"
       }
     ],
-    "Metric": []
+    "ParameterValue": []
   },
-  "relationships": [
-    { "type": "USES_MODEL", "from": "paper_1", "to": "model_1" },
-
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "paper_1", "to": "variant_1" },
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "paper_1", "to": "variant_2" },
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "paper_1", "to": "variant_3" },
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "paper_1", "to": "variant_4" },
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "paper_1", "to": "variant_5" },
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "paper_1", "to": "variant_6" },
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "paper_1", "to": "variant_7" },
-    { "type": "DISCUSSES_MODEL_VARIANT", "from": "paper_1", "to": "variant_8" },
-
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_1" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_2" },
-    { "type": "HAS_EQUATION", "from": "model_1", "to": "eq_3" },
-
-    { "type": "HAS_EQUATION", "from": "variant_1", "to": "eq_4" },
-    { "type": "HAS_EQUATION", "from": "variant_1", "to": "eq_5" },
-    { "type": "HAS_EQUATION", "from": "variant_1", "to": "eq_6" },
-
-    { "type": "HAS_EQUATION", "from": "variant_2", "to": "eq_7" },
-    { "type": "HAS_EQUATION", "from": "variant_2", "to": "eq_8" },
-
-    { "type": "HAS_EQUATION", "from": "variant_3", "to": "eq_9" },
-    { "type": "HAS_EQUATION", "from": "variant_3", "to": "eq_10" },
-
-    { "type": "HAS_EQUATION", "from": "variant_4", "to": "eq_11" },
-    { "type": "HAS_EQUATION", "from": "variant_4", "to": "eq_12" },
-
-    { "type": "HAS_EQUATION", "from": "variant_5", "to": "eq_13" },
-    { "type": "HAS_EQUATION", "from": "variant_5", "to": "eq_14" },
-
-    { "type": "HAS_EQUATION", "from": "variant_6", "to": "eq_15" },
-    { "type": "HAS_EQUATION", "from": "variant_6", "to": "eq_16" },
-    { "type": "HAS_EQUATION", "from": "variant_6", "to": "eq_17" },
-
-    { "type": "HAS_EQUATION", "from": "variant_7", "to": "eq_18" },
-
-    { "type": "HAS_EQUATION", "from": "variant_8", "to": "eq_19" },
-    { "type": "HAS_EQUATION", "from": "variant_8", "to": "eq_20" },
-
-    { "type": "DERIVED_FROM", "from": "eq_7", "to": "eq_1" },
-    { "type": "DERIVED_FROM", "from": "eq_8", "to": "eq_2" },
-    { "type": "DERIVED_FROM", "from": "eq_9", "to": "eq_3" },
-    { "type": "DERIVED_FROM", "from": "eq_11", "to": "eq_9" },
-    { "type": "DERIVED_FROM", "from": "eq_12", "to": "eq_10" },
-    { "type": "DERIVED_FROM", "from": "eq_14", "to": "eq_13" },
-    { "type": "DERIVED_FROM", "from": "eq_18", "to": "eq_3" },
-    { "type": "DERIVED_FROM", "from": "eq_19", "to": "eq_1" },
-    { "type": "DERIVED_FROM", "from": "eq_20", "to": "eq_19" },
-
-    { "type": "HAS_TERM", "from": "eq_3", "to": "term_1" },
-    { "type": "HAS_TERM", "from": "eq_3", "to": "term_2" },
-    { "type": "HAS_TERM", "from": "eq_3", "to": "term_3" },
-    { "type": "HAS_TERM", "from": "eq_18", "to": "term_4" },
-    { "type": "HAS_TERM", "from": "eq_12", "to": "term_5" },
-    { "type": "HAS_TERM", "from": "eq_12", "to": "term_6" },
-    { "type": "HAS_TERM", "from": "eq_11", "to": "term_7" },
-    { "type": "HAS_TERM", "from": "eq_10", "to": "term_7" },
-    { "type": "HAS_TERM", "from": "eq_11", "to": "term_8" },
-    { "type": "HAS_TERM", "from": "eq_7", "to": "term_8" },
-
-    { "type": "USES_VARIABLE", "from": "eq_1", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_2", "to": "var_2" },
-    { "type": "USES_VARIABLE", "from": "eq_3", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_3", "to": "var_2" },
-    { "type": "USES_VARIABLE", "from": "eq_4", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_4", "to": "var_3" },
-    { "type": "USES_VARIABLE", "from": "eq_5", "to": "var_2" },
-    { "type": "USES_VARIABLE", "from": "eq_6", "to": "var_3" },
-    { "type": "USES_VARIABLE", "from": "eq_6", "to": "var_4" },
-    { "type": "USES_VARIABLE", "from": "eq_9", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_10", "to": "var_9" },
-    { "type": "USES_VARIABLE", "from": "eq_11", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_11", "to": "var_12" },
-    { "type": "USES_VARIABLE", "from": "eq_12", "to": "var_3" },
-    { "type": "USES_VARIABLE", "from": "eq_12", "to": "var_9" },
-    { "type": "USES_VARIABLE", "from": "eq_12", "to": "var_10" },
-    { "type": "USES_VARIABLE", "from": "eq_12", "to": "var_11" },
-    { "type": "USES_VARIABLE", "from": "eq_13", "to": "var_5" },
-    { "type": "USES_VARIABLE", "from": "eq_14", "to": "var_5" },
-    { "type": "USES_VARIABLE", "from": "eq_15", "to": "var_1" },
-    { "type": "USES_VARIABLE", "from": "eq_15", "to": "var_7" },
-    { "type": "USES_VARIABLE", "from": "eq_16", "to": "var_6" },
-    { "type": "USES_VARIABLE", "from": "eq_17", "to": "var_6" },
-    { "type": "USES_VARIABLE", "from": "eq_17", "to": "var_7" },
-    { "type": "USES_VARIABLE", "from": "eq_17", "to": "var_8" },
-    { "type": "USES_VARIABLE", "from": "eq_19", "to": "var_13" },
-    { "type": "USES_VARIABLE", "from": "eq_20", "to": "var_13" },
-
-    { "type": "USES_PARAMETER", "from": "eq_1", "to": "param_1" },
-    { "type": "USES_PARAMETER", "from": "eq_2", "to": "param_2" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_3" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_4" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_5" },
-    { "type": "USES_PARAMETER", "from": "eq_4", "to": "param_6" },
-    { "type": "USES_PARAMETER", "from": "eq_5", "to": "param_7" },
-    { "type": "USES_PARAMETER", "from": "eq_6", "to": "param_5" },
-    { "type": "USES_PARAMETER", "from": "eq_7", "to": "param_3" },
-    { "type": "USES_PARAMETER", "from": "eq_7", "to": "param_4" },
-    { "type": "USES_PARAMETER", "from": "eq_7", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_7", "to": "param_10" },
-    { "type": "USES_PARAMETER", "from": "eq_7", "to": "param_6" },
-    { "type": "USES_PARAMETER", "from": "eq_8", "to": "param_7" },
-    { "type": "USES_PARAMETER", "from": "eq_8", "to": "param_8" },
-    { "type": "USES_PARAMETER", "from": "eq_8", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_9", "to": "param_11" },
-    { "type": "USES_PARAMETER", "from": "eq_9", "to": "param_12" },
-    { "type": "USES_PARAMETER", "from": "eq_9", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_10", "to": "param_7" },
-    { "type": "USES_PARAMETER", "from": "eq_11", "to": "param_11" },
-    { "type": "USES_PARAMETER", "from": "eq_11", "to": "param_12" },
-    { "type": "USES_PARAMETER", "from": "eq_11", "to": "param_8" },
-    { "type": "USES_PARAMETER", "from": "eq_11", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_12", "to": "param_7" },
-    { "type": "USES_PARAMETER", "from": "eq_12", "to": "param_8" },
-    { "type": "USES_PARAMETER", "from": "eq_12", "to": "param_9" },
-    { "type": "USES_PARAMETER", "from": "eq_13", "to": "param_13" },
-    { "type": "USES_PARAMETER", "from": "eq_13", "to": "param_14" },
-    { "type": "USES_PARAMETER", "from": "eq_14", "to": "param_15" },
-    { "type": "USES_PARAMETER", "from": "eq_14", "to": "param_16" },
-    { "type": "USES_PARAMETER", "from": "eq_15", "to": "param_17" },
-    { "type": "USES_PARAMETER", "from": "eq_17", "to": "param_17" },
-    { "type": "USES_PARAMETER", "from": "eq_20", "to": "param_18" },
-    { "type": "USES_PARAMETER", "from": "eq_20", "to": "param_19" },
-    { "type": "USES_PARAMETER", "from": "eq_20", "to": "param_20" },
-
-    { "type": "USES_VARIABLE", "from": "term_5", "to": "var_9" },
-    { "type": "USES_VARIABLE", "from": "term_6", "to": "var_3" },
-    { "type": "USES_VARIABLE", "from": "term_6", "to": "var_9" },
-    { "type": "USES_VARIABLE", "from": "term_7", "to": "var_12" },
-    { "type": "USES_VARIABLE", "from": "term_8", "to": "var_1" },
-
-    { "type": "USES_PARAMETER", "from": "term_5", "to": "param_7" },
-    { "type": "USES_PARAMETER", "from": "term_6", "to": "param_7" },
-    { "type": "USES_PARAMETER", "from": "term_7", "to": "param_12" },
-    { "type": "USES_PARAMETER", "from": "term_8", "to": "param_4" },
-
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_1" },
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_2" },
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_3" },
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_4" },
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_5" },
-    { "type": "MODELS_PHENOMENON", "from": "model_1", "to": "phen_6" },
-
-    { "type": "USES_MATERIAL_SYSTEM", "from": "model_1", "to": "mat_1" },
-    { "type": "HAS_GEOMETRY", "from": "model_1", "to": "geom_1" },
-
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_1" },
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_2" },
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_3" },
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_4" },
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_5" },
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_6" },
-    { "type": "HAS_CONDITION", "from": "model_1", "to": "cond_7" },
-
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_1" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_2" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_3" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_4" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_5" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_6" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_7" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_8" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_9" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_10" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_11" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_12" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_13" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_14" },
-    { "type": "PRODUCES_RESULT", "from": "model_1", "to": "res_15" }
+  "relationship_instances": [
+    {
+      "relationship_id": "ModelsPhenomenon",
+      "from_entity_type": "SimulationModel",
+      "from_entity_id": "ReviewPhaseFieldDendriteModel",
+      "to_entity_type": "Phenomenon",
+      "to_entity_id": "DendriteGrowth",
+      "evidence": "The phase-field method is an effective numerical simulation approach capable of accurately describing the dynamic process of dendrite growth in energy storage batteries."
+    },
+    {
+      "relationship_id": "ModelsPhenomenon",
+      "from_entity_type": "SimulationModel",
+      "from_entity_id": "ElectrochemicalCoupledPhaseFieldModel",
+      "to_entity_type": "Phenomenon",
+      "to_entity_id": "Electrodeposition",
+      "evidence": "The phase field model usually couples the phase field, ion concentration field, and applied electric field together by using control equations."
+    },
+    {
+      "relationship_id": "ModelsPhenomenon",
+      "from_entity_type": "SimulationModel",
+      "from_entity_id": "ThermalPhaseFieldModel",
+      "to_entity_type": "Phenomenon",
+      "to_entity_id": "DendriteGrowth",
+      "evidence": "Temperature is an important factor affecting dendrite growth. Therefore, coupling the temperature field in the phase field model is desired."
+    },
+    {
+      "relationship_id": "ModelsPhenomenon",
+      "from_entity_type": "SimulationModel",
+      "from_entity_id": "ElectroThermoMechanicalPhaseFieldModel",
+      "to_entity_type": "Phenomenon",
+      "to_entity_id": "CrackPropagation",
+      "evidence": "developing multiphysics phase-field models that couple stress fields, thermal fields, and other physical phenomena."
+    },
+    {
+      "relationship_id": "ModelsPhenomenon",
+      "from_entity_type": "SimulationModel",
+      "from_entity_id": "SEIAwarePhaseFieldModel",
+      "to_entity_type": "Phenomenon",
+      "to_entity_id": "SEIInfluencedDendriteEvolution",
+      "evidence": "incorporate a noise term into the total free energy functional to implicitly represent the influence of the SEI on dendrite growth"
+    },
+    {
+      "relationship_id": "ModelsPhenomenon",
+      "from_entity_type": "SimulationModel",
+      "from_entity_id": "AnisotropicPhaseFieldModel",
+      "to_entity_type": "Phenomenon",
+      "to_entity_id": "DendriteGrowth",
+      "evidence": "Anisotropy reflects the variation in a material’s physical properties along different crystallographic orientations, enabling more realistic simulation of dendritic behaviors"
+    },
+    {
+      "relationship_id": "OccursInMaterialSystem",
+      "from_entity_type": "Phenomenon",
+      "from_entity_id": "DendriteGrowth",
+      "to_entity_type": "MaterialSystem",
+      "to_entity_id": "Metal Anode | Electrolyte",
+      "evidence": "the uneven deposition of metal ions leads to the generation of dendrites on the electrode surface."
+    },
+    {
+      "relationship_id": "OccursInMaterialSystem",
+      "from_entity_type": "Phenomenon",
+      "from_entity_id": "DeadLithiumFormation",
+      "to_entity_type": "MaterialSystem",
+      "to_entity_id": "Li Metal | Liquid Electrolyte",
+      "evidence": "The phase-field method exhibits powerful analytical capabilities in the study of dead lithium by dynamically simulating lithium stripping and dendrite growth"
+    },
+    {
+      "relationship_id": "OccursInMaterialSystem",
+      "from_entity_type": "Phenomenon",
+      "from_entity_id": "CrackPropagation",
+      "to_entity_type": "MaterialSystem",
+      "to_entity_id": "Li Metal | Solid Electrolyte",
+      "evidence": "Unlike liquid electrolytes, solid-state electrolytes contain microcracks"
+    },
+    {
+      "relationship_id": "ExplainedByEquation",
+      "from_entity_type": "Phenomenon",
+      "from_entity_id": "DendriteGrowth",
+      "to_entity_type": "ModelEquation",
+      "to_entity_id": "AllenCahnEquation",
+      "evidence": "Phases are usually regarded as non-conserved variables, and their evolution follows the Allen-Cahn equation"
+    },
+    {
+      "relationship_id": "ExplainedByEquation",
+      "from_entity_type": "Phenomenon",
+      "from_entity_id": "DendriteGrowth",
+      "to_entity_type": "ModelEquation",
+      "to_entity_id": "ModifiedButlerVolmerPhaseFieldEquation",
+      "evidence": "Eq. 11 represents a modified form of the Butler–Volmer formulation, incorporating driving forces from both free energy and electrochemical reactions."
+    },
+    {
+      "relationship_id": "ExplainedByEquation",
+      "from_entity_type": "Phenomenon",
+      "from_entity_id": "Electrodeposition",
+      "to_entity_type": "ModelEquation",
+      "to_entity_id": "NernstPlanckChargeNeutralityEquation",
+      "evidence": "Equation 12 employs the Nernst–Planck equation in conjunction with the charge neutrality condition to describe the coupling between lithium-ion concentration and the electric field."
+    },
+    {
+      "relationship_id": "ExplainedByEquation",
+      "from_entity_type": "Phenomenon",
+      "from_entity_id": "SEIInfluencedDendriteEvolution",
+      "to_entity_type": "ModelEquation",
+      "to_entity_id": "SEINoiseAugmentedFreeEnergyEquation",
+      "evidence": "incorporate a noise term into the total free energy functional to implicitly represent the influence of the SEI on dendrite growth"
+    },
+    {
+      "relationship_id": "ExplainedByEquation",
+      "from_entity_type": "Phenomenon",
+      "from_entity_id": "CrackPropagation",
+      "to_entity_type": "ModelEquation",
+      "to_entity_id": "MechanicalEquilibriumEquation",
+      "evidence": "they solved the mechanical equilibrium equation (Eq. 16) and obtained the local stress tensor (Eq. 17)."
+    },
+    {
+      "relationship_id": "DerivedFrom",
+      "from_entity_type": "ModelEquation",
+      "from_entity_id": "ModifiedButlerVolmerPhaseFieldEquation",
+      "to_entity_type": "ModelEquation",
+      "to_entity_id": "AllenCahnEquation",
+      "evidence": "Eq. 11 represents a modified form of the Butler–Volmer formulation"
+    },
+    {
+      "relationship_id": "ConstrainsEquation",
+      "from_entity_type": "Assumption",
+      "from_entity_id": "DiffuseInterface",
+      "to_entity_type": "ModelEquation",
+      "to_entity_id": "AllenCahnEquation",
+      "evidence": "the model avoids numerical difficulties caused by discontinuous interfaces and can accurately capture the evolution of the transition zone."
+    },
+    {
+      "relationship_id": "ConstrainsEquation",
+      "from_entity_type": "Assumption",
+      "from_entity_id": "ConservedConcentrationWithoutReaction",
+      "to_entity_type": "ModelEquation",
+      "to_entity_id": "CahnHilliardEquation",
+      "evidence": "If there is no chemical reaction, the concentration variable are conserved variables and follows the Cahn-Hilliard equation"
+    },
+    {
+      "relationship_id": "ConstrainsEquation",
+      "from_entity_type": "Assumption",
+      "from_entity_id": "UniformChargeDistribution",
+      "to_entity_type": "ModelEquation",
+      "to_entity_id": "PoissonEquation",
+      "evidence": "considering the charge distribution to be uniform. The Poisson equation (Eq. 6) is then used to maintain potential balance."
+    },
+    {
+      "relationship_id": "AppliesToMaterialSystem",
+      "from_entity_type": "Assumption",
+      "from_entity_id": "LinearElasticity",
+      "to_entity_type": "MaterialSystem",
+      "to_entity_id": "Li Metal | Solid Electrolyte",
+      "evidence": "Considering the electrolyte and anode as linear elastic materials"
+    },
+    {
+      "relationship_id": "TriggersEffect",
+      "from_entity_type": "Condition",
+      "from_entity_id": "HighOverpotential",
+      "to_entity_type": "Effect",
+      "to_entity_id": "GrowthRateIncrease",
+      "evidence": "as the overpotential increases, the dendrite growth rate accelerates significantly"
+    },
+    {
+      "relationship_id": "TriggersEffect",
+      "from_entity_type": "Condition",
+      "from_entity_id": "HighOverpotential",
+      "to_entity_type": "Effect",
+      "to_entity_id": "BranchingDegreeIncrease",
+      "evidence": "leading to more pronounced dendritic branching"
+    },
+    {
+      "relationship_id": "TriggersEffect",
+      "from_entity_type": "Condition",
+      "from_entity_id": "HighTemperature",
+      "to_entity_type": "Effect",
+      "to_entity_id": "MorphologyShiftToFibrous",
+      "evidence": "With increasing temperature, the dendrite morphology evolves from tip-splitting tree-like to fibrous."
+    },
+    {
+      "relationship_id": "TriggersEffect",
+      "from_entity_type": "Condition",
+      "from_entity_id": "HighElectrolyteConcentration",
+      "to_entity_type": "Effect",
+      "to_entity_id": "DendriteSizeDecrease",
+      "evidence": "increasing the electrolyte concentration can significantly reduce dendrite size"
+    },
+    {
+      "relationship_id": "TriggersEffect",
+      "from_entity_type": "Condition",
+      "from_entity_id": "AppliedPressure",
+      "to_entity_type": "Effect",
+      "to_entity_id": "MechanicalSuppressionIncrease",
+      "evidence": "applied pressure promotes LiF formation, thereby increasing the Young’s modulus of the SEI film."
+    },
+    {
+      "relationship_id": "TriggersEffect",
+      "from_entity_type": "Condition",
+      "from_entity_id": "HighYoungsModulus",
+      "to_entity_type": "Effect",
+      "to_entity_id": "DendritePenetrationSuppression",
+      "evidence": "higher Young’s modulus corresponds to greater mechanical suppression capability, effectively impeding lithium dendrite penetration."
+    },
+    {
+      "relationship_id": "TriggersEffect",
+      "from_entity_type": "Condition",
+      "from_entity_id": "SEIPorosityPresent",
+      "to_entity_type": "Effect",
+      "to_entity_id": "DendriteSuppression",
+      "evidence": "confirming that the SEI layer can suppress dendritic development"
+    }
   ]
 }
