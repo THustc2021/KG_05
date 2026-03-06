@@ -454,7 +454,7 @@ def render_graph(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], heigh
             n["id"],
             label=n["id"],
             title=build_tooltip(n),
-            group=n["entity_type"],
+            group=n["group"],
         )
 
     for e in edges:
