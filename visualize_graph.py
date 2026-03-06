@@ -49,19 +49,6 @@ def uniq_edges(edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             out.append(e)
     return out
 
-def build_tooltip(node):
-    lines = []
-    for k, v in node.items():
-        if k == "id":
-            continue
-
-        if isinstance(v, list):
-            v = ", ".join(map(str, v))
-
-        lines.append(f"{k}: {v}")
-
-    return "\n".join(lines)
-
 # =========================
 # Ontology 严格解析
 # =========================
@@ -421,7 +408,54 @@ def validate_property_references(
 # 可视化
 # =========================
 
-def build_graph(nodes_by_id: Dict[str, Dict[str, Any]], edges_raw: List[Dict[str, Any]]):
+def format_tooltip_value(v):
+    if v is None:
+        return "None"
+    if isinstance(v, list):
+        if not v:
+            return "[]"
+        return "\n  - " + "\n  - ".join(str(x) for x in v)
+    if isinstance(v, dict):
+        if not v:
+            return "{}"
+        return "\n".join(f"  {kk}: {vv}" for kk, vv in v.items())
+    return str(v)
+
+
+def build_node_tooltip(node_id: str, node: Dict[str, Any], schema: Dict[str, Any]) -> str:
+    entity_type = node["entity_type"]
+    data = node["data"]
+
+    # 这些属性已经会被抽成 relationship，不再在 tooltip 里重复显示
+    ref_prop_names = {
+        spec["property_name"]
+        for spec in schema["entity_ref_props"].get(entity_type, [])
+    }
+
+    lines = [f"entity_type: {entity_type}"]
+
+    for k, v in data.items():
+        if k.endswith("_id"):   # 跳过主键/id类字段
+            continue
+        if k in ref_prop_names: # 跳过会被抽成关系的引用属性
+            continue
+        lines.append(f"{k}: {format_tooltip_value(v)}")
+
+    return "\n".join(lines)
+
+
+def build_edge_tooltip(e: Dict[str, Any]) -> str:
+    return "\n".join([
+        f"type: {e['relationship_id']}",
+        f"source: {e['source']}",
+    ])
+
+
+def build_graph(
+    nodes_by_id: Dict[str, Dict[str, Any]],
+    edges_raw: List[Dict[str, Any]],
+    schema: Dict[str, Any],
+):
     nodes = []
     edges = []
 
@@ -430,7 +464,7 @@ def build_graph(nodes_by_id: Dict[str, Dict[str, Any]], edges_raw: List[Dict[str
             "id": node_id,
             "label": node_id,
             "group": node["entity_type"],
-            "title": f"entity_type: {node['entity_type']}<br>id: {node_id}",
+            "title": build_node_tooltip(node_id, node, schema),
         })
 
     for e in edges_raw:
@@ -438,7 +472,7 @@ def build_graph(nodes_by_id: Dict[str, Dict[str, Any]], edges_raw: List[Dict[str
             "from": e["from_entity"],
             "to": e["to_entity"],
             "label": e["relationship_id"],
-            "title": f"type: {e['relationship_id']}<br>source: {e['source']}",
+            "title": build_edge_tooltip(e),
             "source": e["source"],
         })
 
@@ -452,8 +486,8 @@ def render_graph(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], heigh
     for n in nodes:
         net.add_node(
             n["id"],
-            label=n["id"],
-            title=build_tooltip(n),
+            label=n["label"],
+            title=n["title"],
             group=n["group"],
         )
 
@@ -632,7 +666,7 @@ if show_explicit:
 if show_property:
     edges_raw.extend(property_rels)
 
-nodes, edges = build_graph(nodes_by_id, edges_raw)
+nodes, edges = build_graph(nodes_by_id, edges_raw, schema)
 
 left, right = st.columns([3, 1])
 
