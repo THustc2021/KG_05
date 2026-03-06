@@ -407,26 +407,70 @@ def validate_property_references(
 # =========================
 # 可视化
 # =========================
+import re
+import textwrap
+from typing import Dict, Any, List
+from pyvis.network import Network
 
-def format_tooltip_value(v):
+
+def wrap_text(text: Any, width: int = 48) -> str:
+    s = "" if text is None else str(text)
+    return textwrap.fill(s, width=width, break_long_words=False, break_on_hyphens=False)
+
+
+def pretty_label(name: str, max_line_len: int = 14) -> str:
+    parts = re.findall(r"[A-Z][a-z0-9]*|[A-Z]+(?=[A-Z][a-z]|$)", str(name))
+    if not parts:
+        return str(name)
+
+    lines = []
+    current = []
+    current_len = 0
+
+    for p in parts:
+        add_len = len(p) if not current else len(p) + 1
+        if current and current_len + add_len > max_line_len:
+            lines.append(" ".join(current))
+            current = [p]
+            current_len = len(p)
+        else:
+            current.append(p)
+            current_len += add_len
+
+    if current:
+        lines.append(" ".join(current))
+
+    return "\n".join(lines)
+
+
+def format_tooltip_value(v: Any, width: int = 48) -> str:
     if v is None:
         return "None"
 
     if isinstance(v, list):
         if not v:
             return "[]"
-        return "<br>&nbsp;&nbsp;• " + "<br>&nbsp;&nbsp;• ".join(str(x) for x in v)
+        out = []
+        for item in v:
+            wrapped = wrap_text(item, width=width)
+            wrapped = wrapped.replace("\n", "\n    ")
+            out.append(f"  - {wrapped}")
+        return "\n".join(out)
 
     if isinstance(v, dict):
         if not v:
             return "{}"
-        return "<br>".join(f"&nbsp;&nbsp;{kk}: {vv}" for kk, vv in v.items())
+        out = []
+        for kk, vv in v.items():
+            wrapped = wrap_text(vv, width=width)
+            wrapped = wrapped.replace("\n", "\n    ")
+            out.append(f"  {kk}: {wrapped}")
+        return "\n".join(out)
 
-    return str(v)
+    return wrap_text(v, width=width)
 
 
-def build_node_tooltip(node_id: str, node: Dict[str, Any], schema: Dict[str, Any]):
-
+def build_node_tooltip(node_id: str, node: Dict[str, Any], schema: Dict[str, Any]) -> str:
     entity_type = node["entity_type"]
     data = node["data"]
 
@@ -434,43 +478,46 @@ def build_node_tooltip(node_id: str, node: Dict[str, Any], schema: Dict[str, Any
         spec["property_name"]
         for spec in schema["entity_ref_props"].get(entity_type, [])
     }
+    id_field = schema["entity_id_field"][entity_type]
 
-    lines = []
+    lines = [str(node_id), str(entity_type), ""]
 
     for k, v in data.items():
-
-        id_field = schema["entity_id_field"][entity_type]
-
         if k == id_field:
             continue
-
         if k in ref_prop_names:
             continue
 
-        lines.append(f"<b>{k}</b>: {format_tooltip_value(v)}")
+        formatted = format_tooltip_value(v, width=48)
+        if "\n" in formatted:
+            lines.append(f"{k}:")
+            lines.append(formatted)
+        else:
+            lines.append(f"{k}: {formatted}")
 
-    content = "<br>".join(lines)
-
-    return f"""
-    <div style="
-        max-width: 320px;
-        white-space: normal;
-        word-break: break-word;
-        line-height: 1.4;
-    ">
-    <b>{node_id}</b><br>
-    <i>{entity_type}</i>
-    <hr>
-    {content}
-    </div>
-    """
+    return "\n".join(lines)
 
 
 def build_edge_tooltip(e: Dict[str, Any]) -> str:
-    return "\n".join([
+    lines = [
         f"type: {e['relationship_id']}",
         f"source: {e['source']}",
-    ])
+    ]
+    return "\n".join(lines)
+
+
+def node_size_by_type(entity_type: str) -> int:
+    size_map = {
+        "Phenomenon": 42,
+        "Effect": 34,
+        "Condition": 34,
+        "Parameter": 30,
+        "Term": 30,
+        "SimulationModel": 38,
+        "ModelEquation": 36,
+        "MaterialSystem": 36,
+    }
+    return size_map.get(entity_type, 32)
 
 
 def build_graph(
@@ -482,11 +529,13 @@ def build_graph(
     edges = []
 
     for node_id, node in nodes_by_id.items():
+        entity_type = node["entity_type"]
         nodes.append({
             "id": node_id,
-            "label": node_id,
-            "group": node["entity_type"],
+            "label": pretty_label(node_id),
+            "group": entity_type,
             "title": build_node_tooltip(node_id, node, schema),
+            "size": node_size_by_type(entity_type),
         })
 
     for e in edges_raw:
@@ -496,14 +545,20 @@ def build_graph(
             "label": e["relationship_id"],
             "title": build_edge_tooltip(e),
             "source": e["source"],
+            "arrows": "to",
         })
 
     return nodes, uniq_edges(edges)
 
 
-def render_graph(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], height: int = 850):
-    net = Network(height=f"{height}px", width="100%", directed=True, bgcolor="white", font_color="black")
-    net.barnes_hut()
+def render_graph(nodes, edges, output_html="graph.html"):
+    net = Network(
+        height="900px",
+        width="100%",
+        bgcolor="#ffffff",
+        font_color="#222222",
+        directed=True,
+    )
 
     for n in nodes:
         net.add_node(
@@ -511,6 +566,7 @@ def render_graph(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], heigh
             label=n["label"],
             title=n["title"],
             group=n["group"],
+            size=n.get("size", 32),
         )
 
     for e in edges:
@@ -519,43 +575,65 @@ def render_graph(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], heigh
             e["to"],
             label=e["label"],
             title=e["title"],
-            arrows="to",
+            arrows=e.get("arrows", "to"),
         )
 
     net.set_options("""
     const options = {
       "interaction": {
         "hover": true,
+        "tooltipDelay": 120,
         "navigationButtons": true,
         "keyboard": true
+      },
+      "nodes": {
+        "shape": "dot",
+        "scaling": {
+          "min": 20,
+          "max": 50
+        },
+        "font": {
+          "size": 22,
+          "face": "Arial",
+          "multi": "md",
+          "vadjust": -2
+        },
+        "borderWidth": 2
+      },
+      "edges": {
+        "smooth": {
+          "type": "dynamic"
+        },
+        "width": 1.6,
+        "selectionWidth": 2.5,
+        "arrows": {
+          "to": {
+            "enabled": true,
+            "scaleFactor": 0.7
+          }
+        },
+        "font": {
+          "size": 10,
+          "align": "middle",
+          "strokeWidth": 0
+        }
       },
       "physics": {
         "enabled": true,
         "barnesHut": {
-          "gravitationalConstant": -9000,
-          "centralGravity": 0.15,
-          "springLength": 140,
-          "springConstant": 0.04
-        }
-      },
-      "nodes": {
-        "shape": "dot",
-        "size": 40,
-        "font": {"size": 30}
-      },
-      "edges": {
-        "smooth": {"type": "dynamic"},
-        "font": {"size": 11, "align": "middle"}
+          "gravitationalConstant": -5000,
+          "centralGravity": 0.18,
+          "springLength": 165,
+          "springConstant": 0.03,
+          "damping": 0.18,
+          "avoidOverlap": 0.2
+        },
+        "minVelocity": 0.75
       }
     }
     """)
 
-    with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as f:
-        f.write(net.generate_html())
-        html_path = f.name
-
-    html = Path(html_path).read_text(encoding="utf-8")
-    components.html(html, height=height, scrolling=True)
+    net.write_html(output_html)
 
 
 # =========================
